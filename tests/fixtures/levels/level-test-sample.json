@@ -1,0 +1,48 @@
+{
+  "schema_version": 1,
+  "id": "9.9",
+  "chapter": 9,
+  "title": "Level thử nghiệm",
+  "difficulty": "easy",
+  "concepts": [
+    "variables"
+  ],
+  "briefing": "Level giả chỉ dùng trong test.",
+  "starter_code": "a = \"5\"\nketqua = a\n",
+  "locked_lines": [
+    1
+  ],
+  "inputs": [
+    "a"
+  ],
+  "objectives": [
+    {
+      "var": "ketqua",
+      "type": "int",
+      "label": "Kết quả"
+    }
+  ],
+  "alert_limit_statements": 2,
+  "float_abs_tolerance": 1e-09,
+  "tests": [
+    {
+      "inputs": {
+        "a": "5"
+      },
+      "expected": {
+        "ketqua": 5
+      }
+    }
+  ],
+  "counter_attack_tests": [],
+  "hints": [
+    "một",
+    "hai",
+    "ba"
+  ],
+  "reactions": {
+    "generic": "Có gì đó không khớp."
+  },
+  "outro": "Xong.",
+  "lore_fragment": ""
+}

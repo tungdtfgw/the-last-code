@@ -1,0 +1,11 @@
+node_modules
+dist
+playwright-report
+test-results
+__pycache__
+*.pyc
+.DS_Store
+
+# Local agent runtime state and logs
+.claude/hooks/.logs/
+.claude/hooks/.agentkit-runtime.json

@@ -1,0 +1,1 @@
+- [Review tooling limits](project-review-tooling-limits.md) — node_modules access blocked by hook; scratch vitest probes can't resolve deps

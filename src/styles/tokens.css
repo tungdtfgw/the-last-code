@@ -1,0 +1,108 @@
+/*
+ * MÃ CUỐI CÙNG – design tokens
+ *
+ * Register:  Product (game cockpit).
+ * Scene:     A first-year student at night, laptop on a dorm desk, lights low, playing Kai
+ *            crouched at the North Gate with a stolen offline laptop. Tense, focused, reading
+ *            code and logs for long stretches.
+ * Direction: Intrusion terminal crossed with security hardware, because the fiction is a
+ *            2089 offline laptop facing a gate scanner. Cold, quiet chrome; colour is spent
+ *            only on data types, the player's own signal and alarms.
+ * Color:     Restrained chrome + fixed semantic type palette (GDD 5.2).
+ *            bg oklch(15% 0.014 222), text oklch(91% 0.012 222), accent (player signal,
+ *            primary action, focus) phosphor teal oklch(84% 0.13 178).
+ *            str yellow, int blue, float purple, bool red. Alarm is orange-red with a
+ *            hazard hatch, an icon and a word, so it never relies on hue alone and never
+ *            reads as a bool packet.
+ * Type:      Chakra Petch (squared display: labels, headings, ECHO) + JetBrains Mono
+ *            (code, logs, data). Both self-hosted with the Vietnamese subset.
+ * Signature: The scanner gate: type-coloured data packets sliding into a scanner beam,
+ *            and ECHO's wireframe face that tears into RGB slices when it speaks.
+ * Dials:     variance 3, motion 6, density 7.
+ */
+:root {
+  color-scheme: dark;
+  --hue: 222;
+
+  /* Neutral ramp, cold-tinted. */
+  --n-0: oklch(11.5% 0.012 var(--hue));
+  --n-1: oklch(15% 0.014 var(--hue));
+  --n-2: oklch(18.5% 0.016 var(--hue));
+  --n-3: oklch(22.5% 0.018 var(--hue));
+  --n-4: oklch(29% 0.02 var(--hue));
+  --n-5: oklch(38% 0.022 var(--hue));
+  --n-6: oklch(60% 0.022 var(--hue));
+  --n-7: oklch(72% 0.018 var(--hue));
+  --n-8: oklch(84% 0.014 var(--hue));
+  --n-9: oklch(93% 0.01 var(--hue));
+
+  /* Roles. */
+  --bg: var(--n-1);
+  --bg-deep: var(--n-0);
+  --surface: var(--n-2);
+  --surface-raised: var(--n-3);
+  --line: var(--n-4);
+  --line-strong: var(--n-5);
+  --text: var(--n-9);
+  --text-muted: var(--n-7);
+  --text-faint: var(--n-6);
+
+  --signal: oklch(84% 0.13 178);
+  --signal-dim: oklch(84% 0.13 178 / 0.14);
+  --signal-ink: oklch(16% 0.03 178);
+  --focus: oklch(86% 0.14 178);
+
+  --alarm: oklch(74% 0.18 48);
+  --alarm-dim: oklch(74% 0.18 48 / 0.16);
+  --alarm-ink: oklch(18% 0.04 48);
+  --omni: oklch(70% 0.19 12);
+  --ok: oklch(80% 0.15 150);
+
+  /* Data types (fixed language, GDD 5.2). */
+  --type-str: oklch(88% 0.16 95);
+  --type-int: oklch(72% 0.15 255);
+  --type-float: oklch(73% 0.16 305);
+  --type-bool: oklch(66% 0.2 22);
+  --type-other: oklch(66% 0.012 var(--hue));
+
+  /* Type. */
+  --font-display: "Chakra Petch", "JetBrains Mono", system-ui, sans-serif;
+  --font-mono: "JetBrains Mono", ui-monospace, "SF Mono", Menlo, monospace;
+  --text-2xs: 0.6875rem; /* 11 micro labels */
+  --text-xs: 0.75rem; /* 12 meta */
+  --text-sm: 0.8125rem; /* 13 logs */
+  --text-base: 0.875rem; /* 14 body, code */
+  --text-md: 1rem; /* 16 ECHO, buttons */
+  --text-lg: 1.25rem; /* 20 panel titles */
+  --text-xl: 1.5rem; /* 24 level title */
+  --text-2xl: 2.25rem; /* 36 result headline */
+  --leading-tight: 1.2;
+  --leading: 1.55;
+  --tracking-label: 0.08em;
+
+  /* Space (4pt). */
+  --s-1: 4px;
+  --s-2: 8px;
+  --s-3: 12px;
+  --s-4: 16px;
+  --s-5: 20px;
+  --s-6: 24px;
+  --s-7: 32px;
+  --s-8: 48px;
+
+  /* Shape: chamfered hardware, small radius only for chips. */
+  --radius: 2px;
+  --chamfer: 10px;
+  --control-h: 44px;
+
+  /* Motion. */
+  --ease-out: cubic-bezier(0.22, 1, 0.36, 1);
+  --t-fast: 120ms;
+  --t-state: 200ms;
+  --t-move: 420ms;
+
+  /* Layers. */
+  --z-sticky: 10;
+  --z-overlay: 20;
+  --z-modal: 30;
+}

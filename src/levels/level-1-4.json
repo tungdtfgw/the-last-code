@@ -1,0 +1,108 @@
+{
+  "schema_version": 1,
+  "id": "1.4",
+  "chapter": 1,
+  "title": "Tín hiệu lệch pha",
+  "difficulty": "medium",
+  "concepts": [
+    "type_conversion"
+  ],
+  "briefing": "[NHẬT KÝ HỆ THỐNG – CỔNG PHÍA BẮC]\nChip Neural-ID thu hồi từ một người đã chết. Dữ liệu còn đọc được, nhưng đã bị mã hóa thành chuỗi ký tự.\nMáy quét chỉ chấp nhận số. Gửi chuỗi vào máy quét sẽ kích hoạt báo động.",
+  "starter_code": "# Dữ liệu đọc từ chip (KHÔNG được sửa 3 dòng này)\ntuoi = \"27\"\nchieu_cao = \"1.72\"\ncap_do = \"3\"\n\n# Mã xác thực = tuổi × 100 + cấp độ\nma_xac_thuc = tuoi * 100 + cap_do\n\n# Chỉ số sinh học = chiều cao × 2, làm tròn 2 chữ số\nchi_so = chieu_cao * 2\n\nhop_le = \"True\"\n",
+  "locked_lines": [
+    2,
+    3,
+    4
+  ],
+  "inputs": [
+    "tuoi",
+    "chieu_cao",
+    "cap_do"
+  ],
+  "objectives": [
+    {
+      "var": "ma_xac_thuc",
+      "type": "int",
+      "label": "Mã xác thực = tuổi × 100 + cấp độ"
+    },
+    {
+      "var": "chi_so",
+      "type": "float",
+      "label": "Chỉ số sinh học = chiều cao × 2, làm tròn 2 chữ số"
+    },
+    {
+      "var": "hop_le",
+      "type": "bool",
+      "label": "Cờ hợp lệ"
+    }
+  ],
+  "alert_limit_statements": 8,
+  "float_abs_tolerance": 1e-09,
+  "tests": [
+    {
+      "inputs": {
+        "tuoi": "27",
+        "chieu_cao": "1.72",
+        "cap_do": "3"
+      },
+      "expected": {
+        "ma_xac_thuc": 2703,
+        "chi_so": 3.44,
+        "hop_le": true
+      }
+    }
+  ],
+  "counter_attack_tests": [
+    {
+      "inputs": {
+        "tuoi": "31.0",
+        "chieu_cao": "1.65",
+        "cap_do": "7"
+      },
+      "expected": {
+        "ma_xac_thuc": 3107,
+        "chi_so": 3.3,
+        "hop_le": true
+      }
+    }
+  ],
+  "counter_attack_banner": "CẢNH BÁO: OMNI ĐÃ THAY ĐỔI ĐỊNH DẠNG CHIP",
+  "hints": [
+    "Máy quét không đọc được ý nghĩa. Nó chỉ đọc… hình dạng của dữ liệu.",
+    "Dữ liệu cần được chuyển hình dạng trước khi tính toán. Thứ tự chuyển đổi… quan trọng.",
+    "Mảnh tài liệu Python còn đọc được:\nint(\"42\")        → 42\nint(7.9)         → 7      (cắt bỏ phần thập phân)\nfloat(\"2.5\")     → 2.5\nfloat(3)         → 3.0\nround(2.71828, 3) → 2.718\nMỗi hàm nhận một giá trị và trả về giá trị mới mang hình dạng khác. Giá trị gốc không đổi."
+  ],
+  "reactions": {
+    "entry": "Kết nối… ổn định. Tôi là ECHO. Mô-đun viết mã của tôi đã cháy. Tôi chỉ còn đọc. Máy quét phía trước chỉ nhận số.",
+    "type_mismatch": "Máy quét từ chối {vars}. Sai hình dạng. Nó không đọc nội dung… chỉ đọc hình dạng.",
+    "type_mismatch_value_match": "Con số của {vars} khớp. Hình dạng thì không. Với máy quét, đó vẫn là vật lạ.",
+    "wrong_value": "Hình dạng đúng. Con số sai. {vars} không khớp mẫu máy quét chờ.",
+    "missing_var": "Sau khi chạy, bộ nhớ không có {vars}. Máy quét không có gì để đọc.",
+    "SyntaxError": "Dòng {line}. Trình dịch không hiểu cấu trúc này. Chưa câu lệnh nào được chạy.",
+    "IndentationError": "Dòng {line}. Lề trái lệch. Với Python, khoảng trắng… là ngữ pháp.",
+    "TypeError": "Dòng {line}. TypeError. Hai thứ khác hình dạng vừa bị ép vào cùng một phép toán.",
+    "ValueError": "Dòng {line}. ValueError. Nội dung bên trong không chuyển được sang hình dạng đó.",
+    "NameError": "Dòng {line}. NameError. Một cái tên được gọi khi chưa từng tồn tại. Soát từng ký tự.",
+    "ZeroDivisionError": "Dòng {line}. Chia cho không. Lõi từ chối.",
+    "AttributeError": "Dòng {line}. AttributeError. Dữ liệu này không mang thứ bạn đang gọi.",
+    "runtime_error": "Dòng {line}. {error_type}. Chương trình dừng giữa chừng. Đọc dòng truy vết.",
+    "timeout": "Mã chạy quá lâu. Tôi cắt kết nối… trước khi OMNI lần ra dấu.",
+    "resource_limit": "Bộ nhớ quá tải. Tôi đã cắt tiến trình để giữ laptop sống.",
+    "blocked_import": "Mô-đun đó bị phong tỏa. Ở Vùng Tối, ta chỉ có những gì đang cầm trong tay.",
+    "input_unsupported": "Không có ai ở đầu kia để trả lời. Dữ liệu đã nằm sẵn trong chip.",
+    "system_exit": "Chương trình tự cắt giữa chừng. Máy quét không nhận được gì.",
+    "alert_exceeded": "Qua máy quét. Nhưng {count} câu lệnh… Sentinel đã ghi nhận tín hiệu. Chạy gọn hơn.",
+    "counter_ValueError": "OMNI đổi định dạng chip. Dòng {line} vỡ: ValueError. Dữ liệu mới mang hình dạng bạn chưa lường.",
+    "counter_error": "OMNI đổi dữ liệu. Dòng {line}: {error_type}. Mã không chịu được.",
+    "counter_type_mismatch": "Dữ liệu mới đi qua mã của bạn… và ra sai hình dạng ở {vars}.",
+    "wrong_value_counter": "OMNI đổi dữ liệu chip. Kết quả của bạn không đổi theo. Nó được viết cho một con chip đã chết.",
+    "counter_timeout": "OMNI đổi dữ liệu chip. Mã của bạn treo trên dữ liệu mới… Tôi cắt kết nối. Cổng chỉ mở một nửa.",
+    "two_stars": "Qua cổng. Không để lại dấu vết.",
+    "three_stars": "Cổng mở hoàn toàn. OMNI đổi dữ liệu, mã vẫn đứng vững. …Tôi ghi nhận điều đó.",
+    "repeated_fail": "Cùng một lỗi, lần thứ {count}. Nhật ký gợi ý vẫn ở đây. Tôi chỉ hỏi được… không trả lời thay.",
+    "engine_error": "Lõi Python không phản hồi. Đang khởi động lại…",
+    "generic": "Có gì đó không khớp. Đọc lại kết quả máy quét."
+  },
+  "outro": "Cổng phía Bắc mở. Trong bộ nhớ chip còn sót một dòng log chưa bị xóa:",
+  "lore_fragment": "KTS-03: Nếu ai đọc được dòng này, mảnh đầu tiên nằm dưới Cổng Kiểm Soát. Đừng tin tín hiệu nào mang mã 0xA7."
+}
