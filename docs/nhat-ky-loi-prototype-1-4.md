@@ -49,6 +49,7 @@ Nguồn chi tiết: `plans/reports/cook-261024-2332-level-1-4-prototype.md`, `pl
 | Hộp kết quả che câu ECHO về lượt phản công (playtest 25/10) | ECHO chỉ nói trong panel nằm dưới hộp thoại | Hộp kết quả nhắc lại câu ECHO của lượt chạy |
 | Nút gợi ý đang chờ xác nhận tự hủy sau 5 giây, người chơi tưởng nút hỏng (playtest 25/10) | Bộ hẹn giờ 5 giây | Giữ trạng thái chờ tới khi bấm chỗ khác hoặc nhấn Esc |
 | Bỏ qua hiệu ứng mở đầu khi Python vừa nạp từ cache: thanh cảnh báo đã hiện mà briefing còn dở (25/10) | `useTypewriter` chỉ hiện đủ chữ qua effect, chậm một nhịp render; luồng chính bận nên nhịp đó kéo dài | Chế độ "full"/"hidden" tính thẳng trong lúc render; tiến độ gõ gắn với (chữ, key) để dòng mới không hiện lại độ dài cũ |
+| Trên điện thoại, khi chat ECHO dài ra (có gợi ý đã giải mã), nút đóng ✕ của khung chat bấm không được (25/10) | Khung chat là tấm `position: fixed` cao tối đa 85dvh, mép trên chạm hàng tab có nút ECHO. Hai phần tử cùng `z-index: auto` trong `.echo-dock`, nút ECHO đứng sau trong DOM nên vẽ đè lên nút ✕ | Trên màn < 768px, khung chat có `z-index: 1`, nằm trên nút ECHO |
 
 ## 4. Lỗi âm thanh
 
@@ -71,6 +72,8 @@ Nguồn chi tiết: `plans/reports/cook-261024-2332-level-1-4-prototype.md`, `pl
 | Sau khi game mở ở tab "Nhiệm vụ" trên điện thoại, test âm thanh tìm nút tắt tiếng ở tab "Mã" đang ẩn | Test thất bại, game không lỗi | Đổi thứ tự trong test: chuyển tab rồi mới kiểm nút |
 | `page.goto("/#/level/1.4")` hai lần liên tiếp không tải lại trang (25/10) | Cùng URL chỉ khác/giống hash là điều hướng trong tài liệu, màn "VÀO NHIỆM VỤ" đã qua nên test chờ mãi | Gọi `page.reload()` khi cần bắt đầu lại từ đầu |
 | Nhấn Esc ngay khi URL vừa đổi sang `#/story/…` đôi khi không bỏ qua được (25/10) | Vỏ game đọc tiến độ (bất đồng bộ) trước khi dựng màn đoạn truyện; phím rơi vào khoảng trống đó | Test chờ nút BỎ QUA hiện rồi mới nhấn phím |
+| Từ hộp kết quả sang "Tổng kết kiến thức", test nhấn Enter mà không qua được màn tổng kết (Chromium, 25/10) | `location.hash = …` đổi URL ngay, nhưng màn chỉ đổi khi `hashchange` tới (chậm khoảng 20ms ở Chromium). Trong khoảng đó màn level và hộp kết quả vẫn còn, nút TIẾP TỤC của hộp đang có focus; helper tìm theo vai trò khớp nhầm nút đó và tiêu đề level | Helper `continueFromResults` chỉ tìm tiêu đề và nút trong `.learn-screen` |
+| Test dòng khóa báo khối khóa bị đẩy xuống một dòng sau khi chọn tất cả rồi xóa (25/10) | Dòng trống của CodeMirror là `<div><br></div>`, `innerText` là `"\n"`; helper `editorText` nối các dòng nên mỗi dòng trống thành hai. Editor vẫn đúng | `editorText` bỏ ký tự xuống dòng ở cuối mỗi dòng |
 
 ## 6. Giới hạn còn lại (chưa phải lỗi)
 

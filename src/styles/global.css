@@ -3820,6 +3820,8 @@ kbd {
 
   .echo-chat {
     position: fixed;
+    /* A tall sheet reaches the tabs row; without this the ECHO button (later in the DOM) covers its close button. */
+    z-index: 1;
     left: 0;
     right: 0;
     bottom: 0;

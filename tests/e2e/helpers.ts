@@ -37,8 +37,11 @@ export async function continueFromResults(page: Page, levelId: string) {
   await page.locator("dialog[open]").getByRole("button", { name: "TIẾP TỤC" }).click();
   await expect(page).toHaveURL(new RegExp(`#/(learn|story)/(after-)?${levelId.replace(".", "\\.")}$`));
   if (!page.url().includes("#/learn/")) return;
-  await expect(page.getByRole("heading", { level: 1 })).toBeVisible();
-  const next = page.getByRole("button", { name: "TIẾP TỤC" });
+  // The URL changes before `hashchange` re-renders, so the level screen and its results
+  // dialog (also a focused TIẾP TỤC) can still be up: look inside the summary screen only.
+  const screen = page.locator(".learn-screen");
+  await expect(screen.getByRole("heading", { level: 1 })).toBeVisible();
+  const next = screen.getByRole("button", { name: "TIẾP TỤC" });
   await expect(next).toBeFocused();
   await page.keyboard.press("Enter");
 }
@@ -86,7 +89,8 @@ export async function replaceEditableCode(page: Page, text: string, fromLine = 5
 }
 
 export async function editorText(page: Page) {
-  return (await page.locator(".cm-content .cm-line").allInnerTexts()).join("\n");
+  // An empty line is `<div><br></div>`, whose innerText is "\n": strip it so blank lines count once.
+  return (await page.locator(".cm-content .cm-line").allInnerTexts()).map((t) => t.replace(/\n$/, "")).join("\n");
 }
 
 /** Run and wait for the animation to finish (run button back to "CHẠY" or a result dialog). */
