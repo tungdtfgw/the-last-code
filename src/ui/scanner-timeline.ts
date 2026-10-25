@@ -1,6 +1,7 @@
 import type { Cue } from "../audio/sound-recipes";
 import type { RunOutcome, VarVerdict } from "../game/classify-run";
-import type { LevelDefinition } from "../game/level-types";
+import { varObjectives, type InputValue, type LevelDefinition } from "../game/level-types";
+import { formatPyLiteral } from "../game/python-literal";
 import { gateFor, type GateState } from "../game/terminal-lines";
 import { toneOf, type TypeTone } from "./type-colors";
 
@@ -68,14 +69,15 @@ const scene = (over: Partial<Scene> & Pick<Scene, "packets">): Scene => ({
   ...over,
 });
 
-const inputsLabel = (level: LevelDefinition, inputs: Record<string, string>) =>
-  level.inputs.map((n) => `${n} = ${JSON.stringify(inputs[n] ?? "")}`).join("  ");
+/** Chip line in Python syntax: `tuoi = "27"  cap_do = "3"`, `ma_phien = 4096` (shared with the relay). */
+export const inputsLabel = (level: LevelDefinition, inputs: Record<string, InputValue>) =>
+  level.inputs.map((n) => `${n} = ${formatPyLiteral(inputs[n] ?? "")}`).join("  ");
 
 /** Scene shown while Python runs (before any outcome). */
 export function runningScene(level: LevelDefinition): Scene {
   const inputs = level.tests[0]?.inputs ?? {};
   return scene({
-    packets: level.objectives.map((o) => ({ ...rawPacket(o.var, ""), preview: "…", width: 64 })),
+    packets: varObjectives(level).map((o) => ({ ...rawPacket(o.var, ""), preview: "…", width: 64 })),
     scanner: "scanning",
     status: "ĐANG XỬ LÝ",
     chip: inputsLabel(level, inputs),
@@ -94,7 +96,7 @@ function failureLabel(v: VarVerdict): string {
   return "HỢP LỆ";
 }
 
-function errorStatus(outcome: RunOutcome): string {
+export function errorStatus(outcome: RunOutcome): string {
   if (outcome.key === "engine_error") return "LÕI PYTHON KHÔNG PHẢN HỒI";
   if (outcome.stopStatus === "timeout" || outcome.key === "timeout") return "TIẾN TRÌNH BỊ CẮT";
   if (outcome.stopStatus === "resource_limit") return "BỘ NHỚ QUÁ TẢI";
@@ -250,5 +252,7 @@ export function summarize(frames: Frame[]): string {
   const last = frames[frames.length - 1]?.scene;
   if (!last) return "";
   const gate = last.gate === "open" ? "mở hoàn toàn" : last.gate === "half" ? "mở một nửa" : "đóng";
+  // "CỔNG MỞ HOÀN TOÀN" already says it; do not repeat it as a second sentence.
+  if (last.status.toLowerCase().includes(`cổng ${gate}`)) return `Máy quét: ${last.status}.`;
   return `Máy quét: ${last.status}. Cổng ${gate}.`;
 }

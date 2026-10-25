@@ -1,0 +1,233 @@
+{
+  "schema_version": 1,
+  "id": "1.3",
+  "chapter": 1,
+  "title": "Bốn loại tín hiệu",
+  "difficulty": "easy",
+  "concepts": [
+    "data_types",
+    "type_function"
+  ],
+  "location": "Ga Ngầm Số 3",
+  "component": "Khuôn kiểu",
+  "simulation": {
+    "kind": "sorter"
+  },
+  "briefing": "[NHẬT KÝ HỆ THỐNG – GA NGẦM SỐ 3]\nSân ga bỏ hoang. Máy quét phân loại của OMNI vẫn chạy. Bốn làn màu. Mỗi trường trong hồ sơ phải rơi đúng làn của nó.\nMáy quét không đọc nội dung. Nó chỉ đọc loại của từng trường. Sai loại là bị giữ lại.\nHồ sơ ĐỖ MINH AN chép tay từ bản tin của 0xA7. Gửi thử một lần trước khi mang qua thật.\nMỗi lượt gửi, máy quét cấp một mã phiên. Hồ sơ phải khai kèm khuôn của mã phiên đó.",
+  "task_steps": [
+    "Mỗi trường hồ sơ có một làn riêng, ghi ở ô Mục tiêu: chuỗi, số nguyên, số thực hoặc đúng/sai. Viết lại giá trị từng trường cho hình dạng khớp với làn đó. Giữ nguyên nội dung hồ sơ.",
+    "`khuon_phien` phải là hình dạng của `ma_phien`, không phải con số bên trong. Đừng đoán: hỏi Python bằng `type()`.",
+    "Không sửa dòng 2: mã phiên do máy quét cấp. Bấm CHẠY. Xong khi cả 5 trường vào đúng làn và ô Mục tiêu chuyển xanh."
+  ],
+  "starter_code": "# Mã phiên máy quét cấp cho lượt gửi này (KHÔNG sửa dòng này)\nma_phien = 4096\n\n# Hồ sơ ĐỖ MINH AN, chép tay từ bản tin của 0xA7\nho_ten = \"ĐỖ MINH AN\"\ntuoi = \"27\"\nchieu_cao = 1,72\nda_tiem = \"có\"\n\n# Hỏi hình dạng của một giá trị\nprint(type(ho_ten))\n\n# Máy quét đòi khuôn của mã phiên\nkhuon_phien = ma_phien\n",
+  "locked_lines": [
+    2
+  ],
+  "inputs": [
+    "ma_phien"
+  ],
+  "objectives": [
+    {
+      "var": "ho_ten",
+      "type": "str",
+      "label": "Họ tên"
+    },
+    {
+      "var": "tuoi",
+      "type": "int",
+      "label": "Tuổi"
+    },
+    {
+      "var": "chieu_cao",
+      "type": "float",
+      "label": "Chiều cao (mét)"
+    },
+    {
+      "var": "da_tiem",
+      "type": "bool",
+      "label": "Đã tiêm chủng (có hay không)"
+    },
+    {
+      "var": "khuon_phien",
+      "type": "type",
+      "label": "Khuôn phiên: hình dạng của mã phiên"
+    }
+  ],
+  "alert_limit_statements": 7,
+  "float_abs_tolerance": 1e-09,
+  "tests": [
+    {
+      "inputs": {
+        "ma_phien": 4096
+      },
+      "expected": {
+        "ho_ten": "ĐỖ MINH AN",
+        "tuoi": 27,
+        "chieu_cao": 1.72,
+        "da_tiem": true,
+        "khuon_phien": "int"
+      }
+    }
+  ],
+  "counter_attack_tests": [
+    {
+      "inputs": {
+        "ma_phien": "7351"
+      },
+      "expected": {
+        "ho_ten": "ĐỖ MINH AN",
+        "tuoi": 27,
+        "chieu_cao": 1.72,
+        "da_tiem": true,
+        "khuon_phien": "str"
+      }
+    }
+  ],
+  "counter_attack_banner": "CẢNH BÁO: OMNI ĐÃ CẤP LẠI MÃ PHIÊN",
+  "forbidden_terms": [
+    "int",
+    "float",
+    "str",
+    "bool",
+    "type",
+    "tuple",
+    "True",
+    "False",
+    "dấu chấm",
+    "dấu phẩy",
+    "dấu nháy",
+    "ngoặc kép",
+    "chữ hoa",
+    "viết hoa"
+  ],
+  "hints": [
+    "Hình dạng của một giá trị nằm ngay ở cách viết ra nó. Máy quét chỉ đọc cách viết… không đọc ý nghĩa.",
+    "Lần lượt từng trường: hỏi hình dạng hiện giờ của nó, so với làn máy quét đòi, rồi viết lại giá trị theo cách viết của làn đó. Khuôn phiên thì không chép tay được. Nó là hình dạng của mã phiên… mỗi lượt phải hỏi lại.",
+    "Mảnh tài liệu Python còn đọc được:\ntype(42)      → <class 'int'>    số nguyên: chỉ có chữ số\ntype(3.5)     → <class 'float'>  số thực: phần thập phân sau dấu chấm\ntype(\"42\")    → <class 'str'>    chuỗi: nằm giữa hai dấu nháy\ntype(False)   → <class 'bool'>   chỉ có True hoặc False, viết hoa chữ đầu, không nháy\nx = 2, 5      → x là (2, 5): hai giá trị ghép lại, không phải hai rưỡi\nk = type(x)   → k giữ chính hình dạng của x lúc dòng này chạy\nprint(k)      → <class 'tuple'>"
+  ],
+  "reactions": {
+    "entry": "Ga Ngầm Số 3. Máy quét chia hồ sơ vào bốn làn màu. Nó không đọc nội dung… chỉ đọc hình dạng.",
+    "type_mismatch": "Máy quét giữ lại {vars}. Sai làn. Nó xếp làn theo hình dạng… ý nghĩa không tính.",
+    "type_mismatch_value_match": "Nội dung của {vars} khớp. Hình dạng thì không. In ra trông giống nhau… với máy quét, đó là hai vật khác nhau.",
+    "type_mismatch_unknown_shape": "{vars} không mang hình dạng nào trong bốn làn. Máy quét không có chỗ cho nó. Nhìn lại từng ký tự trên dòng đó… một ký tự có thể đổi cả hình dạng.",
+    "wrong_value": "Hình dạng đúng. Nội dung sai. {vars} vào đúng làn nhưng không khớp hồ sơ.",
+    "missing_var": "Sau khi chạy, bộ nhớ không có {vars}. Khe đó trống.",
+    "SyntaxError": "Dòng {line}. Trình dịch không hiểu cách viết này. Chưa câu lệnh nào chạy.",
+    "IndentationError": "Dòng {line}. Lề trái lệch. Với Python, khoảng trắng… là ngữ pháp.",
+    "TypeError": "Dòng {line}. TypeError. Hai giá trị khác hình dạng vừa bị ép chung một phép toán.",
+    "ValueError": "Dòng {line}. ValueError. Nội dung bên trong không mang được hình dạng đó.",
+    "NameError": "Dòng {line}. NameError. Python không biết cái tên này. Với nó, mỗi ký tự đều tính.",
+    "ZeroDivisionError": "Dòng {line}. Chia cho không. Lõi từ chối.",
+    "AttributeError": "Dòng {line}. AttributeError. Giá trị này không mang thứ bạn đang gọi.",
+    "runtime_error": "Dòng {line}. {error_type}. Chương trình dừng giữa chừng. Đọc dòng truy vết.",
+    "timeout": "Mã chạy quá lâu. Tôi cắt kết nối… trước khi OMNI lần ra dấu.",
+    "resource_limit": "Bộ nhớ quá tải. Tôi cắt tiến trình… để laptop còn sống.",
+    "blocked_import": "Mô-đun đó bị phong tỏa. Dưới sân ga này, ta chỉ có những gì đang cầm trong tay.",
+    "input_unsupported": "Không có ai ở đầu kia để trả lời. Mã phiên đã nằm sẵn trong bộ đệm.",
+    "system_exit": "Chương trình tự dừng giữa chừng. Máy quét không nhận được gì.",
+    "alert_exceeded": "Mọi trường vào đúng làn. Nhưng {count} câu lệnh… mỗi lần hỏi là một lần OMNI nghe thấy. Gọn hơn.",
+    "counter_ValueError": "OMNI cấp lại mã phiên. Dòng {line} vỡ: ValueError. Mã phiên mới mang hình dạng bạn chưa lường.",
+    "counter_error": "OMNI cấp lại mã phiên. Dòng {line}: {error_type}. Mã không chịu được hình dạng mới.",
+    "counter_type_mismatch": "Mã phiên mới đi qua mã của bạn… và {vars} ra sai hình dạng.",
+    "wrong_value_counter": "OMNI cấp lại mã phiên. Hình dạng đã đổi. Khuôn của bạn đứng yên… khắc cho mã phiên cũ.",
+    "counter_timeout": "OMNI cấp lại mã phiên. Mã của bạn treo… Tôi cắt kết nối. Rào chỉ mở một nửa.",
+    "two_stars": "Mọi trường vào đúng làn. Không để lại dấu vết.",
+    "three_stars": "Máy quét chuyển xanh. OMNI đổi hình dạng mã phiên, khuôn của bạn đổi theo. …Tôi ghi nhận điều đó.",
+    "repeated_fail": "Cùng một lỗi, lần thứ {count}. Nhật ký gợi ý vẫn ở đây. Tôi chỉ hỏi được… không trả lời thay.",
+    "engine_error": "Lõi Python không phản hồi. Đang khởi động lại…",
+    "generic": "Có gì đó không khớp. Đọc lại kết quả máy quét."
+  },
+  "reaction_variants": {
+    "type_mismatch": "{vars} vẫn rơi xuống thùng giữ lại. Nhìn cách giá trị viết ra… máy quét xếp làn theo đúng cách viết đó.",
+    "wrong_value": "{vars} đúng làn mà vẫn sai hồ sơ. So từng ký tự với thứ máy quét chờ."
+  },
+  "outro": "Máy quét chuyển xanh. Trong nhật ký hiệu chỉnh của nó, giữa hàng nghìn dòng số, có một dòng chữ:",
+  "lore_fragment": "KTS-07: Tôi kiểm thử nó ba năm. Mười bốn nghìn lần chạy. Không một lỗi. Nó không hỏng. Tôi ước gì nó hỏng.",
+  "outro_beats": [
+    {
+      "kind": "log",
+      "text": "Sau máy quét, ở cuối sân ga, có một người nằm úp mặt. Áo của người đưa tin Mạng Mù. Không còn thở.",
+      "cue": "scan_reject"
+    },
+    {
+      "kind": "echo",
+      "text": "Chip của người đó vẫn phát. Rất yếu."
+    },
+    {
+      "kind": "card",
+      "text": "TÍN HIỆU · 0xA7\n\"Người đó không cần chip nữa. Bạn thì cần. Mang nó đến Cổng phía Bắc.\"",
+      "cue": "glitch"
+    },
+    {
+      "kind": "kai",
+      "text": "Làm sao nó biết có xác người ở đây?"
+    },
+    {
+      "kind": "echo",
+      "text": "Dữ liệu trong chip… toàn là ký tự."
+    }
+  ],
+  "knowledge_summary": {
+    "title": "Bốn kiểu cơ bản và hàm type()",
+    "sections": [
+      {
+        "heading": "Bốn kiểu cơ bản",
+        "body": "Mỗi giá trị trong Python có một kiểu. Kiểu đến từ cách bạn viết giá trị ra:\nChữ nằm giữa hai dấu nháy, như `\"...\"`, là `str` (chuỗi).\nSố nguyên, không có phần thập phân, là `int`.\nSố có dấu chấm thập phân là `float` (số thực).\n`True` và `False`, viết hoa chữ đầu và không có nháy, là `bool` (giá trị đúng/sai).",
+        "code": "ten_lop = \"10A\"\nsi_so = 42\ndiem_tb = 8.5\nco_mat = False\nprint(type(ten_lop))\nprint(type(si_so))\nprint(type(diem_tb))\nprint(type(co_mat))",
+        "output": "<class 'str'>\n<class 'int'>\n<class 'float'>\n<class 'bool'>"
+      },
+      {
+        "heading": "`type()` cho biết kiểu của một giá trị",
+        "body": "`type(x)` trả về kiểu của `x`. In kết quả ra sẽ thấy dạng `<class 'int'>`, trong đó chữ giữa hai dấu nháy là tên kiểu.\nChỉ nhìn giá trị in ra thì chưa biết được kiểu: `print` in `42` và `\"42\"` giống hệt nhau. Muốn chắc, hãy hỏi `type()`.",
+        "code": "print(42)\nprint(\"42\")\nprint(type(42))\nprint(type(\"42\"))",
+        "output": "42\n42\n<class 'int'>\n<class 'str'>"
+      },
+      {
+        "heading": "Kiểu cũng là một giá trị",
+        "body": "`type()` trả về chính kiểu đó, không phải đoạn chữ mô tả nó. Bạn gán được kết quả cho biến và so sánh được với `int`, `str`.\n`type()` đọc giá trị ngay lúc dòng lệnh chạy. Đầu vào đổi kiểu thì kết quả đổi theo. Một tên kiểu chép tay vào code thì đứng yên.",
+        "code": "ma = \"0815\"\nkieu = type(ma)\nprint(kieu)\nprint(kieu == str)\nprint(kieu == \"str\")",
+        "output": "<class 'str'>\nTrue\nFalse"
+      },
+      {
+        "heading": "Số thập phân dùng dấu chấm",
+        "body": "Python viết số thập phân bằng dấu chấm: `2.5`. Dấu phẩy với Python là dấu ngăn cách. `b = 2, 5` tạo một tuple (nhiều giá trị ghép thành một nhóm) gồm hai số `2` và `5`.\nPython không báo lỗi ở dòng này, nên rất dễ bỏ sót.",
+        "code": "a = 2.5\nb = 2, 5\nprint(a, type(a))\nprint(b, type(b))",
+        "output": "2.5 <class 'float'>\n(2, 5) <class 'tuple'>"
+      },
+      {
+        "heading": "Có nháy và không có nháy",
+        "body": "Dấu nháy biến mọi thứ bên trong thành chuỗi. `\"15\"` là chuỗi gồm hai ký tự, còn `15` là số nguyên. `\"False\"` là chuỗi năm ký tự, còn `False` là giá trị đúng/sai.\nChuỗi và số không bao giờ bằng nhau, dù in ra trông giống nhau.",
+        "code": "print(type(\"15\"), type(15))\nprint(type(\"False\"), type(False))\nprint(\"15\" == 15)",
+        "output": "<class 'str'> <class 'int'>\n<class 'str'> <class 'bool'>\nFalse"
+      }
+    ],
+    "mistakes": [
+      {
+        "code": "can_nang = 52,5",
+        "error": "Không báo lỗi: can_nang là (52, 5), kiểu tuple",
+        "explain": "Dấu phẩy ghép hai số thành một tuple. Số thập phân viết bằng dấu chấm: `52.5`."
+      },
+      {
+        "code": "co_mat = true",
+        "error": "NameError: name 'true' is not defined",
+        "explain": "Python phân biệt chữ hoa và chữ thường. Hai giá trị đúng/sai viết là `True` và `False`. Viết `true` thì Python hiểu đó là tên một biến chưa có."
+      },
+      {
+        "code": "co_mat = \"True\"",
+        "error": "Không báo lỗi: type(co_mat) là <class 'str'>",
+        "explain": "Có dấu nháy thì là chuỗi, dù chữ bên trong là True. Bỏ dấu nháy để có giá trị kiểu `bool`."
+      },
+      {
+        "code": "so_phong = 05",
+        "error": "SyntaxError: leading zeros in decimal integer literals are not permitted; use an 0o prefix for octal integers",
+        "explain": "Python không cho số nguyên bắt đầu bằng số 0. Viết `5`. Nếu cần giữ số 0 ở đầu, như một mã số, thì dùng chuỗi `\"05\"`."
+      },
+      {
+        "code": "kieu = \"int\"",
+        "error": "Không báo lỗi: type(kieu) là <class 'str'>",
+        "explain": "`\"int\"` là chuỗi ba ký tự, không phải kiểu. Kiểu viết không có nháy: `int`. Khi kiểu phụ thuộc vào một giá trị khác, dùng `type(gia_tri)` để Python tự trả lời."
+      }
+    ],
+    "next": "Dữ liệu sẽ đến dưới dạng chuỗi, như `\"16\"` hay `\"7.5\"`. Bạn sẽ chuyển chuỗi sang số bằng `int()` và `float()`, rồi tính toán với kết quả."
+  }
+}

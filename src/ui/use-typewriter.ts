@@ -20,7 +20,10 @@ export function useTypewriter(text: string, opts: TypewriterOptions = {}): strin
   const onDone = useRef(opts.onDone);
   onTick.current = opts.onTick;
   onDone.current = opts.onDone;
-  const [shown, setShown] = useState(mode === "full" ? text.length : 0);
+  // `shown` belongs to one (text, key); a new line starts from zero in the same render.
+  const [progress, setProgress] = useState({ text, key, n: mode === "full" ? text.length : 0 });
+  const shown = progress.text === text && progress.key === key ? progress.n : 0;
+  const setShown = (n: number) => setProgress({ text, key, n });
 
   useEffect(() => {
     if (mode !== "typing") {
@@ -42,5 +45,9 @@ export function useTypewriter(text: string, opts: TypewriterOptions = {}): strin
     return () => clearInterval(id);
   }, [text, key, mode, msPerChar, tickEvery]);
 
+  // "full"/"hidden" are decided during render: waiting for the effect would leave one
+  // render with stale text, visible when the main thread is busy.
+  if (mode === "full") return text;
+  if (mode === "hidden") return "";
   return text.slice(0, shown);
 }

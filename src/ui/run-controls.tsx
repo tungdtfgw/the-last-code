@@ -1,4 +1,5 @@
 import { forwardRef, useEffect, useState } from "react";
+import { MuteButton } from "./mute-button";
 import type { GameState } from "../game/game-reducer";
 
 interface Props {
@@ -6,6 +7,8 @@ interface Props {
   canRun: boolean;
   editorReady: boolean;
   muted: boolean;
+  /** No run yet on this level: the run button glows until the first one. */
+  firstRun: boolean;
   onRun(): void;
   onReset(): void;
   onToggleMute(): void;
@@ -23,7 +26,7 @@ function runLabel(state: GameState): string {
 const isMac = typeof navigator !== "undefined" && /Mac|iPhone|iPad/.test(navigator.platform);
 
 export const RunControls = forwardRef<HTMLButtonElement, Props>(function RunControls(
-  { state, canRun, editorReady, muted, onRun, onReset, onToggleMute },
+  { state, canRun, editorReady, muted, firstRun, onRun, onReset, onToggleMute },
   runRef,
 ) {
   const [armedReset, setArmedReset] = useState(false);
@@ -40,7 +43,7 @@ export const RunControls = forwardRef<HTMLButtonElement, Props>(function RunCont
       <button
         ref={runRef}
         type="button"
-        className={`btn btn-run${busy ? " is-busy" : ""}`}
+        className={`btn btn-run${busy ? " is-busy" : ""}${firstRun && !busy ? " is-first-run" : ""}`}
         // aria-disabled (not disabled) keeps keyboard focus on the button while a run plays.
         onClick={() => canRun && onRun()}
         aria-disabled={!canRun}
@@ -65,17 +68,7 @@ export const RunControls = forwardRef<HTMLButtonElement, Props>(function RunCont
       >
         {armedReset ? "Xác nhận khôi phục" : "Khôi phục mã gốc"}
       </button>
-      <button type="button" className="btn btn-icon" aria-pressed={muted} onClick={onToggleMute} title="Phím tắt: M" aria-keyshortcuts="M">
-        <svg viewBox="0 0 20 20" aria-hidden="true" width="18" height="18">
-          <path d="M3 8h3l4-3.5v11L6 12H3z" fill="currentColor" />
-          {muted ? (
-            <path d="M13 7.5l4.5 5M17.5 7.5l-4.5 5" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" />
-          ) : (
-            <path d="M13 7a4 4 0 0 1 0 6M15 5a7 7 0 0 1 0 10" stroke="currentColor" strokeWidth="1.4" fill="none" strokeLinecap="round" />
-          )}
-        </svg>
-        <span>{muted ? "BẬT TIẾNG" : "TẮT TIẾNG"}</span>
-      </button>
+      <MuteButton muted={muted} onToggle={onToggleMute} />
     </div>
   );
 });

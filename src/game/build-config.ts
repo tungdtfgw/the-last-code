@@ -1,5 +1,5 @@
 import { fullAlertStatements } from "./alert";
-import type { LevelDefinition } from "./level-types";
+import { simulationOf, varObjectives, type LevelDefinition } from "./level-types";
 
 export const RUN_LIMITS = {
   max_line_events: 100_000,
@@ -12,11 +12,13 @@ export const RUN_LIMITS = {
 export function buildConfig(level: LevelDefinition): string {
   return JSON.stringify({
     inputs: level.inputs,
-    objectives: level.objectives.map((o) => ({ var: o.var, type: o.type })),
+    objectives: varObjectives(level).map((o) => ({ var: o.var, type: o.type })),
     tests: level.tests,
     counter_attack_tests: level.counter_attack_tests,
     float_abs_tolerance: level.float_abs_tolerance,
     counter_line_count_cap: fullAlertStatements(level.alert_limit_statements),
     limits: RUN_LIMITS,
+    // Assignment history: only the kiosk plays it back.
+    trace_vars: simulationOf(level).kind === "kiosk",
   });
 }

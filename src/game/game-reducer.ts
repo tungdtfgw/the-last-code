@@ -18,6 +18,15 @@ export interface EchoState extends EchoLine {
   id: number;
 }
 
+/** One line in the level's ECHO chat history (session only, never persisted). */
+export interface ChatMessage extends EchoState {
+  tag: "entry" | "run" | "hint";
+  /** Run number for a reaction (`tag: "run"`). */
+  run?: number;
+  /** Hint level for a decoded hint (`tag: "hint"`). */
+  hint?: number;
+}
+
 export interface GameState {
   phase: GamePhase;
   runnerStatus: RunnerStatus;
@@ -30,6 +39,8 @@ export interface GameState {
   pending: { outcome: RunOutcome; echo: EchoLine; terminal: TerminalLine[] } | null;
   history: ReactionKey[];
   echo: EchoState;
+  /** Everything ECHO said this session, oldest first; the last entry is always `echo`. */
+  chat: ChatMessage[];
   terminal: TerminalLine[];
   lastRunStars: StarCount | null;
   dialogOpen: boolean;
@@ -38,7 +49,8 @@ export interface GameState {
 
 export type GameAction =
   | { type: "runner_status"; status: RunnerStatus; detail: RunnerStatusDetail }
-  | { type: "progress_loaded"; progress: LevelProgress; notice?: string }
+  /** `hints`: the level's hint texts, so hints decoded in an earlier session reappear in the chat. */
+  | { type: "progress_loaded"; progress: LevelProgress; notice?: string; hints?: readonly string[] }
   | { type: "progress_saved"; progress: LevelProgress }
   | { type: "run_started" }
   | { type: "run_aborted" }
@@ -51,6 +63,7 @@ export type GameAction =
   | { type: "fatal"; fatal: FatalInfo };
 
 const MAX_TERMINAL_LINES = 120;
+const MAX_CHAT_MESSAGES = 80;
 
 export function initialGameState(entry: string): GameState {
   return {
@@ -64,6 +77,7 @@ export function initialGameState(entry: string): GameState {
     pending: null,
     history: [],
     echo: { primary: entry, id: 1 },
+    chat: [{ primary: entry, id: 1, tag: "entry" }],
     terminal: [{ id: 1, tone: "muted", text: "> Kết nối laptop offline… chờ lõi Python." }],
     lastRunStars: null,
     dialogOpen: false,
@@ -79,6 +93,12 @@ export const canRun = (s: GameState) =>
 function appendTerminal(old: TerminalLine[], lines: TerminalLine[]): TerminalLine[] {
   let id = old.at(-1)?.id ?? 0;
   return [...old, ...lines.map((l) => ({ ...l, id: ++id }))].slice(-MAX_TERMINAL_LINES);
+}
+
+/** ECHO says a new line: it becomes the current line and joins the chat history. */
+function say(state: GameState, line: EchoLine, meta: Pick<ChatMessage, "tag" | "run" | "hint">): GameState {
+  const echo: EchoState = { ...line, id: state.echo.id + 1 };
+  return { ...state, echo, chat: [...state.chat, { ...echo, ...meta }].slice(-MAX_CHAT_MESSAGES) };
 }
 
 export function gameReducer(state: GameState, action: GameAction): GameState {
@@ -97,14 +117,22 @@ export function gameReducer(state: GameState, action: GameAction): GameState {
       }
       return next;
     }
-    case "progress_loaded":
+    case "progress_loaded": {
+      // Hints decoded in an earlier session go before the entry line: they are older
+      // context, and the entry line stays the newest (the one the bubble shows).
+      const restored: ChatMessage[] = (action.hints ?? [])
+        .slice(0, action.progress.hintsOpened)
+        .map((text, i) => ({ primary: text, id: -(i + 1), tag: "hint", hint: i + 1 }));
+      const chat = state.progressLoaded || restored.length === 0 ? state.chat : [...restored, ...state.chat];
       return {
         ...state,
+        chat,
         progress: action.progress,
         progressLoaded: true,
         notice: action.notice ?? null,
         terminal: action.notice ? appendTerminal(state.terminal, [{ tone: "alarm", text: `> ${action.notice}` }]) : state.terminal,
       };
+    }
     case "progress_saved":
       return { ...state, progress: action.progress };
     case "run_started":
@@ -130,24 +158,22 @@ export function gameReducer(state: GameState, action: GameAction): GameState {
       if (state.phase !== "animating" || !state.pending) return state;
       const { outcome, echo, terminal } = state.pending;
       return {
-        ...state,
+        ...say(state, echo, { tag: "run", run: state.progress.runs }),
         phase: "ready",
         pending: null,
         history: [...state.history, outcome.key],
-        echo: { ...echo, id: state.echo.id + 1 },
         terminal: appendTerminal(state.terminal, terminal),
         dialogOpen: outcome.stars >= 1,
         progress: { ...state.progress, bestStars: Math.max(state.progress.bestStars, outcome.stars) as StarCount },
       };
     }
     case "echo_say":
-      return { ...state, echo: { ...action.line, id: state.echo.id + 1 } };
+      return say(state, action.line, { tag: "entry" });
     case "hint_opened":
       if (action.level !== state.progress.hintsOpened + 1) return state;
       return {
-        ...state,
+        ...say(state, { primary: action.text }, { tag: "hint", hint: action.level }),
         progress: { ...state.progress, hintsOpened: action.level },
-        echo: { primary: action.text, id: state.echo.id + 1 },
       };
     case "close_dialog":
       return { ...state, dialogOpen: false };

@@ -8,6 +8,11 @@ export interface LevelProgress {
   updatedAt: string;
 }
 
+/** Story segments the player has seen (played to the end or skipped). */
+export interface StoryProgress {
+  seen: string[];
+}
+
 export interface Settings {
   muted: boolean;
 }
@@ -23,6 +28,9 @@ export interface ProgressRepository {
   updateLevel(levelId: string, patch: Partial<LevelProgress>): Promise<LevelProgress>;
   getSettings(): Promise<Settings>;
   updateSettings(patch: Partial<Settings>): Promise<Settings>;
+  getStory(): Promise<StoryProgress>;
+  /** Adds `id` to the seen set; the set only ever grows. */
+  markStorySeen(id: string): Promise<StoryProgress>;
   /** Called when `persistent` flips to false mid-session. */
   onPersistenceLost(listener: () => void): () => void;
 }
@@ -76,4 +84,23 @@ export function mergeLevelProgress(old: LevelProgress, patch: Partial<LevelProgr
     runs: Math.max(old.runs, next.runs),
     updatedAt: now.toISOString(),
   };
+}
+
+const MAX_STORY_ID = 64;
+const MAX_STORY_ENTRIES = 200;
+
+/** Repair a stored story record: a list of 1–64 char ids, deduplicated. Anything malformed reads as "nothing seen". */
+export function sanitizeStory(raw: unknown): StoryProgress {
+  const seen = raw && typeof raw === "object" ? (raw as { seen?: unknown }).seen : undefined;
+  if (!Array.isArray(seen)) return { seen: [] };
+  const ok = seen.filter((id): id is string => typeof id === "string" && id.length >= 1 && id.length <= MAX_STORY_ID);
+  return { seen: [...new Set(ok)].slice(0, MAX_STORY_ENTRIES) };
+}
+
+/**
+ * Merge rule for seen stories, shared by every implementation and by a future
+ * account merge: set union in first-seen order, never removes an entry.
+ */
+export function mergeStory(a: StoryProgress, b: StoryProgress): StoryProgress {
+  return sanitizeStory({ seen: [...a.seen, ...b.seen] });
 }

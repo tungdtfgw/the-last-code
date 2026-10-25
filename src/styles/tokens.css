@@ -58,16 +58,24 @@
   --omni: oklch(70% 0.19 12);
   --ok: oklch(80% 0.15 150);
 
+  /* Story voices: system logs read pale teal, Kai's narration warm white. */
+  --voice-log: oklch(86% 0.07 178);
+  --voice-kai: oklch(93% 0.03 75);
+  --city-dot: oklch(78% 0.06 200);
+
   /* Data types (fixed language, GDD 5.2). */
   --type-str: oklch(88% 0.16 95);
   --type-int: oklch(72% 0.15 255);
   --type-float: oklch(73% 0.16 305);
   --type-bool: oklch(66% 0.2 22);
   --type-other: oklch(66% 0.012 var(--hue));
+  --type-shape: oklch(94% 0.01 var(--hue));
 
   /* Type. */
   --font-display: "Chakra Petch", "JetBrains Mono", system-ui, sans-serif;
   --font-mono: "JetBrains Mono", ui-monospace, "SF Mono", Menlo, monospace;
+  /* Plain instructions and the knowledge summary: out of the game voice, easy to read. */
+  --font-prose: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
   --text-2xs: 0.6875rem; /* 11 micro labels */
   --text-xs: 0.75rem; /* 12 meta */
   --text-sm: 0.8125rem; /* 13 logs */
@@ -93,6 +101,8 @@
   /* Shape: chamfered hardware, small radius only for chips. */
   --radius: 2px;
   --chamfer: 10px;
+  --echo-fab-h: 54px;
+  --echo-shadow: 0 10px 28px oklch(0% 0 0 / 0.5);
   --control-h: 44px;
 
   /* Motion. */

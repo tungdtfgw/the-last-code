@@ -1,6 +1,6 @@
 import { expect, test, type Page } from "@playwright/test";
 import { PYODIDE_MODULE_URL } from "../../src/engine/pyodide-config";
-import { SOLUTION_67, replaceEditableCode, runAndWait, waitForPythonReady } from "./helpers";
+import { LEVEL_URL, SOLUTION_67, replaceEditableCode, runAndWait, waitForPythonReady } from "./helpers";
 
 let online = true;
 test.beforeAll(async () => {
@@ -27,6 +27,8 @@ const CUES = new Set([
   "echo_voice",
   "teletype",
   "objective_lock",
+  "pulse",
+  "glitch",
 ]);
 
 /** Instrument before any app code runs: the probe array and an AudioContext constructor counter. */
@@ -59,7 +61,7 @@ async function firstGesture(page: Page) {
 
 test("sound: nothing before a gesture, then every cue fires; mute silences and persists (E3, E4)", async ({ page }) => {
   await instrument(page);
-  await page.goto("/");
+  await page.goto(LEVEL_URL);
   await waitForPythonReady(page);
   // No AudioContext and no sound before the first user gesture.
   expect(await page.evaluate(() => (window as unknown as { __ctxCount: number }).__ctxCount)).toBe(0);

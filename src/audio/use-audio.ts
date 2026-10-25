@@ -8,6 +8,8 @@ export interface AudioControls {
   toggleMute: () => void;
   /** Call from a user gesture; resolves once audio is running (or known to be unavailable). */
   unlock: () => Promise<void>;
+  /** True once the page saw its first pointer/key gesture, even if audio could not start. */
+  gestured: boolean;
 }
 
 /**
@@ -19,6 +21,7 @@ export function useAudio(repository: ProgressRepository): AudioControls {
   engineRef.current ??= new AudioEngine();
   const [muted, setMuted] = useState(false);
   const mutedRef = useRef(false);
+  const [gestured, setGestured] = useState(false);
 
   useEffect(() => {
     let alive = true;
@@ -36,6 +39,7 @@ export function useAudio(repository: ProgressRepository): AudioControls {
   useEffect(() => {
     const engine = engineRef.current!;
     const unlock = () => {
+      setGestured(true);
       void engine.unlock().then(() => {
         if (engine.isUnlocked) GESTURES.forEach((g) => window.removeEventListener(g, unlock, true));
       });
@@ -64,7 +68,10 @@ export function useAudio(repository: ProgressRepository): AudioControls {
     void repository.updateSettings({ muted: next });
   }, [repository]);
 
-  const unlock = useCallback(() => engineRef.current?.unlock() ?? Promise.resolve(), []);
+  const unlock = useCallback(() => {
+    setGestured(true);
+    return engineRef.current?.unlock() ?? Promise.resolve();
+  }, []);
 
-  return { play, muted, toggleMute, unlock };
+  return { play, muted, toggleMute, unlock, gestured };
 }

@@ -81,6 +81,40 @@ describe("AudioEngine", () => {
     expect(engine.play("run")).toBe(true);
   });
 
+  test("a cue asked for while the gesture's unlock is still resuming plays once audio runs", async () => {
+    // Enter on a focused button: its keydown starts the unlock and its click starts the story
+    // in the same task, before resume() settles (real browsers switch state asynchronously).
+    const g = globalThis as { __TLC_AUDIO_PROBE__?: { event: string }[] };
+    g.__TLC_AUDIO_PROBE__ = [];
+    try {
+      const { engine, ctx } = setup();
+      let settle!: () => void;
+      ctx.resume = vi.fn(() => new Promise<void>((r) => (settle = () => ((ctx.state = "running"), r()))));
+      const unlocking = engine.unlock();
+      engine.play("pulse");
+      engine.play("pulse");
+      expect(g.__TLC_AUDIO_PROBE__.map((e) => e.event)).toEqual(["context"]);
+      settle();
+      await unlocking;
+      expect(g.__TLC_AUDIO_PROBE__.map((e) => e.event)).toEqual(["context", "unlock", "ambient", "pulse"]);
+      expect(engine.play("pulse")).toBe(false); // the replayed cue counts for the throttle
+    } finally {
+      delete g.__TLC_AUDIO_PROBE__;
+    }
+  });
+
+  test("a cue queued during a refused unlock is dropped, not replayed later", async () => {
+    const { engine, ctx, tick } = setup();
+    ctx.refuseResume = true;
+    const unlocking = engine.unlock();
+    engine.play("pulse");
+    await unlocking;
+    ctx.refuseResume = false;
+    tick(1000);
+    await engine.unlock();
+    expect(engine.play("pulse")).toBe(true);
+  });
+
   test("mute silences immediately and survives unlock (E4)", async () => {
     const { engine, tick } = setup();
     engine.setMuted(true);

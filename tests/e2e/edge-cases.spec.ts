@@ -1,6 +1,6 @@
 import { expect, test, type Page } from "@playwright/test";
 import { PYODIDE_MODULE_URL } from "../../src/engine/pyodide-config";
-import { SOLUTION_67, editorText, enterMission, replaceEditableCode, runAndWait, showTab, syntheticDrop, waitForPythonReady } from "./helpers";
+import { LEVEL_URL, SOLUTION_67, editorText, enterMission, replaceEditableCode, runAndWait, showTab, syntheticDrop, waitForPythonReady } from "./helpers";
 
 let online = true;
 test.beforeAll(async () => {
@@ -22,7 +22,7 @@ test.describe.serial("edge cases in one session", () => {
   let page: Page;
   test.beforeAll(async ({ browser }) => {
     page = await browser.newPage();
-    await page.goto("/");
+    await page.goto(LEVEL_URL);
     await enterMission(page);
     await waitForPythonReady(page);
   });
@@ -94,7 +94,7 @@ test.describe.serial("edge cases in one session", () => {
     await expect(dialog).toContainText("Chống được OMNI phản công");
     await page.getByRole("button", { name: "Tối ưu tiếp" }).click();
     await expect(terminal(page)).toContainText("TIẾN TRÌNH BỊ CẮT KHI OMNI PHẢN CÔNG");
-    await expect(page.locator(".echo .sr-only")).toContainText("Mã của bạn treo trên dữ liệu mới");
+    await expect(page.locator(".echo-live")).toContainText("Mã của bạn treo trên dữ liệu mới");
     await waitForPythonReady(page, 60_000);
     await replaceEditableCode(page, SOLUTION_67);
     await runAndWait(page);
@@ -106,7 +106,7 @@ test.describe.serial("edge cases in one session", () => {
 test("reduced motion: plays to 3 stars, no glitch/shake/typewriter, nothing hidden (E8)", async ({ browser }) => {
   const context = await browser.newContext({ reducedMotion: "reduce" });
   const page = await context.newPage();
-  await page.goto("/");
+  await page.goto(LEVEL_URL);
   await enterMission(page);
   await waitForPythonReady(page);
   await replaceEditableCode(page, SOLUTION_67);
@@ -128,7 +128,7 @@ test("reduced motion: plays to 3 stars, no glitch/shake/typewriter, nothing hidd
       skipButton: [...document.querySelectorAll("button")].some((b) => b.textContent?.includes("Bỏ qua hoạt cảnh")),
       beam: dur(".scanner-beam"),
       lamp: dur(".sentinel-lamp"),
-      echoVisible: document.querySelector(".echo-line")?.textContent ?? "",
+      echoVisible: document.querySelector(".echo-bubble .echo-line")?.textContent ?? "",
     };
   });
   expect(state.speaking).toBe(0);
@@ -137,7 +137,7 @@ test("reduced motion: plays to 3 stars, no glitch/shake/typewriter, nothing hidd
   expect(state.skipButton).toBe(false);
   expect(state.beam).toBeLessThan(0.01);
   expect(state.lamp).toBeLessThan(0.01);
-  // The ECHO line is shown in full at once (no typewriter hiding text).
+  // The ECHO bubble shows the line in full at once (no typewriter hiding text).
   expect(state.echoVisible).toBe("Cổng mở hoàn toàn. OMNI đổi dữ liệu, mã vẫn đứng vững. …Tôi ghi nhận điều đó.");
   await showTab(page, "Mô phỏng");
   await expect(page.locator(".sim-status")).toHaveText("CỔNG MỞ HOÀN TOÀN");
@@ -145,7 +145,7 @@ test("reduced motion: plays to 3 stars, no glitch/shake/typewriter, nothing hidd
 });
 
 test("very large value: 10^8-char string graded, only a preview crosses postMessage (A26)", async ({ page }) => {
-  await page.goto("/");
+  await page.goto(LEVEL_URL);
   await enterMission(page);
   await waitForPythonReady(page);
   await replaceEditableCode(page, '\nma_xac_thuc = "x" * 10**8\nchi_so = 3.44\nhop_le = True\n');
@@ -164,13 +164,13 @@ test("no module-worker support: in-world unsupported-browser screen (C4)", async
       }
     } as typeof Worker;
   });
-  await page.goto("/");
+  await page.goto(LEVEL_URL);
   await expect(page.getByRole("heading", { name: "TRÌNH DUYỆT KHÔNG HỖ TRỢ" })).toBeVisible();
   await expect(page.getByText("Chrome hoặc Edge 80+")).toBeVisible();
 });
 
 test("layout holds at 1280, 768 and 360 px wide (E1)", async ({ page }) => {
-  await page.goto("/");
+  await page.goto(LEVEL_URL);
   for (const width of [1280, 768, 360]) {
     await page.setViewportSize({ width, height: 800 });
     await page.waitForTimeout(150);
@@ -181,7 +181,7 @@ test("layout holds at 1280, 768 and 360 px wide (E1)", async ({ page }) => {
 });
 
 test("colour is never the only signal: type labels on packets, icon + word on alarms (E9)", async ({ page }) => {
-  await page.goto("/");
+  await page.goto(LEVEL_URL);
   await enterMission(page);
   await waitForPythonReady(page);
   await runAndWait(page);
@@ -195,7 +195,7 @@ test("colour is never the only signal: type labels on packets, icon + word on al
 
 test("keyboard only: reach the editor, type, leave with Esc+Tab, run, skip animation, close dialog (E7)", async ({ page }) => {
   test.skip(await page.evaluate(() => navigator.maxTouchPoints > 0).catch(() => false), "touch layout has no hardware keyboard flow");
-  await page.goto("/");
+  await page.goto(LEVEL_URL);
   // The entry gate has focus: Enter starts the level, Esc skips the reveal.
   await expect(page.getByRole("button", { name: "VÀO NHIỆM VỤ" })).toBeFocused();
   await page.keyboard.press("Enter");
@@ -239,16 +239,16 @@ test("keyboard only: reach the editor, type, leave with Esc+Tab, run, skip anima
 test("two tabs on the same profile: last write wins, nothing corrupts (D7)", async ({ context }) => {
   const a = await context.newPage();
   const b = await context.newPage();
-  await a.goto("/");
+  await a.goto(LEVEL_URL);
   await enterMission(a);
-  await b.goto("/");
+  await b.goto(LEVEL_URL);
   await enterMission(b);
   await replaceEditableCode(a, "\n# từ tab A\n");
   await a.waitForTimeout(700);
   await replaceEditableCode(b, "\n# từ tab B\n");
   await b.waitForTimeout(700);
   const c = await context.newPage();
-  await c.goto("/");
+  await c.goto(LEVEL_URL);
   await expect(c.locator(".cm-content")).toContainText("# từ tab B");
   await expect(c.locator(".cm-content")).not.toContainText("# từ tab A");
   expect((await editorText(c)).split("\n").slice(1, 4)).toEqual(LOCKED);

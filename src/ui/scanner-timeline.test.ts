@@ -92,7 +92,7 @@ describe("scanner timeline", () => {
     const counter = t.filter((f) => f.scene.wave === "counter");
     expect(timelineDuration(base)).toBeLessThanOrEqual(4000);
     expect(timelineDuration(counter)).toBeLessThanOrEqual(4000);
-    expect(summarize(t)).toBe("Máy quét: CỔNG MỞ HOÀN TOÀN. Cổng mở hoàn toàn.");
+    expect(summarize(t)).toBe("Máy quét: CỔNG MỞ HOÀN TOÀN.");
     expect(cues("three-star")).toContain("gate_open");
   });
 });

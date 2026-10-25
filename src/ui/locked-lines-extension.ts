@@ -5,8 +5,8 @@ import {
   StateEffect,
   StateField,
   type Extension,
+  Transaction,
   type Text,
-  type Transaction,
   type TransactionSpec,
 } from "@codemirror/state";
 import { Decoration, EditorView, GutterMarker, gutter, type DecorationSet } from "@codemirror/view";
@@ -17,6 +17,8 @@ export const allowLockedEdit = Annotation.define<boolean>();
 export const setLockedStart = StateEffect.define<number>();
 /** Emitted in place of a rejected edit so the UI can flash, beep and announce. */
 export const lockedEditBlocked = StateEffect.define<null>();
+/** Emitted when an edit spanning the block was applied around it, the block kept as is. */
+export const lockedEditKept = StateEffect.define<null>();
 
 interface LockedBlock {
   /** Document offset of the first locked line's start. */
@@ -65,9 +67,70 @@ export function touchesLockedBlock(tr: Transaction): boolean {
   return touched;
 }
 
+/**
+ * Rewrite a typed, pasted or deleted change that spans the locked block so it applies
+ * around the block: the parts of the replaced range before and after the block are
+ * replaced, the block and the newlines next to it stay. Inserted text goes where the
+ * range had room; when it contains the block itself (a whole pasted program), the part
+ * before the block's copy goes before the block and the rest after it. Returns null when
+ * nothing outside the block would change (typing inside a locked line, joining lines).
+ */
+function editAroundBlock(tr: Transaction): TransactionSpec | null {
+  const block = tr.startState.field(lockedBlockField, false);
+  if (!block) return null;
+  const doc = tr.startState.doc;
+  const { first, last } = blockRange(doc, block);
+  const before = first.from - 1; // the newline before the block, or -1 at document start
+  const after = last.to + 1; // first character after the newline that ends the block
+  const blockText = block.texts.join("\n");
+  const changes: { from: number; to: number; insert: string }[] = [];
+  let ok = true;
+  let cursor = 0;
+  tr.changes.iterChanges((fromA, toA, _fromB, _toB, inserted) => {
+    if (!ok) return;
+    const text = inserted.toString();
+    const touches = fromA === toA ? fromA > before && fromA < after : fromA < after && toA > before;
+    if (!touches) {
+      changes.push({ from: fromA, to: toA, insert: text });
+      cursor = toA;
+      return;
+    }
+    // Room before the block: [fromA, before) on the lines above; after it: [after, toA) below.
+    const pre = before >= 0 && fromA <= before ? { from: fromA, to: before } : null;
+    const post = last.to < doc.length && toA >= after ? { from: after, to: toA } : null;
+    const at = text.indexOf(blockText);
+    let head = at >= 0 ? text.slice(0, at).replace(/\n$/, "") : text;
+    let tail = at >= 0 ? text.slice(at + blockText.length).replace(/^\n/, "") : "";
+    if (!pre && head) [head, tail] = ["", tail ? `${head}\n${tail}` : head];
+    if (!post && tail) [head, tail] = [head ? `${head}\n${tail}` : tail, ""];
+    if ((!pre && head) || (!post && tail)) return void (ok = false);
+    const parts = [pre && { ...pre, insert: head }, post && { ...post, insert: tail }].filter(
+      (c): c is { from: number; to: number; insert: string } => !!c && (c.from < c.to || c.insert !== ""),
+    );
+    if (!parts.length) return void (ok = false);
+    changes.push(...parts);
+    cursor = parts[parts.length - 1].to;
+  });
+  if (!ok || !changes.some((c) => c.from < c.to || c.insert)) return null;
+  const set = tr.startState.changes(changes);
+  return {
+    changes: set,
+    selection: { anchor: set.mapPos(cursor, 1) },
+    scrollIntoView: true,
+    userEvent: tr.annotation(Transaction.userEvent),
+    effects: lockedEditKept.of(null),
+  };
+}
+
 const lockFilter = EditorState.transactionFilter.of((tr): TransactionSpec | readonly TransactionSpec[] => {
   if (!tr.docChanged || tr.annotation(allowLockedEdit)) return tr;
   if (!touchesLockedBlock(tr)) return tr;
+  // Typing, pasting and deleting over the block keep their effect elsewhere. Undo, redo
+  // and drag-and-drop are rejected whole: rewriting them would duplicate or lose text.
+  if (tr.isUserEvent("input") || tr.isUserEvent("delete")) {
+    const around = editAroundBlock(tr);
+    if (around) return around;
+  }
   return { effects: lockedEditBlocked.of(null) };
 });
 
@@ -104,7 +167,7 @@ const lockMarker = new LockMarker();
 
 const lockedLineDeco = Decoration.line({
   class: "cm-locked-line",
-  attributes: { title: "Dòng dữ liệu chip bị khóa", "aria-readonly": "true" },
+  attributes: { title: "Dòng dữ liệu nạp sẵn bị khóa", "aria-readonly": "true" },
 });
 
 const decorations = EditorView.decorations.compute([lockedBlockField, "doc"], (state): DecorationSet => {

@@ -3,17 +3,21 @@ import {
   defaultLevelProgress,
   defaultSettings,
   mergeLevelProgress,
+  mergeStory,
   sanitizeLevelProgress,
   sanitizeSettings,
+  sanitizeStory,
   type LevelProgress,
   type ProgressRepository,
   type Settings,
+  type StoryProgress,
 } from "./progress-repository";
 
 export const PROGRESS_KEY = "the-last-code:progress:v1";
 export const SETTINGS_KEY = "the-last-code:settings:v1";
 
-type V1Progress = { schemaVersion: 1; levels: Record<string, LevelProgress> };
+/** `story` is optional, so adding it did not need a schema bump; old builds ignore it. */
+type V1Progress = { schemaVersion: 1; levels: Record<string, LevelProgress>; story?: StoryProgress };
 /** Upgrades from older schema versions. Empty today: unknown versions reset to defaults. */
 const migrations: Record<number, (old: unknown) => V1Progress> = {};
 
@@ -83,7 +87,9 @@ export class LocalStorageRepository implements ProgressRepository {
     if (rawLevels && typeof rawLevels === "object") {
       for (const [id, value] of Object.entries(rawLevels)) levels[id] = sanitizeLevelProgress(value);
     }
-    return { schemaVersion: 1, levels };
+    // A broken story field reads as "nothing seen" and never affects the levels.
+    const story = sanitizeStory((data as { story?: unknown }).story);
+    return { schemaVersion: 1, levels, story };
   }
 
   private readSettings(): Settings {
@@ -117,6 +123,17 @@ export class LocalStorageRepository implements ProgressRepository {
     this.progress.levels[levelId] = next;
     this.write(PROGRESS_KEY, this.progress);
     return { ...next };
+  }
+
+  async getStory() {
+    return { seen: [...(this.progress.story?.seen ?? [])] };
+  }
+
+  async markStorySeen(id: string) {
+    // Merge synchronously so overlapping calls never drop each other's id.
+    this.progress.story = mergeStory({ seen: this.progress.story?.seen ?? [] }, { seen: [id] });
+    this.write(PROGRESS_KEY, this.progress);
+    return this.getStory();
   }
 
   async getSettings() {

@@ -1,11 +1,13 @@
 import { expect, test, type Page } from "@playwright/test";
 import { PYODIDE_MODULE_URL } from "../../src/engine/pyodide-config";
 import {
+  LEVEL_URL,
   SOLUTION_66,
   SOLUTION_67,
   TYPE_ERROR,
   editorText,
   enterMission,
+  openEchoChat,
   replaceEditableCode,
   runAndWait,
   showTab,
@@ -27,7 +29,7 @@ test.beforeEach(() => {
 });
 
 const terminal = (page: Page) => page.locator(".terminal-scroll");
-const echoText = (page: Page) => page.locator(".echo .sr-only");
+const echoText = (page: Page) => page.locator(".echo-live");
 const runCount = async (page: Page) => Number(await page.getByTestId("run-count").innerText());
 const LOCKED = ['tuoi = "27"', 'chieu_cao = "1.72"', 'cap_do = "3"'];
 async function lockedLinesIntact(page: Page) {
@@ -49,7 +51,7 @@ test.describe.serial("level 1.4 main flow (real Pyodide)", () => {
   });
 
   test("boot: run button locked while Python loads, then ready (C1)", async () => {
-    await page.goto("/");
+    await page.goto(LEVEL_URL);
     await enterMission(page);
     const run = page.getByTestId("run-button");
     await expect(run).toBeDisabled();
@@ -95,12 +97,14 @@ test.describe.serial("level 1.4 main flow (real Pyodide)", () => {
     await expect(dialog.locator(".results-stars .star-row").first()).toHaveAttribute("aria-label", "3 trên 3 sao");
     await expect(dialog).toContainText("Số gợi ý đã mở");
     await expect(dialog).toContainText("Số lần chạy");
-    await expect(dialog).toContainText("KTS-03");
+    // The lore fragment moved to the transition story; the dialog names the component instead.
+    await expect(dialog).toContainText("Đã thu: Dữ liệu sinh trắc");
+    await expect(dialog.getByRole("button", { name: "TIẾP TỤC" })).toBeVisible();
     await page.keyboard.press("Escape");
     await expect(page.locator("dialog[open]")).toHaveCount(0);
   });
 
-  test("locked lines cannot be edited by typing, select-all delete or paste (AC 5)", async ({ browserName }) => {
+  test("locked lines survive typing, select-all delete or paste; edits across them apply around them (AC 5)", async ({ browserName }) => {
     await showTab(page, "Mã");
     await page.locator(".cm-content .cm-line").nth(2).click();
     await page.keyboard.type("xyz");
@@ -113,6 +117,8 @@ test.describe.serial("level 1.4 main flow (real Pyodide)", () => {
     await page.keyboard.press("ControlOrMeta+a");
     await page.keyboard.insertText("pasted over everything");
     await lockedLinesIntact(page);
+    expect((await editorText(page)).split("\n")[0]).toBe("pasted over everything");
+    await expect(page.locator(".editor-shell .sr-only")).toContainText("Dòng dữ liệu nạp sẵn vẫn giữ nguyên.");
     // Paste over everything: a ClipboardEvent in every engine, plus the real OS clipboard in Chromium.
     await page.keyboard.press("ControlOrMeta+a");
     await syntheticPaste(page, "tuoi = 99");
@@ -129,7 +135,7 @@ test.describe.serial("level 1.4 main flow (real Pyodide)", () => {
     await page.keyboard.press("Home");
     await page.keyboard.press("Backspace");
     await lockedLinesIntact(page);
-    await expect(page.locator(".editor-shell .sr-only")).toContainText("Dòng dữ liệu chip bị khóa.");
+    await expect(page.locator(".editor-shell .sr-only")).toContainText("Dòng dữ liệu nạp sẵn bị khóa.");
   });
 
   test("keyboard: focus stays on CHẠY through a 0-star run (E7)", async () => {
@@ -197,11 +203,12 @@ test.describe.serial("level 1.4 main flow (real Pyodide)", () => {
 
   test("reload keeps draft, best stars, runs and hints (AC 10)", async () => {
     await replaceEditableCode(page, SOLUTION_67 + "# ghi chú giữ lại\n");
-    await showTab(page, "Nhiệm vụ");
+    await openEchoChat(page);
     const hint = page.getByRole("button", { name: /Giải mã nhật ký gợi ý/ });
     await hint.click();
     await page.getByRole("button", { name: /Xác nhận: giải mã mức 1/ }).click();
     await expect(page.locator(".hints")).toContainText("1/3 đã giải mã");
+    await page.keyboard.press("Escape");
     const runs = await runCount(page);
     await page.waitForTimeout(700); // draft debounce
     await page.reload();
@@ -210,8 +217,10 @@ test.describe.serial("level 1.4 main flow (real Pyodide)", () => {
     await lockedLinesIntact(page);
     expect(await runCount(page)).toBe(runs);
     await expect(page.locator(".topbar .star-row")).toHaveAttribute("aria-label", "3 trên 3 sao");
+    await openEchoChat(page);
     await expect(page.locator(".hints")).toContainText("1/3 đã giải mã");
-    await expect(page.locator(".hints")).toContainText("Máy quét không đọc được ý nghĩa");
+    // The decoded hint reappears as an ECHO message in the chat.
+    await expect(page.locator(".echo-msg.is-hint")).toContainText("Nhìn mô phỏng sau khi chạy");
   });
 });
 
@@ -225,7 +234,7 @@ test("storage blocked: no-save mode, still playable to 3 stars (AC 10, D1)", asy
     Storage.prototype.setItem = deny;
   });
   const page = await context.newPage();
-  await page.goto("/");
+  await page.goto(LEVEL_URL);
   await enterMission(page);
   await expect(page.getByText("CHẾ ĐỘ KHÔNG LƯU")).toBeVisible();
   await waitForPythonReady(page);
@@ -238,7 +247,7 @@ test("storage blocked: no-save mode, still playable to 3 stars (AC 10, D1)", asy
 test("375 px: no horizontal scroll, tabs work, run switches to the simulation (E1, E2)", async ({ browser }) => {
   const context = await browser.newContext({ viewport: { width: 375, height: 812 } });
   const page = await context.newPage();
-  await page.goto("/");
+  await page.goto(LEVEL_URL);
   await enterMission(page);
   expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(375);
   await page.getByRole("button", { name: "Nhiệm vụ", exact: true }).click();
@@ -260,7 +269,7 @@ test("CDN blocked: in-world load error with retry that recovers (C3)", async ({ 
   const page = await context.newPage();
   // Context-level routing also covers requests made by the module worker.
   await context.route("**/cdn.jsdelivr.net/**", (route) => route.abort());
-  await page.goto("/");
+  await page.goto(LEVEL_URL);
   await enterMission(page, { codeTab: false });
   await showTab(page, "Mô phỏng");
   // On the phone layout the game switches to the simulation tab, where the error lives.

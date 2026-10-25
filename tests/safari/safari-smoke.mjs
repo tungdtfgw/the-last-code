@@ -13,7 +13,7 @@
 import { spawn } from "node:child_process";
 import { setTimeout as sleep } from "node:timers/promises";
 
-const APP = "http://localhost:4173/";
+const APP = "http://localhost:4173/#/level/1.4";
 const WD = "http://localhost:4444";
 const children = [];
 let session = null;

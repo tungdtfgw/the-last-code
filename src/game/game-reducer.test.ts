@@ -104,4 +104,36 @@ describe("game reducer", () => {
     expect(new Set(ids).size).toBe(ids.length);
     expect(ids.at(-1)).toBeGreaterThan(ids[0]);
   });
+
+  test("chat history keeps every ECHO line of the session in order, with run and hint labels", () => {
+    const runOnce = (s: GameState, line: string) =>
+      reduce(s, { type: "run_started" }, { type: "run_finished", outcome: outcome(0), echo: { primary: line, followUp: "f" }, terminal: [] }, { type: "animation_done" });
+    let s = runOnce(ready(), "r1");
+    s = gameReducer(s, { type: "hint_opened", level: 1, text: "h1" });
+    s = runOnce(s, "r2");
+    expect(s.chat.map((m) => [m.tag, m.primary, m.run ?? m.hint ?? null])).toEqual([
+      ["entry", "entry", null],
+      ["run", "r1", 1],
+      ["hint", "h1", 1],
+      ["run", "r2", 2],
+    ]);
+    expect(s.chat[1].followUp).toBe("f");
+    // The newest chat line is the current ECHO line.
+    expect(s.chat.at(-1)?.id).toBe(s.echo.id);
+    expect(new Set(s.chat.map((m) => m.id)).size).toBe(s.chat.length);
+  });
+
+  test("hints decoded in an earlier session reappear before the entry line, which stays newest", () => {
+    const progress = { ...defaultLevelProgress(), hintsOpened: 2 as const };
+    let s = gameReducer(initialGameState("entry"), { type: "progress_loaded", progress, hints: ["h1", "h2", "h3"] });
+    expect(s.chat.map((m) => [m.tag, m.primary])).toEqual([
+      ["hint", "h1"],
+      ["hint", "h2"],
+      ["entry", "entry"],
+    ]);
+    expect(s.chat.at(-1)?.id).toBe(s.echo.id);
+    // A later progress reload does not duplicate them.
+    s = gameReducer(s, { type: "progress_loaded", progress, hints: ["h1", "h2", "h3"] });
+    expect(s.chat).toHaveLength(3);
+  });
 });

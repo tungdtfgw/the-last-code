@@ -1,6 +1,8 @@
 import { describe, expect, test } from "vitest";
-import type { HarnessReport, HarnessTestResult, HarnessVar } from "../engine/harness-types";
+import type { HarnessOutput, HarnessOutputLine, HarnessReport, HarnessTestResult, HarnessVar } from "../engine/harness-types";
 import levelJson from "../levels/level-1-4.json";
+import level12Json from "../levels/level-1-2.json";
+import level13Json from "../levels/level-1-3.json";
 import { classifyRun } from "./classify-run";
 import type { LevelDefinition } from "./level-types";
 
@@ -21,13 +23,15 @@ function test_(kind: "base" | "counter", over: Partial<HarnessTestResult> = {}):
   return {
     kind,
     index: 0,
-    inputs: kind === "base" ? { tuoi: "27" } : { tuoi: "31.0", chieu_cao: "1.65", cap_do: "7" },
+    inputs: kind === "base" ? { tuoi: "27" } : { tuoi: "31.0", chieu_cao: "1.653", cap_do: "7" },
     status: "ok",
     error: null,
     line_count: 3,
     stdout: "",
     stdout_truncated: false,
+    stderr: "",
     vars: allGood(),
+    output: null,
     ...over,
   };
 }
@@ -165,5 +169,89 @@ describe("classifyRun", () => {
     const r = ok(report(test_("base", { stdout: "hi\n", stdout_truncated: true }), [test_("counter")]));
     expect(r.stdout).toBe("hi\n");
     expect(r.stdoutTruncated).toBe(true);
+  });
+
+  describe("output lines", () => {
+    const line = (n: number, over: Partial<HarnessOutputLine> = {}): HarnessOutputLine => ({
+      line: n,
+      expected: `L${n}`,
+      actual: `L${n}`,
+      status: "ok",
+      col: null,
+      case_only: false,
+      ...over,
+    });
+    const output = (lines: HarnessOutputLine[], extra = 0): HarnessOutput => ({
+      ok: false,
+      truncated: false,
+      lines,
+      extra_lines: Array(extra).fill("x"),
+      extra_count: extra,
+    });
+
+    test("a wrong line beats extra lines", () => {
+      const r = ok(report(test_("base", { output: output([line(1), line(2, { status: "wrong", actual: "Lx", col: 2 })], 2) })));
+      expect(r).toMatchObject({ key: "output_mismatch", details: { out_line: 2, col: 2 } });
+    });
+
+    test("the topmost wrong line decides", () => {
+      const r = ok(report(test_("base", { output: output([line(1, { status: "wrong", actual: "l1", col: 1, case_only: true }), line(2, { status: "wrong", actual: "Q", col: 1 })]) })));
+      expect(r).toMatchObject({ key: "output_case_only", details: { out_line: 1, col: 1 } });
+    });
+
+    test("right variables but wrong output: not passed, no star branch", () => {
+      const r = ok(report(test_("base", { output: output([line(1)], 1) }), [test_("counter")]));
+      expect(r).toMatchObject({ key: "output_extra", stars: 0, basePassed: false, details: { count: 1 } });
+      expect(r.counterVars).toBeUndefined();
+    });
+
+    test("a failed report that names no line (grader fallback) fails as generic, never throws", () => {
+      expect(ok(report(test_("base", { output: output([]) })))).toMatchObject({ key: "generic", stars: 0, basePassed: false });
+    });
+  });
+});
+
+describe("value_is_label (level 1.2)", () => {
+  const level12 = level12Json as unknown as LevelDefinition;
+  const VARS_12 = ["ho_ten", "ma_khu", "so_hieu", "khu_cu", "the_quet", "the_cong"];
+  /** Base result of 1.2 where `wrong` vars hold a wrong str with the given preview. */
+  const run12 = (wrong: Record<string, string>, lvl = level12) => {
+    const vars = Object.fromEntries(
+      VARS_12.map((n) => [n, n in wrong ? { ...good("str", wrong[n]), value_ok: false } : good("str", "'ok'")]),
+    );
+    return classifyRun({ kind: "ok", data: report(test_("base", { vars, inputs: {} })) }, lvl);
+  };
+
+  test("a value that is the text of an input or objective name; text that only looks close is a plain wrong value", () => {
+    expect(run12({ so_hieu: "'goi_3 '" })).toMatchObject({ key: "wrong_value", details: { vars: "so_hieu" } });
+    expect(run12({ the_cong: "'so_hieu'" })).toMatchObject({ key: "value_is_label", details: { vars: "the_cong" } });
+    // Only the label-valued vars are named; other wrong values wait for the next run.
+    expect(run12({ so_hieu: "'goi_3'", khu_cu: "'K-07'" })).toMatchObject({ key: "value_is_label", details: { vars: "so_hieu" } });
+  });
+
+  test("a level without a value_is_label line keeps wrong_value", () => {
+    const { value_is_label: _drop, ...reactions } = level12.reactions;
+    const bare = { ...level12, reactions } as LevelDefinition;
+    expect(run12({ so_hieu: "'goi_3'", khu_cu: "'K-07'" }, bare)).toMatchObject({ key: "wrong_value", details: { vars: "so_hieu, khu_cu" } });
+  });
+});
+
+describe("type_mismatch_unknown_shape (level 1.3)", () => {
+  const level13 = level13Json as unknown as LevelDefinition;
+  const wrong = (type: string): HarnessVar => ({ ...good(type), type_ok: false, value_ok: false });
+  const vars = { ho_ten: good("str"), tuoi: good("int"), chieu_cao: wrong("tuple"), da_tiem: good("bool"), khuon_phien: good("type") };
+  const run = (over: Record<string, HarnessVar>, lvl = level13) =>
+    classifyRun({ kind: "ok", data: report(test_("base", { vars: { ...vars, ...over }, inputs: { ma_phien: 4096 } })) }, lvl).key;
+
+  test("only when every wrong shape is outside the four lanes and the type objective", () => {
+    expect(run({})).toBe("type_mismatch_unknown_shape");
+    expect(run({ da_tiem: wrong("NoneType") })).toBe("type_mismatch_unknown_shape");
+    expect(run({ tuoi: wrong("str") })).toBe("type_mismatch");
+    expect(run({ chieu_cao: good("float"), khuon_phien: wrong("int") })).toBe("type_mismatch");
+  });
+
+  test("a level without a line for it (1.4) keeps type_mismatch", () => {
+    const tuple = classifyRun({ kind: "ok", data: report(test_("base", { vars: { ...allGood(), chi_so: wrong("tuple") } })) }, level);
+    expect(tuple.key).toBe("type_mismatch");
   });
 });

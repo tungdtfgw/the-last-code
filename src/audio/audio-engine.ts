@@ -12,7 +12,7 @@ export const MASTER_VOLUME = 0.6;
 export const AMBIENT_VOLUME = 0.04;
 const MAX_VOICES = 8;
 const MERGE_WINDOW_MS = 30;
-const THROTTLE_MS: Partial<Record<Cue, number>> = { key_blip: 35, echo_voice: 60, teletype: 30 };
+const THROTTLE_MS: Partial<Record<Cue, number>> = { key_blip: 35, echo_voice: 60, teletype: 30, pulse: 800 };
 
 /** master gain → compressor → destination, plus an ambient branch into master. Shared with the render test. */
 export function createOutputChain(ctx: BaseAudioContext, muted = false) {
@@ -59,6 +59,10 @@ export class AudioEngine {
   private muted = false;
   private broken = false;
   private unlocked = false;
+  /** The unlock in flight, started by a gesture whose resume() has not settled yet. */
+  private unlocking: Promise<void> | null = null;
+  /** Cues asked for during that unlock, with the time (this.now()) each was due. */
+  private pending = new Map<Cue, number>();
   private lastPlayed = new Map<Cue, number>();
   private voiceEnds: number[] = [];
   private readonly createContext: () => AudioContext | null;
@@ -77,8 +81,25 @@ export class AudioEngine {
     return this.muted;
   }
 
-  /** Call from a user gesture. Safe to call repeatedly; retries if resume() was refused. */
-  async unlock(): Promise<void> {
+  /**
+   * Call from a user gesture. Safe to call repeatedly; retries if resume() was refused.
+   * Cues played before resume() settles (a keyboard activation starts the action in the
+   * same task as its keydown) are kept and played once audio runs, or dropped if refused.
+   */
+  unlock(): Promise<void> {
+    if (this.unlocking) return this.unlocking;
+    const run = this.startContext().finally(() => {
+      this.unlocking = null;
+      const due = [...this.pending];
+      this.pending.clear();
+      const now = this.now();
+      if (this.unlocked) for (const [cue, at] of due) this.play(cue, Math.max(0, at - now));
+    });
+    this.unlocking = run;
+    return run;
+  }
+
+  private async startContext(): Promise<void> {
     if (this.broken) return;
     try {
       if (!this.ctx) {
@@ -122,6 +143,9 @@ export class AudioEngine {
 
   /** Returns true when the cue was scheduled. */
   play(cue: Cue, delayMs = 0): boolean {
+    if (!this.unlocked && this.unlocking && !this.muted && !this.pending.has(cue) && this.pending.size < MAX_VOICES) {
+      this.pending.set(cue, this.now() + delayMs);
+    }
     if (this.muted || !this.unlocked || !this.ctx || !this.master || this.ctx.state !== "running") return false;
     const now = this.now();
     const last = this.lastPlayed.get(cue);
@@ -156,5 +180,6 @@ export class AudioEngine {
     if (this.ctx) void this.ctx.close().catch(() => {});
     this.ctx = null;
     this.unlocked = false;
+    this.pending.clear();
   }
 }

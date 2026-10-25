@@ -1,7 +1,8 @@
 import { describe, expect, test } from "vitest";
 import levelJson from "../../src/levels/level-1-4.json";
 import type { LevelDefinition } from "../../src/game/level-types";
-import { gradeFixture } from "./run-harness";
+import { classifyRun } from "../../src/game/classify-run";
+import { gradeFixture, readFixture, runHarness } from "./run-harness";
 
 const level = levelJson as unknown as LevelDefinition;
 
@@ -76,5 +77,31 @@ describe("grading pipeline: editor text → prepareSource → python3 harness �
     const o = gradeFixture(level, "name-error");
     expect(o.key).toBe("NameError");
     expect(o.error?.line).toBe(7);
+  });
+
+  describe("rounding and repeated text (counter chip 1.653)", () => {
+    const THREE = readFixture("three-star");
+    const grade = (text: string) => classifyRun({ kind: "ok", data: runHarness(level, text) }, level);
+
+    test("without round(): base passes, the counter value 3.306 misses 3.31 → 2 stars", () => {
+      const o = grade(THREE.replace("chi_so = round(float(chieu_cao) * 2, 2)", "chi_so = float(chieu_cao) * 2"));
+      expect(o).toMatchObject({ key: "wrong_value_counter", stars: 2, basePassed: true, details: { vars: "chi_so" } });
+    });
+
+    test("with round(): 3 stars", () => {
+      expect(grade(THREE)).toMatchObject({ key: "three_stars", stars: 3 });
+    });
+
+    test("converting after multiplying text: repeated digits as a number, or a ValueError on '1.721.72' → string_repeated", () => {
+      const asNumber = grade(THREE.replace("int(float(tuoi)) * 100 + int(float(cap_do))", "int(tuoi * 100 + cap_do)"));
+      expect(asNumber).toMatchObject({ key: "string_repeated", stars: 0, details: { vars: "ma_xac_thuc" } });
+      const asError = grade(THREE.replace("round(float(chieu_cao) * 2, 2)", "float(chieu_cao * 2)"));
+      expect(asError).toMatchObject({ key: "string_repeated", stars: 0, details: { line: 10 } });
+    });
+
+    test("hop_le fixed, both numbers still repeated text → string_repeated naming them", () => {
+      const o = grade(readFixture("original").replace('hop_le = "True"', "hop_le = True"));
+      expect(o).toMatchObject({ key: "string_repeated", details: { vars: "ma_xac_thuc, chi_so" } });
+    });
   });
 });

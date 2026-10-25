@@ -1,7 +1,7 @@
-import type { HarnessTestResult, RunnerResult } from "../engine/harness-types";
+import type { HarnessOutput, HarnessTestResult, RunnerResult, VarHistoryEntry } from "../engine/harness-types";
 import { alertPercent, isCaught } from "./alert";
 import { computeStars, type Stars } from "./compute-stars";
-import type { LevelDefinition, ReactionKey, ValueType } from "./level-types";
+import { VALUE_TYPES, varObjectives, type InputValue, type LevelDefinition, type ReactionKey, type ValueType } from "./level-types";
 
 export interface VarVerdict {
   name: string;
@@ -13,6 +13,23 @@ export interface VarVerdict {
   typeOk: boolean;
   valueOk: boolean;
   valueMatchOtherType: boolean;
+}
+
+/** One expected stdout line after grading (levels with `output_line` objectives). */
+export interface OutputVerdict {
+  line: number;
+  expected: string;
+  actual: string | null;
+  status: "ok" | "wrong" | "missing";
+  col: number | null;
+  caseOnly: boolean;
+}
+
+export interface OutputReport {
+  lines: OutputVerdict[];
+  extraLines: string[];
+  extraCount: number;
+  truncated: boolean;
 }
 
 export interface OutcomeError {
@@ -29,6 +46,10 @@ export interface OutcomeDetails {
   vars?: string;
   error_type?: string;
   count?: number;
+  /** Output line the reaction talks about (1-based). */
+  out_line?: number;
+  /** First wrong character on that line (1-based). */
+  col?: number;
 }
 
 export interface RunOutcome {
@@ -44,20 +65,34 @@ export interface RunOutcome {
   error?: OutcomeError;
   vars: VarVerdict[];
   counterVars?: VarVerdict[];
-  counterInputs?: Record<string, string>;
+  counterInputs?: Record<string, InputValue>;
   counterSurvived: boolean;
   /** The counter-attack phase hung or crashed; the base result is kept. */
   counterAborted?: "timeout" | "engine_error";
   stdout: string;
   stdoutTruncated: boolean;
+  /** Shown apart from stdout, never graded. */
+  stderr: string;
+  /** Output verdict of the shown base test; absent when the level grades no output. */
+  output?: OutputReport;
+  /** Same for the shown counter-attack test. */
+  counterOutput?: OutputReport;
+  /** Assignment history of the shown base test (kiosk levels only). */
+  history?: VarHistoryEntry[];
+  historyTruncated?: boolean;
+  /** Same for the shown counter-attack test. */
+  counterHistory?: VarHistoryEntry[];
+  counterHistoryTruncated?: boolean;
   details: OutcomeDetails;
 }
 
 const NAMED_ERRORS = new Set(["TypeError", "ValueError", "NameError", "ZeroDivisionError", "AttributeError"]);
+/** Shapes an objective can name (`VALUE_TYPES`); a wrong value of any other shape is "unknown". */
+const KNOWN_SHAPES: ReadonlySet<string> = new Set(VALUE_TYPES);
 const STOP_STATUSES = new Set(["timeout", "resource_limit", "blocked_import", "input_unsupported", "system_exit"]);
 
 function verdicts(result: HarnessTestResult | undefined, level: LevelDefinition): VarVerdict[] {
-  return level.objectives.map((o) => {
+  return varObjectives(level).map((o) => {
     const v = result?.vars[o.var];
     return {
       name: o.var,
@@ -74,9 +109,73 @@ function verdicts(result: HarnessTestResult | undefined, level: LevelDefinition)
 }
 
 const passed = (r: HarnessTestResult) =>
-  r.status === "ok" && Object.values(r.vars).every((v) => v.type_ok && v.value_ok);
+  r.status === "ok" && Object.values(r.vars).every((v) => v.type_ok && v.value_ok) && (!r.output || r.output.ok);
+
+function toOutput(o: HarnessOutput | null | undefined): OutputReport | undefined {
+  if (!o) return undefined;
+  return {
+    lines: o.lines.map((l) => ({ line: l.line, expected: l.expected, actual: l.actual, status: l.status, col: l.col, caseOnly: l.case_only })),
+    extraLines: o.extra_lines,
+    extraCount: o.extra_count,
+    truncated: o.truncated,
+  };
+}
+
+/** The topmost wrong or missing line decides; then extra (or cut-off) output. */
+function outputFailure(o: OutputReport): { key: ReactionKey; details: OutcomeDetails } | null {
+  const bad = o.lines.find((l) => l.status !== "ok");
+  if (bad?.status === "missing") return { key: "output_missing", details: { out_line: bad.line } };
+  if (bad) return { key: bad.caseOnly ? "output_case_only" : "output_mismatch", details: { out_line: bad.line, col: bad.col ?? undefined } };
+  if (o.extraCount > 0 || o.truncated) return { key: "output_extra", details: { count: Math.max(1, o.extraCount), out_line: o.lines.length + 1 } };
+  return null;
+}
 
 const names = (vs: VarVerdict[]) => vs.map((v) => v.name).join(", ");
+
+/**
+ * Optional reaction keys refine a general one (`value_is_label` refines `wrong_value`,
+ * `type_mismatch_unknown_shape` refines `type_mismatch`, `output_is_label` refines
+ * `output_mismatch`, `string_repeated` refines `ValueError`, `type_mismatch` and `wrong_value`,
+ * `value_overwritten` refines `wrong_value`).
+ * One is returned only when the level writes a line for it; otherwise the general key
+ * applies. Every optional key is gated here and nowhere else.
+ */
+const levelHasLine = (level: LevelDefinition, key: ReactionKey) => typeof level.reactions[key] === "string";
+
+/** A string variable holding the text of a name (`'goi_3'`) instead of the value behind it. */
+function labelValues(wrongValue: VarVerdict[], level: LevelDefinition): VarVerdict[] {
+  const labels = new Set(labelNames(level).map((n) => `'${n}'`));
+  return wrongValue.filter((v) => v.expectedType === "str" && v.preview !== null && labels.has(v.preview));
+}
+
+const labelNames = (level: LevelDefinition) => [...level.inputs, ...varObjectives(level).map((o) => o.var)];
+
+/** A wrong output line that carries the bare text of a name (`PHIEN ma_phien`) the expected line does not. */
+function outputHasLabel(o: OutputReport, out_line: number | undefined, level: LevelDefinition): boolean {
+  const bad = o.lines.find((l) => l.line === out_line);
+  if (!bad?.actual) return false;
+  const word = (name: string) => new RegExp(`(?<![A-Za-z0-9_])${name}(?![A-Za-z0-9_])`);
+  return labelNames(level).some((n) => word(n).test(bad.actual!) && !word(n).test(bad.expected));
+}
+
+/**
+ * Wrong values that copy another objective's current value after that objective was
+ * reassigned (`khu_cu = ma_khu` written after `ma_khu = goi_4`): the copy came too late.
+ * Needs the assignment history, so only levels that trace variables can use it.
+ */
+function overwrittenCopies(wrongValue: VarVerdict[], all: VarVerdict[], h: VarHistoryEntry[] | undefined): VarVerdict[] {
+  if (!h) return [];
+  const reassigned = all.filter((w) => new Set(h.filter((e) => e.var === w.name).map((e) => e.preview)).size >= 2);
+  return wrongValue.filter((v) => v.preview !== null && reassigned.some((w) => w.name !== v.name && w.valueOk && w.preview === v.preview));
+}
+
+/** Text holding a string input written twice in a row: `'1.721.72'` from `chieu_cao * 2`. */
+function hasRepeatedInput(text: string | null | undefined, inputs: HarnessTestResult["inputs"]): boolean {
+  if (!text) return false;
+  return Object.values(inputs ?? {}).some((v) => typeof v === "string" && v.length >= 2 && text.includes(v + v));
+}
+
+const history = (r: HarnessTestResult | undefined) => r?.var_history;
 
 function toError(r: HarnessTestResult, phase: "base" | "counter"): OutcomeError | undefined {
   if (!r.error) return undefined;
@@ -102,6 +201,7 @@ function empty(level: LevelDefinition, key: ReactionKey, extra: Partial<RunOutco
     counterSurvived: false,
     stdout: "",
     stdoutTruncated: false,
+    stderr: "",
     details: {},
     ...extra,
   };
@@ -111,12 +211,17 @@ function empty(level: LevelDefinition, key: ReactionKey, extra: Partial<RunOutco
 function failureKey(
   r: HarnessTestResult,
   vs: VarVerdict[],
+  output: OutputReport | undefined,
+  level: LevelDefinition,
 ): { key: ReactionKey; details: OutcomeDetails } | null {
   if (r.status !== "ok") {
     if (STOP_STATUSES.has(r.status)) {
       return { key: r.status as ReactionKey, details: { line: r.error?.line ?? undefined, error_type: r.error?.type } };
     }
     const type = r.error?.type ?? "Error";
+    if (type === "ValueError" && levelHasLine(level, "string_repeated") && hasRepeatedInput(r.error?.message, r.inputs)) {
+      return { key: "string_repeated", details: { line: r.error?.line ?? undefined, error_type: type } };
+    }
     return {
       key: NAMED_ERRORS.has(type) ? (type as ReactionKey) : "runtime_error",
       details: { line: r.error?.line ?? undefined, error_type: type },
@@ -127,11 +232,33 @@ function failureKey(
   const wrongType = vs.filter((v) => !v.typeOk);
   if (wrongType.length) {
     const allMatch = wrongType.every((v) => v.valueMatchOtherType);
-    return { key: allMatch ? "type_mismatch_value_match" : "type_mismatch", details: { vars: names(wrongType) } };
+    if (allMatch) return { key: "type_mismatch_value_match", details: { vars: names(wrongType) } };
+    // Every wrong shape is text that repeats an input (`"27" * 100`): multiplying text copies it.
+    const repeated = wrongType.every((v) => v.type === "str" && hasRepeatedInput(v.preview, r.inputs));
+    if (repeated && levelHasLine(level, "string_repeated")) return { key: "string_repeated", details: { vars: names(wrongType) } };
+    // Every wrong shape is outside the five the level can ask for (a tuple from `1,72`, None…).
+    const unknownShape = wrongType.every((v) => !KNOWN_SHAPES.has(v.type ?? ""));
+    const key = unknownShape && levelHasLine(level, "type_mismatch_unknown_shape") ? "type_mismatch_unknown_shape" : "type_mismatch";
+    return { key, details: { vars: names(wrongType) } };
   }
   const wrongValue = vs.filter((v) => !v.valueOk);
-  if (wrongValue.length) return { key: "wrong_value", details: { vars: names(wrongValue) } };
-  return null;
+  if (wrongValue.length) {
+    const asLabel = levelHasLine(level, "value_is_label") ? labelValues(wrongValue, level) : [];
+    if (asLabel.length) return { key: "value_is_label", details: { vars: names(asLabel) } };
+    const late = levelHasLine(level, "value_overwritten") ? overwrittenCopies(wrongValue, vs, r.var_history) : [];
+    if (late.length && late.length === wrongValue.length) return { key: "value_overwritten", details: { vars: names(late) } };
+    // `int(tuoi * 100 + cap_do)`: the shape is right, but the digits are the text repeated.
+    if (levelHasLine(level, "string_repeated") && wrongValue.every((v) => hasRepeatedInput(v.preview, r.inputs)))
+      return { key: "string_repeated", details: { vars: names(wrongValue) } };
+    return { key: "wrong_value", details: { vars: names(wrongValue) } };
+  }
+  // Only failing results reach this point: a failed output report that names no line still fails.
+  if (!output) return null;
+  const f = outputFailure(output) ?? { key: "generic", details: {} };
+  if (f.key === "output_mismatch" && levelHasLine(level, "output_is_label") && outputHasLabel(output, f.details.out_line, level)) {
+    return { key: "output_is_label", details: f.details };
+  }
+  return f;
 }
 
 export function classifyRun(result: Exclude<RunnerResult, { kind: "not_ready" }>, level: LevelDefinition): RunOutcome {
@@ -164,10 +291,14 @@ export function classifyRun(result: Exclude<RunnerResult, { kind: "not_ready" }>
     vars,
     stdout: shown?.stdout ?? "",
     stdoutTruncated: shown?.stdout_truncated ?? false,
+    stderr: shown?.stderr ?? "",
+    output: toOutput(shown?.output),
+    history: history(shown),
+    historyTruncated: shown?.var_history_truncated,
   };
 
   if (failing) {
-    const f = failureKey(failing, vars)!;
+    const f = failureKey(failing, vars, common.output, level)!;
     const lineCount = failing.status === "timeout" ? null : failing.line_count;
     return {
       ...empty(level, f.key),
@@ -202,6 +333,9 @@ export function classifyRun(result: Exclude<RunnerResult, { kind: "not_ready" }>
     sentinelCaught: caught,
     counterVars,
     counterInputs: counterShown?.inputs ?? (aborted ? level.counter_attack_tests[0]?.inputs : undefined),
+    counterOutput: toOutput(counterShown?.output),
+    counterHistory: history(counterShown),
+    counterHistoryTruncated: counterShown?.var_history_truncated,
     counterAborted: aborted,
     counterSurvived,
     details: { count },
@@ -234,8 +368,10 @@ export function classifyRun(result: Exclude<RunnerResult, { kind: "not_ready" }>
         outcome.key = "counter_type_mismatch";
         outcome.details = { ...outcome.details, vars: names(wrongShape) };
       } else {
+        // A wrong value or a wrong output line: the code was written for the old data.
         outcome.key = "wrong_value_counter";
-        outcome.details = { ...outcome.details, vars: names(counterVars.filter((v) => !v.valueOk)) };
+        const out = outcome.counterOutput && outputFailure(outcome.counterOutput);
+        outcome.details = { ...outcome.details, vars: names(counterVars.filter((v) => !v.valueOk)), out_line: out?.details.out_line };
       }
     }
     return outcome;

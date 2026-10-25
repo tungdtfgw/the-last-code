@@ -2,20 +2,24 @@
  * Procedural sound recipes (Web Audio only, no asset files).
  * Each recipe schedules nodes starting at `when` and returns its duration in seconds.
  */
-export type Cue =
-  | "key_blip"
-  | "terminal_line"
-  | "run"
-  | "scan_pass"
-  | "scan_reject"
-  | "locked_blocked"
-  | "alarm"
-  | "siren"
-  | "gate_open"
-  | "star"
-  | "echo_voice"
-  | "teletype"
-  | "objective_lock";
+export const CUES = [
+  "key_blip",
+  "terminal_line",
+  "run",
+  "scan_pass",
+  "scan_reject",
+  "locked_blocked",
+  "alarm",
+  "siren",
+  "gate_open",
+  "star",
+  "echo_voice",
+  "teletype",
+  "objective_lock",
+  "pulse",
+  "glitch",
+] as const;
+export type Cue = (typeof CUES)[number];
 
 type Recipe = (ctx: BaseAudioContext, out: AudioNode, when: number) => number;
 
@@ -201,6 +205,35 @@ export const RECIPES: Record<Cue, Recipe> = {
     carrier.stop(t + 0.06);
     mod.stop(t + 0.06);
     return 0.06;
+  },
+  /** Story beat: one deep heartbeat (sine fundamental plus a soft overtone), fast attack, ~0.9 s decay. */
+  pulse: (ctx, out, t) => {
+    tone(ctx, out, t, "sine", 55, 0.9, 0.5, 48);
+    tone(ctx, out, t, "sine", 110, 0.5, 0.16, 96);
+    tone(ctx, out, t, "triangle", 220, 0.08, 0.05);
+    return 0.95;
+  },
+  /** Signal tearing: band-passed white noise chopped into four uneven slices over ~0.25 s. */
+  glitch: (ctx, out, t) => {
+    const slices = [
+      [0, 0.04, 3200],
+      [0.06, 0.03, 1400],
+      [0.12, 0.05, 5200],
+      [0.2, 0.04, 900],
+    ] as const;
+    for (const [offset, dur, freq] of slices) {
+      const src = ctx.createBufferSource();
+      src.buffer = noiseBuffer(ctx);
+      const bp = ctx.createBiquadFilter();
+      bp.type = "bandpass";
+      bp.frequency.setValueAtTime(freq, t + offset);
+      bp.Q.value = 4;
+      src.connect(bp).connect(envGain(ctx, out, t + offset, 0.3, 0.002, dur));
+      src.start(t + offset, Math.random());
+      src.stop(t + offset + dur + 0.01);
+    }
+    tone(ctx, out, t + 0.06, "square", 180, 0.05, 0.03);
+    return 0.26;
   },
 };
 

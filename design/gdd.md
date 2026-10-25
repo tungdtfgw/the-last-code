@@ -88,7 +88,7 @@ Mỗi chương: **6 level thường + 1 Boss**, độ khó tăng dần Easy → 
 
 ECHO nói với người chơi theo hai lớp:
 
-1. **Phản ứng sau mỗi lần chạy** – miễn phí, tự động. ECHO chỉ **mô tả điều vừa xảy ra** hoặc chỉ chỗ cần nhìn. Không bao giờ nói cách sửa, không nhắc tên hàm cần dùng (với Level 1.4: không chứa `int`, `float`, `round` hay đáp án), và không trích nguyên văn thông báo lỗi Python nếu thông báo đó lộ tên hàm. Mỗi level định nghĩa lời thoại theo loại kết quả chạy (trường `reactions`, mục 7.1).
+1. **Phản ứng sau mỗi lần chạy** – miễn phí, tự động. ECHO chỉ **mô tả điều vừa xảy ra** hoặc chỉ chỗ cần nhìn. Không bao giờ nói cách sửa, không nhắc tên hàm cần dùng (với Level 1.4: không chứa `int`, `float`, `round` hay đáp án), và không trích nguyên văn thông báo lỗi Python nếu thông báo đó lộ tên hàm. Mỗi level định nghĩa lời thoại theo loại kết quả chạy (trường `reactions`, mục 7.1). ECHO không nói cùng một câu ở hai lượt chạy liền nhau: khi lượt sau ra cùng khóa, ECHO dùng câu thay thế trong `reaction_variants` (nếu level có), không thì thêm "Vẫn vậy." vào đầu câu. Câu thay thế chịu cùng luật và cùng test chống lộ với `reactions`.
 2. **Gợi ý 3 mức** – người chơi chủ động mở theo thứ tự, trả bằng **điểm giải mã** (kiếm được từ các level trước), nói bằng giọng ECHO:
 
 | Mức | Chi phí | Nội dung |
@@ -98,6 +98,15 @@ ECHO nói với người chơi theo hai lớp:
 | 3 | 3 điểm | Tài liệu khái niệm Python liên quan, kèm ví dụ không trùng đáp án |
 
 Gợi ý không bao giờ đưa thẳng đáp án. Màn kết quả hiển thị số gợi ý đã mở.
+
+**Cách ECHO hiện trên màn chơi.** ECHO nói qua một khung chat nổi, không chiếm cột Nhiệm vụ:
+
+- **Nút ECHO** (chân dung nhiễu sóng thu nhỏ) có chấm báo khi có câu chưa đọc.
+- **Bong bóng xem trước:** mỗi câu mới (câu vào màn sau intro, phản ứng sau mỗi lượt chạy) hiện cạnh nút, gõ chữ kèm giọng ECHO. Bong bóng không tự tắt: nó ở lại tới khi người chơi đóng, mở khung chat, hoặc lượt chạy sau thay câu.
+- **Khung chat** (bấm nút hoặc bong bóng, phím `E` ngoài ô gõ chữ; Esc đóng) chứa lịch sử hội thoại của level trong phiên chơi, mới nhất ở dưới, có nhãn "Lượt chạy #n" / "Gợi ý mức n". Cuối khung là **Nhật ký gợi ý**: nút giải mã mức tiếp theo, bấm hai lần để xác nhận; gợi ý đã mở hiện như tin ECHO trong luồng chat.
+- Khung không chặn màn chơi: có thể để mở trong lúc sửa code và chạy.
+- Lịch sử chat chỉ sống trong phiên. Số gợi ý đã mở được lưu, nên sau khi tải lại, gợi ý đã mở vẫn có trong khung.
+- Hộp kết quả nhắc lại câu ECHO của lượt chạy.
 
 > Trong prototype Level 1.4, điểm giải mã chưa được tính: gợi ý mở miễn phí theo thứ tự.
 
@@ -125,7 +134,7 @@ Lưu ý: lỗi Python thật chỉ xuất hiện khi code thật sự lỗi. Cod
 1. **Màn "VÀO NHIỆM VỤ"** – tên chương, mã và tên level, một dòng bối cảnh. Nút có sẵn focus (Enter để vào). Cú bấm này là thao tác đầu tiên của người chơi, cần để trình duyệt cho phép phát âm thanh.
 2. **Nhiệm vụ hiện chữ dần** kèm tiếng điện báo; ô tự cuộn theo chữ.
 3. **Từng mục tiêu khóa vào danh sách** (trượt vào, chớp sáng, chip kiểu dữ liệu "khóa"), mỗi mục một tiếng.
-4. **Thanh cảnh báo sáng dần từng vạch**, rồi ECHO mới bắt đầu nói.
+4. **Thanh cảnh báo sáng dần từng vạch**, rồi ECHO "thức dậy": bong bóng đầu tiên hiện cạnh nút ECHO với câu vào màn. Nếu level có `task_steps`, bong bóng có thêm dòng "Mở để xem việc cần làm (E)" và nút ECHO ghi "việc cần làm" cho tới khi người chơi mở khung chat lần đầu ở level đó trong phiên. Khung chat không tự mở.
 
 Bấm hoặc gõ phím bất kỳ trong lúc hiệu ứng chạy sẽ hiện tất cả ngay (chuyển tab trên điện thoại không tính). Ở chế độ giảm chuyển động, mọi thứ hiện ngay sau màn "VÀO NHIỆM VỤ". Trên điện thoại, game mở ở tab Nhiệm vụ.
 
@@ -144,14 +153,22 @@ Toàn bộ âm thanh được tạo bằng Web Audio (không dùng file), chỉ 
 
 ### 4.7. Bố cục màn chơi
 
-Trang không cuộn tổng. Mỗi ô (Nhiệm vụ, Mục tiêu, ECHO, Gợi ý, editor, terminal, mô phỏng) có thanh cuộn riêng, tiêu đề ô dính ở trên khi cuộn. Trên điện thoại, các khu vực nằm sau 3 tab (Nhiệm vụ / Mã / Mô phỏng) và mỗi tab cuộn riêng.
+Trang không cuộn tổng. Ba cột: Nhiệm vụ (ô Nhiệm vụ, ô Mục tiêu), Mã (editor, terminal), Mô phỏng. Mỗi ô có thanh cuộn riêng, tiêu đề ô dính ở trên khi cuộn. ECHO, Việc cần làm và Nhật ký gợi ý nằm trong khung chat nổi (mục 4.1):
+
+- Màn rộng: nút ECHO ở chân cột Nhiệm vụ (cột chừa chỗ cho nút). Khung chat mở ngay trên nút, rộng bằng cột, cao tối đa 80% màn hình, tự cuộn.
+- Màn vừa (768–1199 px): cột Nhiệm vụ nằm dưới phải, nút và khung đi theo cột.
+- Điện thoại: các khu vực nằm sau 3 tab (Nhiệm vụ / Mã / Mô phỏng), mỗi tab cuộn riêng. Nút ECHO nằm ở cuối thanh tab nên không che nút CHẠY. Bong bóng hiện ngay dưới nút. Khung chat là tấm trượt từ dưới lên, cao tối đa 85%, có nút đóng 44 px.
+- Giảm chuyển động: bong bóng và khung hiện ngay, không gõ chữ, không trượt.
+- Ô Nhiệm vụ gập lại được bằng tiêu đề (nút có mũi tên); gập thì chỉ còn một dòng (dòng tiêu đề nhật ký và "Mở lại") để Mục tiêu dùng chỗ trống. Ô tự gập một lần sau lượt chạy đầu tiên của level trong phiên, mở lại thì không tự gập nữa; trong phần mở đầu (mục 4.4) ô luôn mở.
+- **Việc cần làm** (`task_steps`) nối tiếp tin "Vào nhiệm vụ" đầu tiên của ECHO trong khung chat, như một lượt chat chung: 2–4 bước đánh số, giọng hướng dẫn, chữ trong backtick hiện thành code. Level không có `task_steps` thì tin "Vào nhiệm vụ" chỉ có câu `entry`.
+- **Tổng kết kiến thức** (`#/learn/<id>`): qua level (≥ 1 sao), TIẾP TỤC ở hộp kết quả mở màn tổng kết trước đoạn chuyển cảnh, mỗi lần đều hiện, không lưu đã xem. Giọng kỹ thuật, không ECHO, không hiệu ứng game: từng mục có giải thích, khối code và "Kết quả:", danh sách "Lỗi bạn có thể đã gặp", dòng "Ở màn sau". Khung tự cuộn, trang không cuộn; một nút TIẾP TỤC có sẵn focus (Enter/Space). Bản đồ có ô "Kiến thức" để mở lại tổng kết của level đã qua (xong thì về bản đồ). Level không có `knowledge_summary` thì bỏ qua bước này.
 
 ---
 
 ## 5. Chương 1 – VÙNG TỐI
 
 **Mục tiêu học:** `print`, biến, 4 kiểu dữ liệu cơ bản, ép kiểu, toán tử, `input`, f-string.
-**Mạch truyện:** Kai phải dựng một Neural-ID giả để thoát khỏi Vùng Tối. Mỗi level tạo một thành phần của tín hiệu giả; Boss ghép tất cả lại để vượt cổng.
+**Mạch truyện:** Kai phải dựng một Neural-ID giả để thoát khỏi Vùng Tối. Mỗi level tạo một thành phần của tín hiệu giả; Boss ghép tất cả lại để vượt cổng. Tên riêng, địa điểm, mảnh nhật ký và móc câu của từng level: `design/gdd-mo-dau.md` mục 1 và 6.
 
 ### 5.1. Danh sách level
 
@@ -178,125 +195,17 @@ Mỗi kiểu dữ liệu có một màu khi chạy trong mô phỏng – sinh vi
 
 ---
 
-## 6. Đặc tả chi tiết Level 1.4 – "Tín hiệu lệch pha"
+## 6. Đặc tả từng level
 
-### 6.1. Briefing
+Mỗi level có một GDD riêng trong `design/chuong-<n>/gdd-<chương>.<level>-<slug>.md`. Phần mở đầu game ở `design/gdd-mo-dau.md`.
 
-> **[NHẬT KÝ HỆ THỐNG – CỔNG PHÍA BẮC]**
-> Chip Neural-ID thu hồi từ một người đã chết. Dữ liệu còn đọc được, nhưng đã bị mã hóa thành chuỗi ký tự.
-> Máy quét chỉ chấp nhận số. Gửi chuỗi vào máy quét sẽ kích hoạt báo động.
-
-### 6.2. Bố cục màn hình
-
-| Trái | Giữa | Phải |
-|---|---|---|
-| Mục tiêu + tiêu chí | Code editor | Mô phỏng cổng an ninh + máy quét |
-
-### 6.3. Code khởi đầu (có lỗi cài sẵn)
-
-```python
-# Dữ liệu đọc từ chip (KHÔNG được sửa 3 dòng này)
-tuoi = "27"
-chieu_cao = "1.72"
-cap_do = "3"
-
-# Mã xác thực = tuổi × 100 + cấp độ
-ma_xac_thuc = tuoi * 100 + cap_do
-
-# Chỉ số sinh học = chiều cao × 2, làm tròn 2 chữ số
-chi_so = chieu_cao * 2
-
-hop_le = "True"
-```
-
-### 6.4. Mục tiêu
-
-- `ma_xac_thuc` kiểu `int`, giá trị đúng (với dữ liệu trên: **2703**)
-- `chi_so` kiểu `float`, giá trị đúng (với dữ liệu trên: **3.44**)
-- `hop_le` kiểu `bool`
-- **Mức cảnh báo ≤ 40%** (≤ 8 câu lệnh thực thi, không tính 3 dòng khóa)
-
-### 6.5. Diễn biến khi chạy
-
-- 3 gói dữ liệu **vàng** (`str`) trượt về máy quét
-- Với code gốc: code **chạy không lỗi**, vì `"27" * 100 + "3"` là phép nối chuỗi hợp lệ. `ma_xac_thuc` thành chuỗi 201 ký tự → gói vàng phình to → máy quét chuyển đỏ và báo sai hình dạng cho cả 3 biến. **Không có traceback** ở bước này; bài học là "chạy được chưa chắc đã đúng".
-- Lỗi Python thật xuất hiện ở các bước sửa dở, ví dụ `int(tuoi) * 100 + cap_do` gây `TypeError` ở dòng 7 → traceback trong bối cảnh (mục 4.2), dòng lỗi được tô trong editor.
-- Với code đúng: gói dữ liệu đổi màu sang xanh/tím/đỏ → qua máy quét → cổng mở một nửa
-- Dữ liệu đầu vào được engine nạp sẵn trước khi chạy; 3 dòng khóa chỉ để hiển thị. Nhờ vậy OMNI phản công thay được dữ liệu mà không sửa code người chơi.
-
-### 6.6. Lời giải tham khảo (đạt 2 sao)
-
-```python
-ma_xac_thuc = int(tuoi) * 100 + int(cap_do)
-chi_so = round(float(chieu_cao) * 2, 2)
-hop_le = True
-```
-
-### 6.7. OMNI phản công (sao thứ 3)
-
-```
-> CẢNH BÁO: OMNI ĐÃ THAY ĐỔI ĐỊNH DẠNG CHIP
-> tuoi = "31.0"   cap_do = "7"   chieu_cao = "1.65"
-```
-
-Bắt được hai lỗi phổ biến:
-- **Viết cứng kết quả** (`ma_xac_thuc = 2703`) → sai vì dữ liệu đã đổi
-- `int("31.0")` → `ValueError` → sinh viên phải nghĩ ra `int(float(tuoi))`
-
-Giá trị đúng với dữ liệu phản công: `ma_xac_thuc` = 3107, `chi_so` = 3.3, `hop_le` = True.
-
-Lời giải đạt 3 sao:
-
-```python
-ma_xac_thuc = int(float(tuoi)) * 100 + int(float(cap_do))
-chi_so = round(float(chieu_cao) * 2, 2)
-hop_le = True
-```
-
-### 6.8. Gợi ý và phản ứng của ECHO
-
-Gợi ý 3 mức (ECHO nói):
-
-| Mức | Nội dung |
+| Level | File |
 |---|---|
-| 1 | "Máy quét không đọc được ý nghĩa. Nó chỉ đọc… hình dạng của dữ liệu." |
-| 2 | "Dữ liệu cần được chuyển hình dạng trước khi tính toán. Thứ tự chuyển đổi… quan trọng." |
-| 3 | Tài liệu `int()`, `float()`, `round()` với ví dụ khác |
-
-Một số phản ứng miễn phí sau khi chạy (danh sách đầy đủ trong `src/levels/level-1-4.json`):
-
-| Tình huống | ECHO nói |
-|---|---|
-| Vào màn | Kết nối… ổn định. Tôi là ECHO. Mô-đun viết mã của tôi đã cháy. Tôi chỉ còn đọc. Máy quét phía trước chỉ nhận số. |
-| Sai kiểu (code gốc) | Máy quét từ chối {vars}. Sai hình dạng. Nó không đọc nội dung… chỉ đọc hình dạng. |
-| Giá trị khớp, sai kiểu (ví dụ `2703.0`) | Con số của {vars} khớp. Hình dạng thì không. Với máy quét, đó vẫn là vật lạ. |
-| `TypeError` | Dòng {line}. TypeError. Hai thứ khác hình dạng vừa bị ép vào cùng một phép toán. |
-| Vượt ngưỡng cảnh báo | Qua máy quét. Nhưng {count} câu lệnh… Sentinel đã ghi nhận tín hiệu. Chạy gọn hơn. |
-| Phản công gây `ValueError` | OMNI đổi định dạng chip. Dòng {line} vỡ: ValueError. Dữ liệu mới mang hình dạng bạn chưa lường. |
-| Viết cứng đáp án, trượt phản công | OMNI đổi dữ liệu chip. Kết quả của bạn không đổi theo. Nó được viết cho một con chip đã chết. |
-| Treo ở lượt phản công | OMNI đổi dữ liệu chip. Mã của bạn treo trên dữ liệu mới… Tôi cắt kết nối. Cổng chỉ mở một nửa. |
-| Đạt 3 sao | Cổng mở hoàn toàn. OMNI đổi dữ liệu, mã vẫn đứng vững. …Tôi ghi nhận điều đó. |
-
-`{vars}`, `{line}`, `{count}` được thay bằng giá trị thật của lần chạy.
-
-### 6.9. Chấm sao
-
-| Sao | Điều kiện |
-|---|---|
-| ⭐ | Đúng kiểu, đúng giá trị |
-| ⭐⭐ | Thêm: mức cảnh báo ≤ 40% |
-| ⭐⭐⭐ | Thêm: vượt qua OMNI phản công |
-| 0 sao | Vượt 100% cảnh báo (> 20 câu lệnh): bị Sentinel bắt |
-
-Màn hình kết quả hiển thị số lần chạy, số câu lệnh, mức cảnh báo và số gợi ý đã mở. Khi có backend sẽ thêm số liệu cộng đồng, ví dụ:
-*"68% người chơi qua level này · trung vị 3 lần chạy · bạn dùng ít lệnh hơn 74% người chơi."* Prototype không hiển thị số liệu cộng đồng, kể cả số giả.
-
-### 6.10. Đoạn truyện khi hoàn thành
-
-> Cổng phía Bắc mở. Trong bộ nhớ chip còn sót một dòng log chưa bị xóa:
-> *"KTS-03: Nếu ai đọc được dòng này, mảnh đầu tiên nằm dưới Cổng Kiểm Soát. Đừng tin tín hiệu nào mang mã 0xA7."*
-
-→ Dẫn vào Boss 1.7 và gieo nghi ngờ cho twist "Kiến Trúc Sư phản bội".
+| Mở đầu, chuyển cảnh, trục truyện Chương 1 | `design/gdd-mo-dau.md` |
+| 1.1 Khởi động | `design/chuong-1/gdd-1.1-khoi-dong.md` |
+| 1.2 Gán nhãn | `design/chuong-1/gdd-1.2-gan-nhan.md` |
+| 1.3 Bốn loại tín hiệu | `design/chuong-1/gdd-1.3-bon-loai-tin-hieu.md` |
+| 1.4 Tín hiệu lệch pha | `design/chuong-1/gdd-1.4-tin-hieu-lech-pha.md` |
 
 ---
 
@@ -338,8 +247,8 @@ Mỗi level nên tuân theo cấu trúc sau để soạn nhanh và đồng nhấ
   "float_abs_tolerance": 1e-9,
   "tests": [{"inputs": {"tuoi": "27", "chieu_cao": "1.72", "cap_do": "3"},
              "expected": {"ma_xac_thuc": 2703, "chi_so": 3.44, "hop_le": true}}],
-  "counter_attack_tests": [{"inputs": {"tuoi": "31.0", "chieu_cao": "1.65", "cap_do": "7"},
-                            "expected": {"ma_xac_thuc": 3107, "chi_so": 3.3, "hop_le": true}}],
+  "counter_attack_tests": [{"inputs": {"tuoi": "31.0", "chieu_cao": "1.653", "cap_do": "7"},
+                            "expected": {"ma_xac_thuc": 3107, "chi_so": 3.31, "hop_le": true}}],
   "counter_attack_banner": "…",
   "hints": ["…", "…", "…"],
   "reactions": {"entry": "…", "type_mismatch": "…", "TypeError": "…", "ValueError": "…",
@@ -348,6 +257,21 @@ Mỗi level nên tuân theo cấu trúc sau để soạn nhanh và đồng nhấ
   "lore_fragment": "…"
 }
 ```
+
+Hai trường tùy chọn (level không có vẫn hợp lệ):
+
+```json
+"task_steps": ["Sửa 3 lệnh `print` để terminal in ra đúng 3 dòng ở ô Mục tiêu, từng ký tự.", "Bấm CHẠY."],
+"knowledge_summary": {
+  "title": "…",
+  "sections": [{"heading": "…", "body": "…", "code": "print(\"Xin chao\")", "output": "Xin chao"}],
+  "mistakes": [{"code": "print(ho_ten)", "error": "NameError: name 'ho_ten' is not defined", "explain": "…"}],
+  "next": "…"
+}
+```
+
+- `task_steps`: 2–4 chuỗi không rỗng; chữ trong backtick hiện thành code. Không được chứa giá trị kỳ vọng hay dòng output kỳ vọng nào của test (validator kiểm); được nêu tên hàm như `print`.
+- `knowledge_summary`: không kiểm lộ đáp án. `sections` không rỗng; `code`, `output` tùy chọn, có `output` thì phải có `code`. Mọi `code` trong `sections` phải chạy không lỗi bằng Python thật và in đúng `output` (`tests/integration/knowledge-summary.test.ts`); code gây lỗi đặt ở `mistakes`. `next` là câu sau tiêu đề "Ở màn sau", không lặp lại cụm đó.
 
 `inputs` là các biến engine nạp sẵn; `locked_lines` chỉ dùng để hiển thị và chặn sửa. `reactions` có khoảng 30 khóa theo loại kết quả chạy (lỗi cú pháp, từng loại lỗi runtime, quá thời gian, import bị chặn, vượt cảnh báo, các kết quả phản công, 2 sao, 3 sao, thất bại liên tiếp…).
 
@@ -376,7 +300,8 @@ Trình duyệt mục tiêu của prototype: Chrome. Safari/iOS chưa được ki
 ## 9. Việc cần làm tiếp
 
 - [ ] Đặc tả chi tiết Boss 1.7 – Cổng Kiểm Soát
-- [ ] Đặc tả các level 1.1–1.3, 1.5–1.6
+- [x] Đặc tả mở đầu game, chuyển cảnh và level 1.1–1.3 (25/10/2026)
+- [ ] Đặc tả các level 1.5–1.6
 - [ ] Phác thảo chương 2–8 ở mức level
 - [ ] Thiết kế hồ sơ 8 Kiến Trúc Sư (tên, khu vực, nhật ký)
 - [ ] Thiết kế cơ chế ghép kill switch ở Boss cuối

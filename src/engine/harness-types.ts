@@ -1,3 +1,5 @@
+import type { InputValue } from "../game/level-types";
+
 /** Shape of the JSON produced by src/engine/python/harness.py `run_level`. */
 export type HarnessStatus =
   | "ok"
@@ -28,16 +30,58 @@ export interface HarnessError {
   traceback_omitted?: number;
 }
 
+/** One expected stdout line, compared after normalisation (NFC, trailing spaces dropped). */
+export interface HarnessOutputLine {
+  line: number;
+  expected: string;
+  /** null: the program printed fewer lines. Clipped to the preview length. */
+  actual: string | null;
+  status: "ok" | "wrong" | "missing";
+  /** 1-based position of the first differing character (wrong lines only). */
+  col: number | null;
+  /** Wrong only by letter case. */
+  case_only: boolean;
+}
+
+export interface HarnessOutput {
+  ok: boolean;
+  truncated: boolean;
+  lines: HarnessOutputLine[];
+  /** First extra lines (at most 3), clipped. */
+  extra_lines: string[];
+  extra_count: number;
+}
+
+/**
+ * One change of an objective variable (`trace_vars` on). `line`: the statement that made it.
+ * `type`/`preview` null: the name was deleted. `src`: the input whose loaded object this is.
+ */
+export interface VarHistoryEntry {
+  line: number | null;
+  var: string;
+  type: string | null;
+  preview: string | null;
+  src: string | null;
+}
+
 export interface HarnessTestResult {
   kind: "base" | "counter";
   index: number;
-  inputs: Record<string, string>;
+  inputs: Record<string, InputValue>;
   status: HarnessStatus;
   error: HarnessError | null;
   line_count: number;
   stdout: string;
   stdout_truncated: boolean;
+  /** Separate buffer, never graded. */
+  stderr: string;
   vars: Record<string, HarnessVar>;
+  /** null when the test has no `expected_output`. */
+  output: HarnessOutput | null;
+  /** Only with `trace_vars`: at most `var_history_max` (40) entries, in run order. */
+  var_history?: VarHistoryEntry[];
+  /** More changes happened than the history kept. */
+  var_history_truncated?: boolean;
 }
 
 export interface HarnessCompileError {

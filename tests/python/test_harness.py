@@ -490,3 +490,300 @@ class Sandbox(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
+
+# ---------------------------------------------------------------------------
+# Output grading (levels with `output_line` objectives, e.g. 1.1)
+# ---------------------------------------------------------------------------
+
+HANDSHAKE = ["NID/2089", "PHIEN K7Q2", "LO17 CAN LIEN LAC"]
+OUTPUT_CONFIG = json.dumps(
+    {
+        "inputs": ["ma_phien"],
+        "objectives": [],
+        "tests": [{"inputs": {"ma_phien": "K7Q2"}, "expected": {}, "expected_output": HANDSHAKE}],
+        "counter_attack_tests": [
+            {"inputs": {"ma_phien": "M4X8"}, "expected": {}, "expected_output": ["NID/2089", "PHIEN M4X8", "LO17 CAN LIEN LAC"]}
+        ],
+        "float_abs_tolerance": 1e-9,
+        "counter_line_count_cap": 10,
+    }
+)
+GOOD = 'print("NID/2089")\nprint("PHIEN", ma_phien)\nprint("LO17 CAN LIEN LAC")\n'
+
+
+def grade(src, config=OUTPUT_CONFIG):
+    return json.loads(run_level(config, src))
+
+
+def statuses(output):
+    return [line["status"] for line in output["lines"]]
+
+
+class OutputGrading(unittest.TestCase):
+    def test_normalisation_rules_accept_invisible_differences(self):
+        for src in (
+            'print("NID/2089   ")\nprint("PHIEN", ma_phien)\nprint("LO17 CAN LIEN LAC")\n',
+            'print("NID/2089", "")\nprint("PHIEN", ma_phien)\nprint("LO17 CAN LIEN LAC")\n',
+            GOOD + "print()\nprint()\n",
+            'print("NID/2089", end="\\r\\n")\nprint("PHIEN", ma_phien, end="\\r")\nprint("LO17 CAN LIEN LAC")\n',
+        ):
+            with self.subTest(src=src):
+                r = grade(src)
+                self.assertTrue(base(r)["output"]["ok"], base(r)["output"])
+                self.assertIsNotNone(r["counter_results"])
+
+    def test_real_differences_are_caught(self):
+        lead = base(grade(GOOD.replace('"NID/2089"', '" NID/2089"')))["output"]
+        self.assertEqual((lead["lines"][0]["status"], lead["lines"][0]["col"]), ("wrong", 1))
+        gap = base(grade(GOOD.replace('print("PHIEN"', 'print()\nprint("PHIEN"')))["output"]
+        self.assertEqual(statuses(gap), ["ok", "wrong", "wrong"])
+        self.assertEqual((gap["lines"][1]["actual"], gap["lines"][1]["col"]), ("", 1))
+        self.assertEqual(gap["extra_count"], 1)
+
+    def test_col_and_case_only(self):
+        joined = base(grade(GOOD.replace('"PHIEN", ma_phien', '"PHIEN" + ma_phien')))["output"]["lines"][1]
+        self.assertEqual((joined["actual"], joined["col"], joined["case_only"]), ("PHIENK7Q2", 6, False))
+        short = base(grade(GOOD.replace('"PHIEN", ma_phien', '"PHIEN"')))["output"]["lines"][1]
+        self.assertEqual(short["col"], 6)
+        lower = base(grade(GOOD.replace("LO17 CAN LIEN LAC", "lo17 can lien lac")))["output"]["lines"][2]
+        self.assertEqual((lower["status"], lower["col"], lower["case_only"]), ("wrong", 1, True))
+
+    def test_missing_and_extra_lines(self):
+        two = base(grade('print("NID/2089")\nprint("PHIEN", ma_phien)\n'))["output"]
+        self.assertEqual(statuses(two), ["ok", "ok", "missing"])
+        self.assertIsNone(two["lines"][2]["actual"])
+        four = grade(GOOD + 'print("XIN CHAO")\n')
+        out = base(four)["output"]
+        self.assertEqual((out["ok"], out["extra_count"], out["extra_lines"]), (False, 1, ["XIN CHAO"]))
+        self.assertIsNone(four["counter_results"])
+
+    def test_output_is_graded_even_when_the_run_fails(self):
+        b = base(grade('print("NID/2089")\nprint(PHIEN, ma_phien)\nprint("lo17 can lien lac")\n'))
+        self.assertEqual((b["status"], b["error"]["type"], b["error"]["line"]), ("runtime_error", "NameError", 2))
+        self.assertEqual(statuses(b["output"]), ["ok", "missing", "missing"])
+        r = grade(GOOD + "1 / 0\n")
+        self.assertEqual(base(r)["error"]["type"], "ZeroDivisionError")
+        self.assertTrue(base(r)["output"]["ok"])
+        self.assertIsNone(r["counter_results"], "a failing run never passes, even with the right output")
+
+    def test_truncated_output_never_passes(self):
+        start = time.monotonic()
+        out = base(grade('print("A" * 10**6)\n'))["output"]
+        self.assertLess(time.monotonic() - start, 2)
+        self.assertTrue(out["truncated"])
+        self.assertFalse(out["ok"])
+        self.assertLessEqual(len(out["lines"][0]["actual"]), 81)
+
+    def test_stderr_is_kept_apart_and_not_graded(self):
+        b = base(grade(GOOD + 'import warnings\nwarnings.warn("canh bao x")\n'))
+        self.assertTrue(b["output"]["ok"])
+        self.assertIn("canh bao x", b["stderr"])
+        self.assertNotIn("canh bao x", b["stdout"])
+
+    def test_nfd_equals_nfc_for_output_and_str_vars(self):
+        config = json.dumps(
+            {
+                "inputs": [],
+                "objectives": [{"var": "ten", "type": "str"}],
+                "tests": [{"inputs": {}, "expected": {"ten": "LIÊN"}, "expected_output": ["LIÊN"]}],
+                "counter_attack_tests": [],
+            }
+        )
+        b = base(grade('ten = "LIE\\u0302N"\nprint(ten)\n', config))
+        self.assertEqual(b["output"]["lines"][0]["status"], "ok")
+        self.assertTrue(b["vars"]["ten"]["value_ok"])
+
+
+
+# ---------------------------------------------------------------------------
+# Assignment history (`trace_vars`, kiosk simulation of 1.2)
+# ---------------------------------------------------------------------------
+
+with open(os.path.join(ROOT, "src", "levels", "level-1-2.json"), encoding="utf-8") as fh:
+    LEVEL_12 = json.load(fh)
+
+
+def config_12(**extra):
+    return json.dumps(
+        {
+            "inputs": LEVEL_12["inputs"],
+            "objectives": [{"var": o["var"], "type": o["type"]} for o in LEVEL_12["objectives"]],
+            "tests": LEVEL_12["tests"],
+            "counter_attack_tests": LEVEL_12["counter_attack_tests"],
+            "float_abs_tolerance": LEVEL_12["float_abs_tolerance"],
+            "counter_line_count_cap": 27,
+            "trace_vars": True,
+            **extra,
+        }
+    )
+
+
+STARTER_12 = LEVEL_12["starter_code"].split("\n")
+
+
+def run_12(changes=None, body=None, config=None):
+    """Starter code of 1.2 with 1-based editor lines replaced, or lines 1–7 then `body`."""
+    lines = list(STARTER_12)
+    if body is not None:
+        lines = lines[:7] + body.split("\n")
+    for n, text in (changes or {}).items():
+        lines[n - 1] = text
+    return json.loads(run_level(config or config_12(), blank_locked("\n".join(lines), (2, 3, 4, 5))))
+
+
+def hist(result):
+    return [(e["line"], e["var"], e["preview"], e["src"]) for e in result["var_history"]]
+
+
+class VarHistory(unittest.TestCase):
+    def test_lines_match_the_editor_up_to_the_error(self):
+        b = base(run_12())
+        self.assertEqual(b["error"]["type"], "NameError")
+        self.assertEqual(b["error"]["line"], 13)
+        self.assertEqual(
+            hist(b),
+            [(8, "ho_ten", "'ĐỖ MINH AN'", "goi_1"), (9, "ma_khu", "'K-12'", "goi_2"), (10, "so_hieu", "'goi_3'", None)],
+        )
+        self.assertFalse(b["var_history_truncated"])
+
+    def test_src_is_identity_with_the_loaded_input(self):
+        def so_hieu(line10):
+            entries = [e for e in base(run_12({10: line10, 13: "the_quet = ho_ten"}))["var_history"] if e["var"] == "so_hieu"]
+            return entries[-1]["src"]
+
+        self.assertEqual(so_hieu("so_hieu = goi_3"), "goi_3")
+        # Equal text typed by hand is another object: not read from the buffer.
+        self.assertIsNone(so_hieu('so_hieu = "AN-5521"'))
+        # The input name rebound: the value is no longer the buffer's object.
+        self.assertIsNone(so_hieu('goi_3 = "x"; so_hieu = goi_3'))
+
+    def test_history_is_capped_and_marked_truncated(self):
+        start = time.monotonic()
+        b = base(run_12(body='ma_khu = goi_2\nwhile True:\n    ma_khu = ma_khu + "x"'))
+        self.assertLess(time.monotonic() - start, 5)
+        self.assertEqual(b["status"], "timeout")
+        self.assertEqual(len(b["var_history"]), 40)
+        self.assertTrue(b["var_history_truncated"])
+
+    def test_never_runs_player_dunders_and_records_del(self):
+        body = (
+            "class Evil:\n"
+            "    def __eq__(self, other):\n"
+            "        raise RuntimeError('eq')\n"
+            "    def __repr__(self):\n"
+            "        while True:\n"
+            "            pass\n"
+            "    __hash__ = None\n"
+            "ho_ten = Evil()\n"
+            "ho_ten = Evil()\n"
+            "del ho_ten\n"
+        )
+        b = base(run_12(body=body))
+        self.assertEqual(b["status"], "ok")
+        entries = [e for e in b["var_history"] if e["var"] == "ho_ten"]
+        self.assertEqual([e["preview"] for e in entries], ["<Evil>", "<Evil>", None])
+        self.assertEqual([e["line"] for e in entries], [15, 16, 17])
+        self.assertIsNone(entries[-1]["type"])
+
+    def test_off_by_default_and_tracing_changes_no_grade(self):
+        r = run(SOLUTION_67)
+        self.assertNotIn("var_history", base(r))
+        self.assertNotIn("var_history", counter(r))
+        on = run_12(body=LEVEL_12_THREE_STAR)
+        off = json.loads(run_level(config_12(trace_vars=False), blank_locked("\n".join(STARTER_12[:7] + LEVEL_12_THREE_STAR.split("\n")), (2, 3, 4, 5))))
+        for a, b in ((base(on), base(off)), (counter(on), counter(off))):
+            self.assertNotIn("var_history", b)
+            self.assertEqual((a["vars"], a["line_count"], a["status"]), (b["vars"], b["line_count"], b["status"]))
+        self.assertEqual(base(on)["line_count"], 9)
+
+
+LEVEL_12_THREE_STAR = (
+    "ho_ten = goi_1\n"
+    "ma_khu = goi_2\n"
+    "so_hieu = goi_3\n"
+    "khu_cu = ma_khu\n"
+    "ma_khu = goi_4\n"
+    'the_quet = ho_ten + " / " + ma_khu\n'
+    'the_cong = so_hieu + " / " + ma_khu\n'
+    "print(the_quet)\n"
+    "print(the_cong)\n"
+)
+
+
+TYPE_CONFIG = json.dumps(
+    {
+        "inputs": ["ma_phien"],
+        "objectives": [{"var": "k", "type": "type"}],
+        "tests": [{"inputs": {"ma_phien": 4096}, "expected": {"k": "int"}}],
+        "counter_attack_tests": [{"inputs": {"ma_phien": "7351"}, "expected": {"k": "str"}}],
+        "float_abs_tolerance": 1e-9,
+        "counter_line_count_cap": 17,
+    }
+)
+
+
+def run_type(body):
+    return json.loads(run_level(TYPE_CONFIG, body))
+
+
+class TypeObjective(unittest.TestCase):
+    """A variable that must hold a shape itself (level 1.3 `khuon_phien`)."""
+
+    def k(self, body, which=base):
+        return which(run_type(body))["vars"]["k"]
+
+    def test_asking_the_value_follows_the_input_shape(self):
+        r = run_type("k = type(ma_phien)\n")
+        self.assertEqual(base(r)["inputs"], {"ma_phien": 4096})
+        for result, shape in ((base(r), "int"), (counter(r), "str")):
+            self.assertEqual(result["vars"]["k"], {
+                "present": True, "type": "type", "preview": f"<class '{shape}'>", "length": None,
+                "type_ok": True, "value_ok": True, "value_match_other_type": False,
+            })
+
+    def test_a_hand_copied_shape_breaks_on_the_counter_attack(self):
+        self.assertTrue(self.k("k = int\n")["value_ok"])
+        self.assertEqual((lambda v: (v["type_ok"], v["value_ok"]))(self.k("k = int\n", counter)), (True, False))
+
+    def test_the_shape_name_as_text_matches_the_content_only(self):
+        for text in ('"int"', "\"<class 'int'>\"", '" int "'):
+            v = self.k(f"k = {text}\n")
+            self.assertEqual((v["type_ok"], v["value_match_other_type"]), (False, True), text)
+        self.assertFalse(self.k('k = "float"\n')["value_match_other_type"])
+
+    def test_another_shape_is_the_right_kind_with_the_wrong_value(self):
+        for body in ("k = type\n", "k = type(None)\n", "k = float\n"):
+            v = self.k(body)
+            self.assertEqual((v["type_ok"], v["value_ok"]), (True, False), body)
+        self.assertEqual(self.k("k = type(None)\n")["preview"], "<class 'NoneType'>")
+
+    def test_player_code_cannot_fake_a_shape(self):
+        # `int` rebound by the player is 5, not the shape.
+        self.assertEqual((lambda v: (v["type"], v["type_ok"]))(self.k("int = 5\nk = int\n")), ("int", False))
+        # A class with a metaclass whose __repr__ hangs: never called, not a plain shape.
+        body = "class M(type):\n    def __repr__(self):\n        while True:\n            pass\nk = M('X', (), {})\n"
+        start = time.monotonic()
+        v = self.k(body)
+        self.assertLess(time.monotonic() - start, 5)
+        self.assertEqual((v["type"], v["preview"], v["type_ok"]), ("M", "<M>", False))
+
+    def test_a_player_class_never_passes_for_a_shape_or_runs_code_through_its_name(self):
+        v = self.k("class int:\n    pass\nk = int\n")
+        self.assertEqual((v["type_ok"], v["value_ok"], v["preview"]), (True, False, "<class '__main__.int'>"))
+        # A __name__ that is a str subclass: its __str__/__add__ never run.
+        body = (
+            "class S(str):\n"
+            "    def __str__(self):\n"
+            "        while True:\n"
+            "            pass\n"
+            "    __add__ = __radd__ = __str__\n"
+            "class K:\n"
+            "    pass\n"
+            "K.__name__ = S('int')\n"
+            "k = K\n"
+        )
+        start = time.monotonic()
+        v = self.k(body)
+        self.assertLess(time.monotonic() - start, 5)
+        self.assertEqual((v["preview"], v["value_ok"]), ("<class '__main__.int'>", False))

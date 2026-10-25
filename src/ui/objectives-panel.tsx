@@ -1,8 +1,13 @@
 import { useEffect, useRef } from "react";
 import { alertPercent, formatAlertPercent, fullAlertStatements } from "../game/alert";
 import type { RunOutcome } from "../game/classify-run";
-import type { LevelDefinition } from "../game/level-types";
-import { toneVar } from "./type-colors";
+import { isOutputObjective, type LevelDefinition, type Objective } from "../game/level-types";
+import { vocabularyFor } from "../game/sim-vocabulary";
+import { typeTitle } from "../game/type-gloss";
+import { toneOf, toneVar } from "./type-colors";
+
+const METER_TITLE =
+  "Mỗi lệnh Python mã của bạn chạy tính là một câu lệnh (dòng khóa không tính). Càng nhiều câu lệnh, OMNI càng dễ thấy. Vượt 100% thì bị Sentinel bắt.";
 
 function AlertMeter({ count, limit, shown }: { count: number | null; limit: number; shown: boolean }) {
   const total = fullAlertStatements(limit);
@@ -11,10 +16,10 @@ function AlertMeter({ count, limit, shown }: { count: number | null; limit: numb
   const over = count !== null && count > limit;
   return (
     <div className={`alert-meter${shown ? " is-in" : " is-pending"}`}>
-      <div className="alert-meter-head">
+      <div className="alert-meter-head" title={METER_TITLE}>
         <span className="label">Thanh cảnh báo</span>
         <span className={`alert-meter-value${over ? " is-over" : ""}`}>
-          {count === null ? `–/${limit} lệnh` : `${count}/${limit} lệnh · ${formatAlertPercent(percent)}`}
+          {count === null ? `–/${limit} câu lệnh` : `${count}/${limit} câu lệnh · ${formatAlertPercent(percent)}`}
         </span>
       </div>
       <div
@@ -36,11 +41,24 @@ function AlertMeter({ count, limit, shown }: { count: number | null; limit: numb
       </div>
       <div className="alert-scale" aria-hidden="true">
         <span>0</span>
-        <span style={{ left: `${(limit / total) * 100}%` }}>40% tàng hình</span>
+        <span style={{ left: `${(limit / total) * 100}%` }} title={`Đến ${limit} câu lệnh (40%), OMNI chưa nhận ra bạn.`}>
+          40% tàng hình
+        </span>
         <span>100%</span>
       </div>
     </div>
   );
+}
+
+function objectiveState(o: Objective, outcome: RunOutcome | null): "idle" | "pass" | "fail" {
+  if (!outcome || outcome.key === "engine_error") return "idle";
+  if (isOutputObjective(o)) {
+    // No output report (syntax error, cut-off run): nothing went out, like a missing variable.
+    const line = outcome.output?.lines[o.line - 1];
+    return line?.status === "ok" ? "pass" : "fail";
+  }
+  const v = outcome.vars.find((x) => x.name === o.var);
+  return !v ? "idle" : v.typeOk && v.valueOk ? "pass" : "fail";
 }
 
 interface Props {
@@ -66,23 +84,28 @@ export function ObjectivesPanel({ level, outcome, revealed, meterShown }: Props)
     <section ref={panel} className="panel objectives" aria-labelledby="obj-title">
       <header className="panel-head">
         <h2 id="obj-title" className="panel-title">Mục tiêu</h2>
-        <span className="panel-meta">máy quét chỉ đọc hình dạng</span>
+        <span className="panel-meta">{vocabularyFor(level).objectivesNote}</span>
       </header>
       <div className="panel-body">
         <ul className="objective-list">
           {level.objectives.map((o, i) => {
-            const v = outcome?.vars.find((x) => x.name === o.var);
-            const state = !v || !outcome || outcome.key === "engine_error" ? "idle" : v.typeOk && v.valueOk ? "pass" : "fail";
+            const state = objectiveState(o, outcome);
             return (
-              <li key={o.var} className={`objective is-${state}${i < revealed ? " is-in" : " is-pending"}`}>
+              <li key={isOutputObjective(o) ? `line-${o.line}` : `var-${o.var}`} className={`objective is-${state}${i < revealed ? " is-in" : " is-pending"}`}>
                 <span className="objective-mark" aria-hidden="true" />
                 <div className="objective-text">
-                  <code className="objective-var">{o.var}</code>
+                  {!isOutputObjective(o) && <code className="objective-var">{o.var}</code>}
                   <span className="objective-label">{o.label}</span>
                 </div>
-                <span className="type-chip" style={{ ["--chip" as string]: toneVar(o.type) }}>
-                  {o.type}
-                </span>
+                {isOutputObjective(o) ? (
+                  <span className="type-chip" style={{ ["--chip" as string]: "var(--type-str)" }}>
+                    dòng {o.line}
+                  </span>
+                ) : (
+                  <span className="type-chip" style={{ ["--chip" as string]: toneVar(toneOf(o.type)) }} title={typeTitle(o.type)}>
+                    {o.type}
+                  </span>
+                )}
                 <span className="sr-only">{state === "pass" ? "đạt" : state === "fail" ? "chưa đạt" : "chưa chạy"}</span>
               </li>
             );

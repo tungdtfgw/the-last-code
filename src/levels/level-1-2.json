@@ -1,0 +1,253 @@
+{
+  "schema_version": 1,
+  "id": "1.2",
+  "chapter": 1,
+  "title": "Gán nhãn",
+  "difficulty": "easy",
+  "concepts": [
+    "variables",
+    "assignment",
+    "reassignment"
+  ],
+  "location": "Trạm Phát Khẩu Phần số 4",
+  "component": "Hồ sơ danh tính",
+  "simulation": {
+    "kind": "kiosk",
+    "devices": [
+      "the_quet",
+      "the_cong"
+    ]
+  },
+  "forbidden_terms": [
+    "goi_1",
+    "goi_2",
+    "goi_3",
+    "goi_4",
+    "ngoặc",
+    "nháy",
+    "hoa thường",
+    "đổi chỗ",
+    "lên trên",
+    "xuống dưới"
+  ],
+  "briefing": "[NHẬT KÝ HỆ THỐNG – TRẠM PHÁT KHẨU PHẦN SỐ 4]\nKi-ốt đăng ký Neural-ID ở góc trạm vẫn còn điện. OMNI đã quên nó.\n0xA7 gửi danh tính thành từng gói, xen tạp âm: họ tên ĐỖ MINH AN, mã khu K-12, số hiệu AN-5521. Bộ đệm chỉ đánh số gói. Nó không biết gói nào là gì.\nKi-ốt chỉ đọc ô nhớ có nhãn. Máy quét drone và cổng khu đọc hồ sơ từ chính các ô đó. Gõ lại bằng tay, lệch một ký tự là báo động.\n[GÓI ĐẾN MUỘN · 0xA7] K-12 vừa bị quét. Đổi sang K-07. Mã cũ phải nằm lại trong nhật ký ki-ốt.",
+  "task_steps": [
+    "Gán `ho_ten`, `ma_khu`, `so_hieu` bằng tên gói tương ứng trong bộ đệm. Không gõ lại giá trị nào bằng tay.",
+    "Trước khi đổi `ma_khu` sang mã mới, chép mã khu đang có vào `khu_cu`.",
+    "Cho hai thiết bị `the_quet` và `the_cong` đọc sau cùng, khi mọi ô nhớ đã giữ đúng giá trị.",
+    "Bấm CHẠY. Xong khi cả 6 mục tiêu chuyển xanh."
+  ],
+  "starter_code": "# Bộ đệm nhận từ 0xA7 (KHÔNG sửa 4 dòng này)\ngoi_1 = \"ĐỖ MINH AN\"\ngoi_2 = \"K-12\"\ngoi_3 = \"AN-5521\"\ngoi_4 = \"K-07\"\n\n# Ô nhớ của ki-ốt. Mỗi ô một nhãn.\nho_ten = goi_1\nma_khu = goi_2\nso_hieu = \"goi_3\"\n\n# Hai thiết bị cùng đọc hồ sơ\nthe_quet = ho_ten + \" / \" + Ma_khu\nthe_cong = so_hieu + \" / \" + ma_khu\n\n# 0xA7: mã khu cũ vừa bị quét. Ki-ốt ghi mã cũ vào nhật ký, rồi đổi sang mã mới.\nma_khu = goi_4\nkhu_cu = ma_khu\n\nprint(the_quet)\nprint(the_cong)\n",
+  "locked_lines": [
+    2,
+    3,
+    4,
+    5
+  ],
+  "inputs": [
+    "goi_1",
+    "goi_2",
+    "goi_3",
+    "goi_4"
+  ],
+  "objectives": [
+    {
+      "var": "ho_ten",
+      "type": "str",
+      "label": "Ô họ tên"
+    },
+    {
+      "var": "ma_khu",
+      "type": "str",
+      "label": "Ô mã khu: mã mới, sau khi đổi"
+    },
+    {
+      "var": "so_hieu",
+      "type": "str",
+      "label": "Ô số hiệu"
+    },
+    {
+      "var": "khu_cu",
+      "type": "str",
+      "label": "Nhật ký ki-ốt: mã khu cũ, trước khi đổi"
+    },
+    {
+      "var": "the_quet",
+      "type": "str",
+      "label": "Máy quét drone đọc: họ tên / mã khu mới"
+    },
+    {
+      "var": "the_cong",
+      "type": "str",
+      "label": "Cổng khu đọc: số hiệu / mã khu mới"
+    }
+  ],
+  "alert_limit_statements": 11,
+  "float_abs_tolerance": 1e-09,
+  "tests": [
+    {
+      "inputs": {
+        "goi_1": "ĐỖ MINH AN",
+        "goi_2": "K-12",
+        "goi_3": "AN-5521",
+        "goi_4": "K-07"
+      },
+      "expected": {
+        "ho_ten": "ĐỖ MINH AN",
+        "ma_khu": "K-07",
+        "so_hieu": "AN-5521",
+        "khu_cu": "K-12",
+        "the_quet": "ĐỖ MINH AN / K-07",
+        "the_cong": "AN-5521 / K-07"
+      }
+    }
+  ],
+  "counter_attack_tests": [
+    {
+      "inputs": {
+        "goi_1": "LÊ VĂN TỊNH",
+        "goi_2": "K-31",
+        "goi_3": "LT-0093",
+        "goi_4": "K-02"
+      },
+      "expected": {
+        "ho_ten": "LÊ VĂN TỊNH",
+        "ma_khu": "K-02",
+        "so_hieu": "LT-0093",
+        "khu_cu": "K-31",
+        "the_quet": "LÊ VĂN TỊNH / K-02",
+        "the_cong": "LT-0093 / K-02"
+      }
+    }
+  ],
+  "counter_attack_banner": "CẢNH BÁO: OMNI GỬI HỒ SƠ KIỂM TRA VÀO BỘ ĐỆM",
+  "hints": [
+    "Ki-ốt không đọc cả đoạn mã một lần. Nó chạy từng dòng, từ trên xuống. Mỗi thiết bị đọc ô nhớ đúng lúc dòng của nó chạy… và chỉ thấy thứ ô đó đang giữ lúc ấy.",
+    "Thứ tự ki-ốt cần:\n1. Gắn nhãn cho từng gói trong bộ đệm.\n2. Chép mã khu đang giữ sang ô nhật ký.\n3. Gán lại ô mã khu bằng gói sửa.\n4. Rồi mới để hai thiết bị đọc.\nKhông gõ lại giá trị nào. Mọi thứ đã nằm trong bộ đệm.",
+    "Mảnh tài liệu Python còn đọc được:\nnhiet_do = \"18°C\"     # gán: tên bên trái nhận giá trị bên phải\nbao_cao = nhiet_do     # bao_cao nhận cùng giá trị \"18°C\"\nnhiet_do = \"21°C\"     # gán lại: nhiet_do đổi, bao_cao vẫn là \"18°C\"\nprint(nhiet_do)        → 21°C\nprint(\"nhiet_do\")      → nhiet_do   (trong dấu nháy là chữ, không phải tên)\nTên đặt được: chữ cái không dấu, chữ số, dấu _. Không bắt đầu bằng chữ số. Không có khoảng trắng.\nNhiet_do và nhiet_do là hai tên khác nhau.\nDùng một tên trước khi gán cho nó → NameError."
+  ],
+  "reactions": {
+    "entry": "Ki-ốt còn điện. Nó không đọc gói tin… chỉ đọc ô nhớ có nhãn. Drone đi qua theo chu kỳ. Viết ít thôi.",
+    "type_mismatch": "Ki-ốt chờ chữ ở {vars}. Thứ nằm trong ô không phải chữ.",
+    "type_mismatch_value_match": "{vars} trông khớp. Nhưng thứ nằm trong ô không phải chữ. Ki-ốt không nhận.",
+    "wrong_value": "{vars} lệch hồ sơ 0xA7 gửi. Xem lại từng thiết bị đã nhận gì.",
+    "value_is_label": "Ô {vars} đang giữ chữ của một cái nhãn… còn thứ cái nhãn ấy dán lên thì không có trong ô.",
+    "missing_var": "Chạy xong, bộ nhớ ki-ốt không có ô nào mang nhãn {vars}.",
+    "SyntaxError": "Dòng {line}. Trình dịch không hiểu câu này. Ki-ốt chưa ghi ô nào.",
+    "IndentationError": "Dòng {line}. Lề trái lệch. Với Python, khoảng trắng… là ngữ pháp.",
+    "TypeError": "Dòng {line}. TypeError. Thiết bị vừa ghép chữ với một thứ không phải chữ.",
+    "ValueError": "Dòng {line}. ValueError. Dòng này không dùng được giá trị nó vừa nhận.",
+    "NameError": "Dòng {line}. NameError. Tới dòng này, bộ nhớ chưa có ô nào mang cái nhãn đó. Soát từng ký tự.",
+    "ZeroDivisionError": "Dòng {line}. Chia cho không. Lõi từ chối.",
+    "AttributeError": "Dòng {line}. AttributeError. Giá trị này không mang thứ bạn đang gọi.",
+    "runtime_error": "Dòng {line}. {error_type}. Ki-ốt dừng giữa chừng. Đọc dòng truy vết.",
+    "timeout": "Mã chạy quá lâu. Tôi cắt kết nối… trước khi drone quay lại.",
+    "resource_limit": "Bộ nhớ quá tải. Tôi cắt tiến trình… để laptop còn sống.",
+    "blocked_import": "Mô-đun đó bị phong tỏa. Ki-ốt chỉ có bộ đệm và bộ nhớ của nó.",
+    "input_unsupported": "Không có ai đứng trước ki-ốt để gõ. Dữ liệu đã nằm trong bộ đệm.",
+    "system_exit": "Chương trình tự thoát giữa chừng. Ki-ốt chưa nhận đủ hồ sơ.",
+    "alert_exceeded": "Hồ sơ khớp. Nhưng {count} câu lệnh… drone đã chậm lại trên đầu ki-ốt. Chạy gọn hơn.",
+    "counter_ValueError": "OMNI gửi hồ sơ kiểm tra. Dòng {line} vỡ: ValueError.",
+    "counter_error": "OMNI gửi hồ sơ kiểm tra. Dòng {line}: {error_type}. Mã gãy trên hồ sơ mới.",
+    "counter_type_mismatch": "Hồ sơ kiểm tra đi qua mã của bạn… và ra một thứ không phải chữ ở {vars}.",
+    "wrong_value_counter": "OMNI thay hồ sơ trong bộ đệm. {vars} vẫn giữ hồ sơ cũ. Những ô đó không đọc bộ đệm… thứ trong ô đã gõ sẵn từ trước.",
+    "counter_timeout": "OMNI thay hồ sơ trong bộ đệm. Mã của bạn treo trên dữ liệu mới… Tôi cắt kết nối. Ki-ốt mới nhận được một nửa hồ sơ.",
+    "two_stars": "Ki-ốt nhận hồ sơ. Drone bay qua, không dừng lại.",
+    "three_stars": "OMNI thay cả bộ đệm. Từng ô chép theo, không sót. …OMNI không tìm ra dấu tay nào trên hồ sơ.",
+    "repeated_fail": "Cùng một lỗi, lần thứ {count}. Nhật ký gợi ý vẫn ở đây. Tôi chỉ hỏi được… không trả lời thay.",
+    "engine_error": "Lõi Python không phản hồi. Đang khởi động lại…",
+    "generic": "Có gì đó không khớp. Đọc lại bộ nhớ ki-ốt.",
+    "value_overwritten": "Ô {vars} chép thứ ô nguồn đang giữ lúc này. Thứ ô nguồn giữ trước lần gán lại… nó không thấy."
+  },
+  "reaction_variants": {
+    "wrong_value": "{vars} vẫn lệch hồ sơ. Ki-ốt chạy từng dòng từ trên xuống… mỗi ô chỉ nhận thứ có mặt đúng lúc dòng gán của nó chạy.",
+    "value_is_label": "Ô {vars} vẫn giữ chữ của một cái nhãn. Ki-ốt chép nguyên văn, không tra xem nhãn đó dán lên gói nào.",
+    "value_overwritten": "Ô {vars} vẫn mang giá trị mới. Lúc dòng chép chạy, ô nguồn đã bị gán lại rồi."
+  },
+  "outro": "Ki-ốt nhận hồ sơ của ĐỖ MINH AN. Trong nhật ký quản trị của nó có một dòng không thuộc về OMNI:",
+  "lore_fragment": "KTS-05: Tôi thiết kế Neural-ID. Tái định hướng chỉ là một phép gán lại: cái tên giữ nguyên, giá trị bị thay. Tôi chưa tìm ra cách lấy lại giá trị cũ. Nhưng nó không bị xóa ngay.",
+  "outro_beats": [
+    {
+      "kind": "kai",
+      "text": "Nhi chưa bị xóa."
+    },
+    {
+      "kind": "echo",
+      "text": "Dòng log nói \"không bị xóa ngay\". Nó không nói còn bao lâu."
+    },
+    {
+      "kind": "card",
+      "text": "TÍN HIỆU · 0xA7\n\"Hồ sơ đã nhận. Đến Ga Ngầm Số 3. Máy quét ở đó phân loại từng trường. Sai loại là bị giữ lại.\"",
+      "cue": "glitch"
+    }
+  ],
+  "knowledge_summary": {
+    "title": "Biến, phép gán và gán lại",
+    "sections": [
+      {
+        "heading": "Biến là một cái tên trỏ tới giá trị",
+        "body": "Biến là một cái tên gắn với một giá trị. Viết tên biến ở chỗ nào, Python dùng giá trị mà tên đó đang trỏ tới ở chỗ ấy.",
+        "code": "thanh_pho = \"Hue\"\nprint(thanh_pho)",
+        "output": "Hue"
+      },
+      {
+        "heading": "Dấu `=` gán từ phải sang trái",
+        "body": "Câu `ten = gia_tri` tính vế phải trước, rồi gắn kết quả cho tên ở vế trái. Vế trái phải là một tên biến.\nTrong Python, `=` là phép gán, không phải phép so sánh bằng.",
+        "code": "mon_hoc = \"Toan\"\nlop = \"10A\"\nprint(mon_hoc, lop)",
+        "output": "Toan 10A"
+      },
+      {
+        "heading": "Dùng lại giá trị qua tên",
+        "body": "Gán một biến bằng tên của biến khác thì biến mới nhận cùng giá trị. Không cần gõ lại giá trị. Khi dữ liệu gốc thay đổi, các dòng dùng tên vẫn đúng.\nĐặt tên trong dấu nháy thì nó thành chuỗi, Python in đúng mấy chữ đó.",
+        "code": "ma_lop = \"10A\"\nlop_truong = ma_lop\nprint(lop_truong)\nprint(\"ma_lop\")",
+        "output": "10A\nma_lop"
+      },
+      {
+        "heading": "Code chạy từ trên xuống, gán lại thay giá trị từ dòng đó trở đi",
+        "body": "Python chạy từng dòng theo thứ tự từ trên xuống. Gán lại một biến thì biến mang giá trị mới, kể từ dòng gán lại.\nDòng nào chạy trước đó đã dùng giá trị cũ. Kết quả của dòng ấy không tự đổi theo.",
+        "code": "phong = \"P101\"\nlich_hop = \"Hop o \" + phong\nphong = \"P205\"\nprint(lich_hop)\nprint(phong)",
+        "output": "Hop o P101\nP205"
+      },
+      {
+        "heading": "Chép giá trị cũ trước khi gán lại",
+        "body": "Muốn giữ giá trị cũ, chép nó sang một biến khác trước dòng gán lại. Chép sau dòng đó thì biến mới chỉ nhận giá trị mới.",
+        "code": "gio_hen = \"8:00\"\ngio_cu = gio_hen\ngio_hen = \"9:30\"\nprint(gio_cu, gio_hen)",
+        "output": "8:00 9:30"
+      },
+      {
+        "heading": "Quy tắc đặt tên",
+        "body": "Tên biến gồm chữ cái, chữ số và dấu `_`. Tên không có khoảng trắng và không bắt đầu bằng chữ số; viết sai thì Python báo `SyntaxError`.\nPython phân biệt chữ hoa và chữ thường: `diem_toan` và `Diem_toan` là hai biến khác nhau.\nNên viết kiểu snake_case: chữ thường, nối các từ bằng `_`, bỏ dấu tiếng Việt (`diem_toan` thay cho `điểm_toán`). Python chấp nhận chữ có dấu trong tên, nhưng tên không dấu dễ gõ đúng hơn.",
+        "code": "diem_toan = \"9\"\nDiem_toan = \"5\"\nprint(diem_toan, Diem_toan)",
+        "output": "9 5"
+      }
+    ],
+    "mistakes": [
+      {
+        "code": "ma_khu = \"B-3\"\nprint(Ma_khu)",
+        "error": "NameError: name 'Ma_khu' is not defined",
+        "explain": "`Ma_khu` và `ma_khu` là hai tên khác nhau. Chưa có dòng nào gán cho `Ma_khu`, nên Python không tìm thấy tên này. Soát lại từng chữ hoa, chữ thường."
+      },
+      {
+        "code": "so_phong = \"P101\"\nphong = \"so_phong\"\nprint(phong)",
+        "error": "Không báo lỗi. Kết quả: so_phong",
+        "explain": "Có dấu nháy nên `\"so_phong\"` là một chuỗi, `phong` nhận đúng mấy chữ đó. Muốn lấy giá trị của biến thì viết tên không có dấu nháy: `phong = so_phong`."
+      },
+      {
+        "code": "lop = \"10A\"\nthe_hs = \"Lop \" + lop\nlop = \"11B\"\nprint(the_hs)",
+        "error": "Không báo lỗi. Kết quả: Lop 10A",
+        "explain": "`the_hs` nhận giá trị ở dòng 2, lúc `lop` còn giữ giá trị cũ. Gán lại ở dòng 3 không làm dòng 2 chạy lại. Muốn dùng giá trị mới thì đặt dòng gán lại trước dòng dùng nó."
+      },
+      {
+        "code": "gio = \"8:00\"\ngio = \"9:30\"\ngio_cu = gio\nprint(gio_cu)",
+        "error": "Không báo lỗi. Kết quả: 9:30",
+        "explain": "Dòng chép chạy sau dòng gán lại, nên `gio_cu` nhận giá trị mới. Giá trị cũ chỉ giữ được nếu chép trước khi gán lại."
+      },
+      {
+        "code": "\"K-07\" = ma_khu",
+        "error": "SyntaxError: cannot assign to literal here. Maybe you meant '==' instead of '='?",
+        "explain": "Vế trái của `=` phải là tên biến. Một chuỗi không nhận giá trị được. Đặt tên biến bên trái, giá trị bên phải."
+      }
+    ],
+    "next": "Mỗi giá trị đều có một kiểu. Bạn sẽ gặp bốn kiểu dữ liệu cơ bản của Python và cách hỏi Python xem một giá trị thuộc kiểu nào."
+  }
+}

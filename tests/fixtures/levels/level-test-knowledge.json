@@ -1,0 +1,75 @@
+{
+  "schema_version": 1,
+  "id": "9.8",
+  "chapter": 9,
+  "title": "Level thử nghiệm có tổng kết",
+  "difficulty": "easy",
+  "concepts": [
+    "variables"
+  ],
+  "briefing": "Level giả chỉ dùng trong test.",
+  "starter_code": "a = \"5\"\nketqua = a\n",
+  "locked_lines": [
+    1
+  ],
+  "inputs": [
+    "a"
+  ],
+  "objectives": [
+    {
+      "var": "ketqua",
+      "type": "int",
+      "label": "Kết quả"
+    }
+  ],
+  "alert_limit_statements": 2,
+  "float_abs_tolerance": 1e-9,
+  "tests": [
+    {
+      "inputs": {
+        "a": "5"
+      },
+      "expected": {
+        "ketqua": 5
+      }
+    }
+  ],
+  "counter_attack_tests": [],
+  "hints": [
+    "một",
+    "hai",
+    "ba"
+  ],
+  "reactions": {
+    "generic": "Có gì đó không khớp."
+  },
+  "outro": "Xong.",
+  "lore_fragment": "",
+  "task_steps": [
+    "Đổi `ketqua` thành số nguyên.",
+    "Bấm CHẠY để kiểm tra."
+  ],
+  "knowledge_summary": {
+    "title": "Đổi chuỗi thành số",
+    "sections": [
+      {
+        "heading": "Chuỗi chữ số chưa phải là số",
+        "body": "`\"8\" + \"1\"` nối hai chuỗi, không cộng.",
+        "code": "x = \"8\"\nprint(x + \"1\")\nprint(int(x) + 1)",
+        "output": "81\n9"
+      },
+      {
+        "heading": "Kiểm tra kiểu",
+        "body": "Hàm `type` cho biết giá trị thuộc kiểu nào."
+      }
+    ],
+    "mistakes": [
+      {
+        "code": "int(\"8.5\")",
+        "error": "ValueError: invalid literal for int() with base 10: '8.5'",
+        "explain": "`int` không đọc được chuỗi có dấu chấm."
+      }
+    ],
+    "next": "Ở màn sau bạn sẽ cần đổi chuỗi thành số thực."
+  }
+}

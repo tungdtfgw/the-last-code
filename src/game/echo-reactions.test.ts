@@ -2,7 +2,7 @@ import { describe, expect, test } from "vitest";
 import { gradeFixture } from "../../tests/integration/run-harness";
 import levelJson from "../levels/level-1-4.json";
 import type { RunOutcome } from "./classify-run";
-import { renderTemplate, selectEntry, selectReaction } from "./echo-reactions";
+import { REPEAT_PREFIX, renderTemplate, selectEntry, selectReaction } from "./echo-reactions";
 import type { LevelDefinition } from "./level-types";
 
 const level = levelJson as unknown as LevelDefinition;
@@ -22,13 +22,13 @@ describe("ECHO says the line that matches the run (AC 8)", () => {
     expect(say("two-star")).toBe("OMNI đổi định dạng chip. Dòng 7 vỡ: ValueError. Dữ liệu mới mang hình dạng bạn chưa lường.");
   });
   test("hard-coded → wrong value under counter-attack", () => {
-    expect(say("hardcoded")).toContain("Nó được viết cho một con chip đã chết.");
+    expect(say("hardcoded")).toContain("Nó viết cho một con chip đã chết.");
   });
   test("6.7 → three stars", () => {
     expect(say("three-star")).toContain("Cổng mở hoàn toàn.");
   });
   test("entry line", () => {
-    expect(selectEntry(level)).toContain("Tôi là ECHO.");
+    expect(selectEntry(level)).toContain("Chip của người đưa tin vẫn phát");
   });
 });
 
@@ -57,4 +57,30 @@ test("missing placeholder data becomes ? and never leaks braces", () => {
 test("unknown key falls back to generic", () => {
   const custom = { ...level, reactions: { generic: "G" } } as LevelDefinition;
   expect(selectReaction({ key: "TypeError", stars: 0, details: {} } as unknown as RunOutcome, custom, []).primary).toBe("G");
+});
+
+describe("ECHO never says the same line on two runs in a row", () => {
+  const typeMismatch = { key: "type_mismatch", stars: 0, details: { vars: "chi_so" } } as unknown as RunOutcome;
+  const say = (o: RunOutcome, history: string[], lvl = level) => selectReaction(o, lvl, history as never).primary;
+
+  test("the level's variant on the second run, the main line again on the third", () => {
+    const first = say(typeMismatch, []);
+    const second = say(typeMismatch, ["type_mismatch"]);
+    expect(second).toBe(renderTemplate(level.reaction_variants!.type_mismatch!, typeMismatch.details));
+    expect(second).not.toBe(first);
+    expect(say(typeMismatch, ["type_mismatch", "type_mismatch"])).toBe(first);
+  });
+
+  test("without a variant the repeated line gets a prefix; another key in between resets it", () => {
+    const syntax = { key: "SyntaxError", stars: 0, details: { line: 3 } } as unknown as RunOutcome;
+    const first = say(syntax, []);
+    expect(say(syntax, ["SyntaxError"])).toBe(REPEAT_PREFIX + first);
+    expect(say(syntax, ["SyntaxError", "TypeError"])).toBe(first);
+  });
+
+  test("a variant is ignored when the level has no main line for that key", () => {
+    const bare = { ...level, reactions: { generic: "G" }, reaction_variants: { TypeError: "V" } } as LevelDefinition;
+    const typeError = { key: "TypeError", stars: 0, details: {} } as unknown as RunOutcome;
+    expect(say(typeError, ["TypeError"], bare)).toBe(REPEAT_PREFIX + "G");
+  });
 });

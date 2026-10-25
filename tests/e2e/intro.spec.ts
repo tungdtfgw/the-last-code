@@ -1,5 +1,5 @@
 import { expect, test, type Page } from "@playwright/test";
-import { enterMission, showTab } from "./helpers";
+import { LEVEL_URL, enterMission, showTab } from "./helpers";
 
 // Level intro and per-panel scrolling. No Python needed: these run before and around the Pyodide load.
 
@@ -8,15 +8,16 @@ const briefingText = (page: Page) => page.locator(".briefing .panel-body").inner
 const revealedCount = (page: Page) => page.locator(".objective.is-in").count();
 
 test("intro: gate first, then the briefing types out, objectives lock in one by one, then ECHO speaks", async ({ page }) => {
-  await page.goto("/");
+  await page.goto(LEVEL_URL);
   await expect(gate(page)).toBeFocused();
   // Nothing is revealed behind the gate.
   expect((await briefingText(page)).trim()).toBe("");
   expect(await revealedCount(page)).toBe(0);
   await expect(page.locator(".alert-meter.is-pending")).toHaveCount(1);
-  await expect(page.locator(".echo-portrait.is-asleep")).toHaveCount(1);
+  await expect(page.locator(".echo-fab .echo-portrait.is-asleep")).toHaveCount(1);
+  await expect(page.locator(".echo-bubble")).toHaveCount(0);
   // Screen readers still get the whole briefing.
-  await expect(page.locator(".briefing .sr-only")).toContainText("Máy quét chỉ chấp nhận số");
+  await expect(page.locator(".briefing .sr-only")).toContainText("Máy quét chỉ nhận số");
 
   await gate(page).click();
   await expect(gate(page)).toHaveCount(0);
@@ -51,15 +52,15 @@ test("intro: gate first, then the briefing types out, objectives lock in one by 
 
   // Alert meter powers up last, then ECHO wakes and starts talking.
   await expect(page.locator(".alert-meter.is-in")).toHaveCount(1);
-  await expect(page.locator(".echo-portrait.is-asleep")).toHaveCount(0);
-  await expect(page.locator(".echo-line").first()).not.toBeEmpty();
+  await expect(page.locator(".echo-fab .echo-portrait.is-asleep")).toHaveCount(0);
+  await expect(page.locator(".echo-bubble .echo-line").first()).not.toBeEmpty();
   const full = await briefingText(page);
   expect(full).toContain("Chip Neural-ID thu hồi từ một người đã chết.");
-  expect(full).toContain("Gửi chuỗi vào máy quét sẽ kích hoạt báo động.");
+  expect(full).toContain("Đưa chuỗi vào là báo động.");
 });
 
 test("intro: any key during the reveal shows everything at once", async ({ page }) => {
-  await page.goto("/");
+  await page.goto(LEVEL_URL);
   await gate(page).click();
   await expect(gate(page)).toHaveCount(0);
   await page.waitForTimeout(300);
@@ -67,18 +68,18 @@ test("intro: any key during the reveal shows everything at once", async ({ page 
   await expect(page.locator(".alert-meter.is-in")).toHaveCount(1, { timeout: 1000 });
   expect(await revealedCount(page)).toBe(3);
   await showTab(page, "Nhiệm vụ");
-  expect(await briefingText(page)).toContain("Gửi chuỗi vào máy quét sẽ kích hoạt báo động.");
+  expect(await briefingText(page)).toContain("Đưa chuỗi vào là báo động.");
 });
 
 test("intro with reduced motion: gate, then everything shown immediately", async ({ browser }) => {
   const context = await browser.newContext({ reducedMotion: "reduce" });
   const page = await context.newPage();
-  await page.goto("/");
+  await page.goto(LEVEL_URL);
   await gate(page).click();
   await expect(page.locator(".alert-meter.is-in")).toHaveCount(1, { timeout: 1000 });
   expect(await revealedCount(page)).toBe(3);
   await showTab(page, "Nhiệm vụ");
-  expect(await briefingText(page)).toContain("Gửi chuỗi vào máy quét sẽ kích hoạt báo động.");
+  expect(await briefingText(page)).toContain("Đưa chuỗi vào là báo động.");
   await context.close();
 });
 
@@ -89,8 +90,12 @@ test("each box scrolls on its own; the page never scrolls (desktop and tablet)",
     { width: 900, height: 600 },
   ]) {
     await page.setViewportSize(size);
-    await page.goto("/");
+    // Same URL with a hash is a same-document navigation; reload for a fresh level start.
+    await page.goto(LEVEL_URL);
+    await page.reload();
     await enterMission(page);
+    // ECHO's entry bubble floats over the foot of the mission column; close it so the wheel reaches the boxes.
+    await page.getByRole("button", { name: "Đóng bong bóng ECHO" }).click();
     const pageScroll = () => page.evaluate(() => document.documentElement.scrollHeight - window.innerHeight);
     expect(await pageScroll(), `page scroll at ${size.width}x${size.height}`).toBeLessThanOrEqual(0);
 

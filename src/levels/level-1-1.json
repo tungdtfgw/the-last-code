@@ -1,0 +1,227 @@
+{
+  "schema_version": 1,
+  "id": "1.1",
+  "chapter": 1,
+  "title": "Khởi động",
+  "difficulty": "easy",
+  "concepts": [
+    "print",
+    "string"
+  ],
+  "location": "Tầng hầm Lô 17 · Trạm chuyển tiếp R-17",
+  "component": "Tiêu đề tín hiệu",
+  "simulation": {
+    "kind": "relay",
+    "station": "R-17"
+  },
+  "briefing": "[NHẬT KÝ HỆ THỐNG – TẦNG HẦM LÔ 17]\nLaptop nối dây lên Trạm chuyển tiếp R-17 trên mái. Dòng nào in ra terminal, trạm phát nguyên văn dòng đó vào Mạng Mù.\nGiao thức bắt tay: 3 dòng, đúng thứ tự, đúng từng ký tự, chữ không dấu. Sai một ký tự, sai hoa thường: trạm bỏ gói.\nMã phiên do trạm cấp. Trạm khởi động lại thì mã đổi.\nSửa mã trong neural_id.py. Bấm CHẠY (Ctrl+Enter, ⌘+Enter trên Mac) để phát. Kết quả hiện ở terminal.",
+  "task_steps": [
+    "Bấm CHẠY (Ctrl+Enter, ⌘+Enter trên Mac) với mã có sẵn. Đọc terminal để biết dòng nào hỏng.",
+    "Sửa 3 lệnh `print` để terminal in ra 3 dòng ở ô Mục tiêu: đúng thứ tự, khớp từng ký tự, đúng chữ hoa chữ thường.",
+    "Không sửa dòng khóa ở đầu file. Mã phiên đổi mỗi khi trạm khởi động lại, và dòng 2 vẫn phải đúng sau lần đổi đó.",
+    "Xong khi cả 3 mục tiêu chuyển xanh. Dùng tối đa 4 câu lệnh (mức cảnh báo không quá 40%) để được thêm sao."
+  ],
+  "knowledge_summary": {
+    "title": "print, chuỗi và tên biến",
+    "sections": [
+      {
+        "heading": "`print` in ra một dòng",
+        "body": "`print(...)` in thứ nằm trong ngoặc ra terminal rồi xuống dòng. Gọi `print` bao nhiêu lần thì có bấy nhiêu dòng, theo đúng thứ tự trong code.",
+        "code": "print(\"Xin chao\")\nprint(\"Hen gap lai\")",
+        "output": "Xin chao\nHen gap lai"
+      },
+      {
+        "heading": "Chuỗi nằm trong dấu nháy",
+        "body": "Chuỗi (kiểu `str`) là một dãy ký tự đặt giữa hai dấu nháy. Nháy đơn `'...'` và nháy kép `\"...\"` cho cùng một chuỗi; chỉ cần mở và đóng bằng cùng một loại.\nPython in chuỗi đúng như đã viết, kể cả dấu cách và dấu câu. Hai dấu nháy chỉ đánh dấu chỗ chuỗi bắt đầu và kết thúc, nên không hiện trong kết quả.",
+        "code": "print('Lop 10A')\nprint(\"Phong 2.05, tang 2\")",
+        "output": "Lop 10A\nPhong 2.05, tang 2"
+      },
+      {
+        "heading": "Tên biến và chữ trong dấu nháy",
+        "body": "Một tên viết không có dấu nháy là tên biến. Python tìm giá trị đã gán cho tên đó và in giá trị ấy.\nĐặt cùng tên đó vào dấu nháy thì nó thành chuỗi, và Python in đúng mấy chữ cái đó.",
+        "code": "ten = \"Mai\"\nprint(ten)\nprint(\"ten\")",
+        "output": "Mai\nten"
+      },
+      {
+        "heading": "Dấu phẩy trong `print` chèn một dấu cách",
+        "body": "`print` nhận nhiều giá trị, ngăn nhau bằng dấu phẩy. Khi in, nó đặt đúng một dấu cách giữa hai giá trị liền nhau. Dấu phẩy chỉ là cú pháp, không hiện trong kết quả.",
+        "code": "lop = \"10A\"\nprint(\"Lop\", lop)\nprint(\"Lop\", lop, \"nam 2026\")",
+        "output": "Lop 10A\nLop 10A nam 2026"
+      },
+      {
+        "heading": "Dấu `+` nối chuỗi, không chèn dấu cách",
+        "body": "Đặt `+` giữa hai chuỗi thì được một chuỗi mới, ghép sát nhau. Cần dấu cách thì phải tự viết dấu cách vào trong một chuỗi.",
+        "code": "ho = \"Tran\"\nprint(ho + \"Mai\")\nprint(ho + \" Mai\")",
+        "output": "TranMai\nTran Mai"
+      },
+      {
+        "heading": "Từng ký tự đều có nghĩa",
+        "body": "Hai chuỗi chỉ bằng nhau khi giống nhau ở mọi ký tự. Chữ hoa và chữ thường là hai ký tự khác nhau; thừa hay thiếu một dấu cách cũng làm chuỗi khác đi.\nPhép so sánh `==` cho `True` khi hai chuỗi bằng nhau và `False` khi chúng khác nhau.",
+        "code": "print(\"abc\" == \"abc\")\nprint(\"abc\" == \"ABC\")\nprint(\"abc\" == \"abc \")",
+        "output": "True\nFalse\nFalse"
+      }
+    ],
+    "mistakes": [
+      {
+        "code": "print(Hello)",
+        "error": "NameError: name 'Hello' is not defined",
+        "explain": "Thiếu dấu nháy nên Python coi `Hello` là tên biến và đi tìm giá trị của nó. Chưa có biến nào tên như vậy.\nMuốn in chữ thì đặt chữ trong dấu nháy: `print(\"Hello\")`."
+      },
+      {
+        "code": "Print(\"Xin chao\")",
+        "error": "NameError: name 'Print' is not defined. Did you mean: 'print'?",
+        "explain": "Python phân biệt chữ hoa và chữ thường, nên `Print` và `print` là hai tên khác nhau. Tên hàm đúng là `print`, viết thường.\nChữ trong chuỗi cũng vậy: `\"OK\"` và `\"ok\"` là hai chuỗi khác nhau, dù Python không báo lỗi."
+      },
+      {
+        "code": "print(“Xin chao”)",
+        "error": "SyntaxError: invalid character '“' (U+201C)",
+        "explain": "Đây là dấu nháy cong, hay lẫn vào khi chép chữ từ Word hoặc từ trang web. Python chỉ nhận nháy thẳng `\"` và `'`.\nVì là lỗi cú pháp, Python dừng trước khi chạy, nên không dòng nào in ra, kể cả những dòng đúng."
+      },
+      {
+        "code": "  print(\"Xin chao\")",
+        "error": "IndentationError: unexpected indent",
+        "explain": "Với Python, khoảng trắng đầu dòng là một phần của cú pháp. Lệnh ở ngoài cùng phải bắt đầu sát lề trái."
+      },
+      {
+        "code": "ten = \"Mai\"\nprint(\"Chao, ten\")",
+        "error": "Không báo lỗi, nhưng in ra: Chao, ten",
+        "explain": "Cả `ten` lẫn dấu phẩy đều nằm trong dấu nháy, nên Python in chúng như chữ thường. Muốn in giá trị của biến, để tên biến ngoài dấu nháy: `print(\"Chao\", ten)` in ra `Chao Mai`."
+      },
+      {
+        "code": "ten = \"Mai\"\nprint(\"Chao\" + ten)",
+        "error": "Không báo lỗi, nhưng in ra: ChaoMai",
+        "explain": "`+` ghép hai chuỗi sát nhau. Thêm dấu cách vào trong chuỗi (`\"Chao \" + ten`), hoặc dùng dấu phẩy để `print` tự chèn dấu cách."
+      }
+    ],
+    "next": "Bạn sẽ tự tạo biến: đặt tên cho một giá trị, dùng tên đó ở nhiều chỗ, rồi gán lại khi giá trị đổi."
+  },
+  "starter_code": "# Trạm R-17 phát lại nguyên văn từng dòng in ra terminal.\n# Mã phiên trạm vừa cấp (KHÔNG được sửa dòng này):\nma_phien = \"K7Q2\"\n\n# Bản nháp gói bắt tay của Kai. Trạm chưa nhận dòng nào.\nprint(\"NID/2089\")\nprint(PHIEN, ma_phien)\nprint(\"lo17 can lien lac\")\n",
+  "locked_lines": [
+    3
+  ],
+  "inputs": [
+    "ma_phien"
+  ],
+  "objectives": [
+    {
+      "kind": "output_line",
+      "line": 1,
+      "label": "Tiêu đề tín hiệu: NID/2089"
+    },
+    {
+      "kind": "output_line",
+      "line": 2,
+      "label": "PHIEN, một dấu cách, rồi mã phiên mà trạm đang cấp"
+    },
+    {
+      "kind": "output_line",
+      "line": 3,
+      "label": "Lời gọi, đúng cỡ chữ: LO17 CAN LIEN LAC"
+    }
+  ],
+  "alert_limit_statements": 4,
+  "float_abs_tolerance": 1e-09,
+  "tests": [
+    {
+      "inputs": {
+        "ma_phien": "K7Q2"
+      },
+      "expected": {},
+      "expected_output": [
+        "NID/2089",
+        "PHIEN K7Q2",
+        "LO17 CAN LIEN LAC"
+      ]
+    }
+  ],
+  "counter_attack_tests": [
+    {
+      "inputs": {
+        "ma_phien": "M4X8"
+      },
+      "expected": {},
+      "expected_output": [
+        "NID/2089",
+        "PHIEN M4X8",
+        "LO17 CAN LIEN LAC"
+      ]
+    }
+  ],
+  "counter_attack_banner": "CẢNH BÁO: OMNI QUÉT LƯỚI ĐIỆN · TRẠM R-17 KHỞI ĐỘNG LẠI",
+  "forbidden_terms": [
+    "ma_phien",
+    "\"",
+    "'",
+    "ngoặc kép",
+    "dấu nháy",
+    "dấu phẩy",
+    "nối chuỗi",
+    "cộng chuỗi",
+    "viết hoa",
+    "in hoa",
+    "K7Q2",
+    "M4X8"
+  ],
+  "hints": [
+    "Hai dòng đầu của bản nháp cùng mở bằng một lệnh. Một dòng phát được, một dòng vỡ. Đặt chúng cạnh nhau. Chúng khác nhau ở đâu… đến từng ký tự?",
+    "Trong ngoặc tròn của print, Python phân biệt hai loại.\nChữ nằm trọn trong dấu nháy: phát nguyên văn.\nMột cái tên trần: Python tra trong bộ nhớ, rồi phát thứ đang cất dưới tên đó. Không có tên ấy thì vỡ.\nChữ cố định của giao thức thuộc loại thứ nhất. Thứ trạm có thể đổi bất kỳ lúc nào… thuộc loại thứ hai.\n\nphát  <chữ cố định của dòng 1>\nphát  <chữ cố định PHIEN>  <thứ đang cất dưới tên của mã phiên>\nphát  <chữ cố định của dòng 3, đúng cỡ chữ>",
+    "Mảnh tài liệu Python còn đọc được:\nprint(\"Xin chào\")        → Xin chào\nprint('Xin chào')        → Xin chào   (nháy đơn hay kép đều được)\nprint(Xin)               → NameError: không có thứ nào tên Xin\nten = \"Lan\"\nprint(\"Chào\", ten)       → Chào Lan   (dấu phẩy chèn một dấu cách)\nprint(\"Chào \" + ten)     → Chào Lan   (+ nối hai chuỗi, không tự thêm dấu cách)\nprint(\"Chào ten\")        → Chào ten   (trong dấu nháy, ten chỉ là chữ)\n\"abc\" == \"ABC\"           → False      (chuỗi phân biệt hoa thường)\nMỗi lệnh print phát một dòng."
+  ],
+  "reactions": {
+    "entry": "Terminal đã mở. Trạm R-17 lặp lại mọi thứ bạn in ra… đúng từng ký tự. Chưa cần sửa gì. Chạy một lần. Rồi đọc terminal.",
+    "output_missing": "Từ dòng phát thứ {out_line} trở đi, trạm R-17 không nhận được gì. Mạng Mù im lặng.",
+    "output_mismatch": "Dòng phát thứ {out_line} lệch ở ký tự thứ {col}. Trạm R-17 không đoán ý. Nó bỏ cả gói.",
+    "output_case_only": "Dòng phát thứ {out_line}: từng chữ cái đều đúng… nếu bỏ qua cỡ chữ. Trạm R-17 không bỏ qua.",
+    "output_extra": "Đủ dòng. Rồi thêm {count} dòng ngoài giao thức. Trạm R-17 bỏ cả phiên.",
+    "SyntaxError": "Dòng {line}. Trình dịch không đọc nổi câu này. Trạm không phát dòng nào… kể cả những dòng đúng.",
+    "IndentationError": "Dòng {line}. Lề trái lệch. Với Python, khoảng trắng đầu dòng… là ngữ pháp.",
+    "NameError": "Dòng {line}. NameError. Python đi tìm một thứ mang tên đó trong bộ nhớ… không thấy. Đặt dòng này cạnh một dòng đã phát được.",
+    "TypeError": "Dòng {line}. TypeError. Hai thứ không ghép được với nhau vừa bị ép vào cùng một lệnh.",
+    "ValueError": "Dòng {line}. ValueError. Giá trị này không dùng được ở chỗ đó.",
+    "ZeroDivisionError": "Dòng {line}. Chia cho không. Lõi từ chối. Những gì đã phát trước đó… không cứu được phiên.",
+    "AttributeError": "Dòng {line}. AttributeError. Thứ này không mang cái bạn đang gọi.",
+    "runtime_error": "Dòng {line}. {error_type}. Chương trình dừng giữa chừng. Những dòng sau nó chưa kịp phát.",
+    "timeout": "Mã chạy quá lâu. Tôi cắt kết nối… trước khi lưới điện ghi nhận xung.",
+    "resource_limit": "Bộ nhớ quá tải. Tôi cắt tiến trình… để laptop còn sống.",
+    "blocked_import": "Mô-đun đó bị phong tỏa. Laptop này chưa từng nối mạng. Ngoài những gì đã có trong máy… không còn gì.",
+    "input_unsupported": "Không ai ở đầu kia để gõ trả lời. Trạm R-17 chỉ phát… không nhận.",
+    "system_exit": "Chương trình tự dừng giữa chừng. Trạm R-17 không nhận được phần còn lại.",
+    "alert_exceeded": "Trạm đã phát. Nhưng {count} lệnh… mỗi lệnh là một xung trên dây. Lưới điện OMNI đã ghi nhận. Viết gọn hơn.",
+    "counter_ValueError": "Trạm R-17 khởi động lại. Dòng {line} vỡ: ValueError. Mã không chịu được phiên mới.",
+    "counter_error": "Trạm R-17 khởi động lại. Dòng {line}: {error_type}. Mã không chịu được phiên mới.",
+    "wrong_value_counter": "Trạm R-17 khởi động lại, phiên mới. Dòng phát thứ {out_line} của bạn vẫn như cũ. Nó viết cho một phiên đã chết.",
+    "counter_timeout": "Trạm R-17 khởi động lại. Mã của bạn treo trên phiên mới… Tôi cắt kết nối. Kênh chỉ mở một nửa.",
+    "three_stars": "Phiên đổi. Tín hiệu vẫn đi. …Tôi ghi nhận điều đó.",
+    "repeated_fail": "Cùng một lỗi, lần thứ {count}. Nhật ký gợi ý vẫn ở đây. Tôi chỉ hỏi được… không trả lời thay.",
+    "engine_error": "Lõi Python không phản hồi. Đang khởi động lại…",
+    "generic": "Có gì đó không khớp. Đọc lại từng dòng trong terminal.",
+    "output_is_label": "Dòng phát thứ {out_line} mang chữ của một cái tên… không phải thứ đang cất dưới tên đó. Trạm phát nguyên văn."
+  },
+  "reaction_variants": {
+    "output_mismatch": "Dòng phát thứ {out_line} vẫn lệch, từ ký tự thứ {col}. Đặt dòng cần và dòng nhận trong terminal cạnh nhau.",
+    "output_is_label": "Dòng phát thứ {out_line} vẫn chở nguyên chữ của một cái tên. Trạm không tra bộ nhớ cho thứ nó phát nguyên văn."
+  },
+  "outro": "Tín hiệu đầu tiên đi vào Mạng Mù. Trong bộ đệm của trạm R-17 còn sót một dòng log cũ:",
+  "lore_fragment": "KTS-01: Chúng tôi còn tám người. OMNI sẽ tìm đến từng người. Mỗi người giấu một mảnh, và không ai được biết chỗ của người khác. Kể cả tôi.",
+  "outro_beats": [
+    {
+      "kind": "log",
+      "text": "Ba phút im lặng. Rồi terminal nhận một gói tin.",
+      "cue": "terminal_line",
+      "backdrop": "terminal"
+    },
+    {
+      "kind": "card",
+      "text": "TÍN HIỆU · 0xA7\n\"Đã nghe. Muốn qua Cổng phía Bắc, cần một danh tính. Chuẩn bị bộ nhớ.\"",
+      "cue": "glitch"
+    },
+    {
+      "kind": "echo",
+      "text": "Mã 0xA7. Tôi không có ghi chép nào về nó."
+    },
+    {
+      "kind": "kai",
+      "text": "Ít nhất đã có người nghe thấy."
+    }
+  ]
+}

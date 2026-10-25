@@ -6,7 +6,7 @@ import { EditorView, drawSelection, highlightActiveLine, highlightActiveLineGutt
 import { tags as t } from "@lezer/highlight";
 import { forwardRef, useEffect, useImperativeHandle, useRef, useState } from "react";
 import type { Cue } from "../audio/sound-recipes";
-import { getLockedLineNumbers, lockedEditBlocked, lockedLines } from "./locked-lines-extension";
+import { getLockedLineNumbers, lockedEditBlocked, lockedEditKept, lockedLines } from "./locked-lines-extension";
 
 export interface CodeEditorHandle {
   focusLine(line: number): void;
@@ -109,7 +109,12 @@ export const CodeEditor = forwardRef<CodeEditorHandle, Props>(function CodeEdito
             if (tr.effects.some((e) => e.is(lockedEditBlocked))) {
               callbacks.current.onCue("locked_blocked");
               setBlockedMsg("");
-              requestAnimationFrame(() => setBlockedMsg("Dòng dữ liệu chip bị khóa."));
+              requestAnimationFrame(() => setBlockedMsg("Dòng dữ liệu nạp sẵn bị khóa."));
+              setFlash((f) => f + 1);
+            } else if (tr.effects.some((e) => e.is(lockedEditKept))) {
+              // The edit went through around the block: show which lines it left alone.
+              setBlockedMsg("");
+              requestAnimationFrame(() => setBlockedMsg("Đã sửa phần còn lại. Dòng dữ liệu nạp sẵn vẫn giữ nguyên."));
               setFlash((f) => f + 1);
             }
           }

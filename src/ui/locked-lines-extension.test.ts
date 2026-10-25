@@ -8,6 +8,7 @@ import {
   findLockedBlock,
   getLockedLineNumbers,
   lockedEditBlocked,
+  lockedEditKept,
   lockedLines,
   setLockedStart,
 } from "./locked-lines-extension";
@@ -56,7 +57,7 @@ describe("locked lines (AC 5)", () => {
     expect(apply(s, { changes: { from: end, to: end + 1 } }).blocked).toBe(true);
   });
 
-  test("select all + delete, cut across the block, paste over it are blocked", () => {
+  test("without a user event (programmatic), select all + delete, cut across the block, paste over it are blocked", () => {
     const s = make();
     expect(apply(s, { changes: { from: 0, to: s.doc.length } }).blocked).toBe(true);
     expect(apply(s, { changes: { from: pos(s, 1, 3), to: pos(s, 6, 2), insert: "pasted" } }).blocked).toBe(true);
@@ -118,6 +119,75 @@ describe("locked lines (AC 5)", () => {
     const s = make(doc, 1);
     expect(apply(s, { changes: { from: 0, insert: "y" } }).blocked).toBe(true);
     expect(apply(s, { changes: { from: s.doc.line(4).from, insert: "y" } }).blocked).toBe(false);
+  });
+});
+
+describe("typing, pasting or deleting across the block applies around it", () => {
+  /** Apply a user edit; report whether it was blocked or rewritten around the block. */
+  function user(state: EditorState, spec: TransactionSpec, userEvent: string) {
+    const tr = state.update({ ...spec, userEvent });
+    return {
+      state: tr.state,
+      blocked: tr.effects.some((e) => e.is(lockedEditBlocked)),
+      kept: tr.effects.some((e) => e.is(lockedEditKept)),
+    };
+  }
+  const all = (s: EditorState) => ({ from: 0, to: s.doc.length });
+
+  test("select all + paste of a whole program that contains the block: no duplicate, block stays", () => {
+    const s = make();
+    const program = ["# mới", ...texts, "", "ma_xac_thuc = 1", "chi_so = 2.0", "hop_le = True"].join("\n");
+    const r = user(s, { changes: { ...all(s), insert: program } }, "input.paste");
+    expect(r).toMatchObject({ blocked: false, kept: true });
+    expect(r.state.doc.toString()).toBe(program);
+    expect(getLockedLineNumbers(r.state)).toEqual([2, 3, 4]);
+  });
+
+  test("select all + type: the text replaces what was above the block, below it is cleared", () => {
+    const s = make();
+    const r = user(s, { changes: { ...all(s), insert: "x" } }, "input.type");
+    expect(r.kept).toBe(true);
+    expect(r.state.doc.toString()).toBe(["x", ...texts, ""].join("\n"));
+    expect(lockedText(r.state)).toEqual(texts);
+  });
+
+  test("select all + delete, and a cut from line 1 to line 6, keep only the block in place", () => {
+    const s = make();
+    expect(user(s, { changes: all(s) }, "delete.selection").state.doc.toString()).toBe(["", ...texts, ""].join("\n"));
+    const r = user(s, { changes: { from: pos(s, 1, 3), to: pos(s, 6, 2) } }, "delete.cut");
+    expect(r.kept).toBe(true);
+    expect(r.state.doc.line(1).text).toBe(s.doc.line(1).text.slice(0, 3));
+    expect(lockedText(r.state)).toEqual(texts);
+    expect(r.state.doc.line(5).text).toBe(s.doc.line(6).text.slice(2));
+  });
+
+  test("a paste without the block, starting below it, lands below it", () => {
+    const s = make();
+    const r = user(s, { changes: { from: pos(s, 3, 2), to: s.doc.line(7).to, insert: "y = 2" } }, "input.paste");
+    expect(r.kept).toBe(true);
+    expect(lockedText(r.state)).toEqual(texts);
+    expect(r.state.doc.line(5).text).toBe("y = 2");
+  });
+
+  test("edits that only touch the block are still blocked: typing inside, paste over a line, joining lines", () => {
+    const s = make();
+    expect(user(s, { changes: { from: pos(s, 3, 4), insert: "x" } }, "input.type").blocked).toBe(true);
+    expect(user(s, { changes: { from: pos(s, 3), to: s.doc.line(3).to, insert: "z" } }, "input.paste").blocked).toBe(true);
+    expect(user(s, { changes: { from: pos(s, 5) - 1, to: pos(s, 5) } }, "delete.backward").blocked).toBe(true);
+  });
+
+  test("drag-and-drop across the block is rejected whole", () => {
+    const s = make();
+    expect(user(s, { changes: { ...all(s), insert: "moved" } }, "move.drop").blocked).toBe(true);
+  });
+
+  test("undo restores the document after a rewritten select-all paste", () => {
+    let current = make();
+    current = user(current, { changes: { ...all(current), insert: "x" } }, "input.paste").state;
+    const dispatch = (tr: { state: EditorState }) => (current = tr.state);
+    undo({ state: current, dispatch });
+    expect(current.doc.toString()).toBe(starter);
+    expect(getLockedLineNumbers(current)).toEqual([2, 3, 4]);
   });
 });
 

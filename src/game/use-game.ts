@@ -65,7 +65,7 @@ export function useGame(level: LevelDefinition, repository: ProgressRepository, 
       codeRef.current = code;
       lockedRef.current = lockedTexts.map((_t, i) => lockStart + i);
       setInitialDoc({ code, lockStart });
-      dispatch({ type: "progress_loaded", progress, notice });
+      dispatch({ type: "progress_loaded", progress, notice, hints: level.hints });
     });
     return () => {
       alive = false;

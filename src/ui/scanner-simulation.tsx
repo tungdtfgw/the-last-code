@@ -1,10 +1,10 @@
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useMemo } from "react";
 import type { Cue } from "../audio/sound-recipes";
 import type { RunOutcome } from "../game/classify-run";
-import type { LevelDefinition } from "../game/level-types";
+import { varObjectives, type LevelDefinition } from "../game/level-types";
 import { buildTimeline, idleScene, runningScene, summarize, type Packet, type PacketStage, type Scene } from "./scanner-timeline";
 import { toneVar } from "./type-colors";
-import { useReducedMotion } from "./use-reduced-motion";
+import { useTimelinePlayback } from "./use-timeline-playback";
 
 interface Props {
   level: LevelDefinition;
@@ -126,52 +126,10 @@ function ScannerView({ state }: { state: Scene["scanner"] }) {
 
 /** Scanner + gate scene. The timeline is pure data; this only plays it back. */
 export function ScannerSimulation({ level, outcome, running, playing, onDone, onCue }: Props) {
-  const reduced = useReducedMotion();
   const frames = useMemo(() => (outcome ? buildTimeline(outcome, level) : []), [outcome, level]);
-  // Playback position, reset during render whenever a new timeline arrives.
-  const [play, setPlay] = useState({ frames, index: 0 });
-  if (play.frames !== frames) setPlay({ frames, index: reduced ? Math.max(0, frames.length - 1) : 0 });
-  const index = play.frames === frames ? play.index : 0;
-  const doneRef = useRef(onDone);
-  doneRef.current = onDone;
-  const cueRef = useRef(onCue);
-  cueRef.current = onCue;
+  const { frame, skip, reduced } = useTimelinePlayback(frames, { playing, onDone, onCue });
 
-  useEffect(() => {
-    if (!playing || play.frames !== frames || frames.length === 0) return;
-    const last = frames.length - 1;
-    const at = reduced ? last : play.index;
-    const frame = frames[at];
-    frame.cues.forEach((c, i) => cueRef.current(c, 450 * i));
-    if (at >= last) {
-      doneRef.current();
-      return;
-    }
-    const id = setTimeout(() => setPlay((p) => (p.frames === frames ? { frames, index: p.index + 1 } : p)), frame.hold);
-    return () => {
-      clearTimeout(id);
-    };
-  }, [play, frames, playing, reduced]);
-
-  const skip = useCallback(() => {
-    if (!playing || frames.length === 0) return;
-    setPlay({ frames, index: frames.length - 1 });
-  }, [playing, frames]);
-
-  useEffect(() => {
-    if (!playing) return;
-    const onKey = (e: KeyboardEvent) => {
-      if (e.key === "Escape" && !document.querySelector("dialog[open]")) skip();
-    };
-    window.addEventListener("keydown", onKey);
-    return () => window.removeEventListener("keydown", onKey);
-  }, [playing, skip]);
-
-  const scene: Scene = running
-    ? runningScene(level)
-    : frames.length
-      ? frames[Math.min(index, frames.length - 1)].scene
-      : idleScene(level);
+  const scene: Scene = running ? runningScene(level) : (frame?.scene ?? idleScene(level));
   const summary = !running && !playing && frames.length ? summarize(frames) : "";
 
   return (
@@ -192,7 +150,7 @@ export function ScannerSimulation({ level, outcome, running, playing, onDone, on
           </pattern>
         </defs>
         {/* lanes */}
-        {level.objectives.map((o, i) => (
+        {varObjectives(level).map((o, i) => (
           <line key={o.var} x1={12} x2={VIEW_W - 8} y1={LANE_TOP + i * LANE_GAP} y2={LANE_TOP + i * LANE_GAP} className="lane" />
         ))}
         {/* chip source */}

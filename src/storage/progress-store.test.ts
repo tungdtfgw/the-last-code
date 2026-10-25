@@ -139,6 +139,47 @@ describe("createRepository", () => {
   });
 });
 
+describe("seen stories", () => {
+  test("survive a reload, never duplicate and never shrink", async () => {
+    const storage = new FakeStorage();
+    const a = new LocalStorageRepository(storage);
+    await a.markStorySeen("prologue");
+    await a.markStorySeen("after-1.4");
+    await a.markStorySeen("prologue");
+    const b = new LocalStorageRepository(storage);
+    expect(await b.getStory()).toEqual({ seen: ["prologue", "after-1.4"] });
+    expect((await b.markStorySeen("teaser")).seen).toEqual(["prologue", "after-1.4", "teaser"]);
+  });
+
+  test.each([["x"], [[1, null]], [{ seen: "a" }]])("malformed story %j reads as empty and keeps stars", async (story) => {
+    const storage = new FakeStorage();
+    storage.data.set(PROGRESS_KEY, JSON.stringify({ schemaVersion: 1, levels: { "1.4": { bestStars: 2 } }, story }));
+    vi.spyOn(console, "warn").mockImplementation(() => {});
+    const repo = new LocalStorageRepository(storage);
+    expect(await repo.getStory()).toEqual({ seen: [] });
+    expect((await repo.getLevel("1.4")).bestStars).toBe(2);
+  });
+
+  test("old data without a story field reads as empty; schema stays 1", async () => {
+    const storage = new FakeStorage();
+    storage.data.set(PROGRESS_KEY, JSON.stringify({ schemaVersion: 1, levels: { "1.4": { bestStars: 1 } } }));
+    const repo = new LocalStorageRepository(storage);
+    expect(await repo.getStory()).toEqual({ seen: [] });
+    await repo.markStorySeen("prologue");
+    const saved = JSON.parse(storage.data.get(PROGRESS_KEY)!);
+    expect(saved.schemaVersion).toBe(1);
+    expect(saved.story).toEqual({ seen: ["prologue"] });
+    expect(saved.levels["1.4"].bestStars).toBe(1);
+  });
+
+  test("MemoryRepository follows the same union rule", async () => {
+    const repo = new MemoryRepository();
+    await repo.markStorySeen("prologue");
+    await repo.markStorySeen("prologue");
+    expect(await repo.getStory()).toEqual({ seen: ["prologue"] });
+  });
+});
+
 test("MemoryRepository follows the same merge rule", async () => {
   const repo = new MemoryRepository();
   await repo.updateLevel("1.4", { bestStars: 3 });

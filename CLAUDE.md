@@ -4,11 +4,12 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project
 
-"Mã Cuối Cùng" (The Last Code): a browser game that teaches Python. The current code is a playable prototype of Level 1.4 "Tín hiệu lệch pha". There is no backend. Player code runs in Pyodide inside a Web Worker. All in-game text is Vietnamese; code identifiers are English.
+"Mã Cuối Cùng" (The Last Code): a browser game that teaches Python. The current code is a game shell (title screen, prologue, transitions between levels, the "Còn tiếp" teaser and the Dark Zone map) around two playable levels: 1.1 "Khởi động" (`print`, graded on stdout) and 1.4 "Tín hiệu lệch pha". There is no backend. Player code runs in Pyodide inside a Web Worker. All in-game text is Vietnamese; code identifiers are English.
 
 Sources of truth, in priority order:
 1. `plans/reports/brainstorm-261024-2316-level-1-4-prototype.md`: the accepted contract. It wins over the GDD where they differ.
-2. `Ma_Cuoi_Cung_GDD.md` (v0.2): the game design. Section 4.5 holds the counting and star rules, 4.1 the ECHO rules.
+2. `design/gdd.md` (v0.2): the overall game design. Section 4.5 holds the counting and star rules, 4.1 the ECHO rules. Per-level designs live in `design/chuong-<n>/gdd-<chapter>.<level>-<slug>.md`; the game opening is `design/gdd-mo-dau.md`.
+   - For the shell and story: `design/gdd-mo-dau.md` (opening script, transitions, map, unlock rules) and its contract `plans/reports/brainstorm-261025-0928-mo-dau-va-cot-truyen-chuong-1.md`.
 3. `docs/nhat-ky-loi-prototype-1-4.md`: past bugs and their root causes. Read it before touching the runner, harness, audio or intro.
 4. `plans/261024-2332-level-1-4-prototype/edge-case-matrix.md`: about 60 edge cases, each mapped to the test that covers it.
 
@@ -30,12 +31,29 @@ npx playwright test tests/e2e/intro.spec.ts --project=chromium -g "skip"   # nar
 ```
 
 E2E notes:
+- Write e2e specs with the feature, but run them only when the user asks. Default verification is typecheck, `npm test`, `npm run test:py` and `npm run build`.
 - Projects are `chromium`, `firefox` and `mobile-chromium`. WebKit is opt-in with `E2E_WEBKIT=1` because Playwright WebKit segfaults on macOS 26.
 - The `webServer` config starts its own preview on :4173, so nothing else may hold that port.
 - The full suite takes about 7 minutes. Run the relevant spec first.
-- Every e2e test must pass the level's entry gate. Use `enterMission(page)` from `tests/e2e/helpers.ts` after every `goto` or `reload`.
+- `/` is the title screen. Level tests open `LEVEL_URL` (`/#/level/1.4`) or call `gotoLevel(page, id)`; every one must pass the level's entry gate with `enterMission(page)` after every `goto` or `reload`. `enterMission` waits for the gate's `data-armed="true"`.
+- `page.goto` to the same URL with only a hash is a same-document navigation, not a reload. Reload when a test needs a fresh start.
 
 ## Architecture
+
+### Shell and routing
+
+- `src/app.tsx`: `App → ErrorBoundary → Boot → Shell`. `Shell` owns the repository, `useAudio`, the hash route, a progress snapshot (`src/shell/use-progress-snapshot.ts`) and the global `M` key, and renders one of four screens: `TitleScreen`, `ChapterMap`, `StoryScreen`, `GameScreen`.
+- Routes (`src/shell/route.ts`): `#/` (empty or unknown → title), `#/map`, `#/story/<id>`, `#/level/<id>`. `use-hash-route.ts` pushes for player actions and replaces (`history.replaceState` plus a manual state update) for redirects and finished stories, so Back never replays a story.
+- Every route goes through `guardRoute`: unbuilt or broken levels, unknown stories and `after-<id>` for a level without a star go to the map. Built levels are always reachable by link, even when locked on the map.
+- A broken chapter file shows "DỮ LIỆU CHƯƠNG HỎNG". A broken level file shows as "TÍN HIỆU HỎNG" on the map.
+
+### Story
+
+- `src/story/chapter-1.json`: level order (`levels`), `neural_id_slots`, the 23-beat `prologue` and the 9-beat `teaser`. Validated by `validate-chapter.ts`; beats by `validate-beats.ts` (kinds `log|kai|echo|card`, `cue` from `CUES`, `backdrop`, `fx`, `hold_ms`; ECHO lines go through `findEchoLeak`).
+- `progression.ts` is the only place that decides unlocking, map node states, where every TIẾP TỤC goes, where a story leads when it ends (`storyEnd`, `forward` skips stories already seen) and the route guard. "Built" rule: rules follow `chapter.levels` but skip levels without a valid JSON file; the first built level is open, the next opens when the previous built one has a star. The prologue leads to the first built level; `after-<id>` leads to the next built level, or to the teaser when none is left.
+- `build-story.ts` assembles `after-<id>` from the level: `outro` → `lore_fragment` (kind `lore`) → component card (`NEURAL-ID GIẢ · THÀNH PHẦN n/6`) → `outro_beats`.
+- `cutscene-reducer.ts` (pure) and `src/ui/cutscene-player.tsx` play any story: click, tap, Space or Enter advance one step, held keys are ignored, Esc or BỎ QUA skip; a shown beat auto-advances after `1200 + 30 ms/char + hold_ms`, paused while the tab is hidden; a `card` wipes the beats before it. Reduced motion shows a transcript with a focused TIẾP TỤC and no beat cues.
+- Opened directly (no gesture yet), a story starts behind `StoryGate` ("TIẾP TỤC ĐOẠN TRUYỆN"). A story is marked seen when it ends or is skipped; replays from the map return to the map.
 
 ### Run pipeline
 
@@ -54,43 +72,64 @@ One click on CHẠY flows through these stages:
    - blocking imports (`js`, `os`, `sys`, `pyodide`…)
    - exact type checks (`type(v) is T`, so `True` is not an `int`)
    - float tolerance
+   - NFC on every string comparison (`str` variables and output lines)
+   - grading stdout line by line against a test's `expected_output`: `\r\n`/`\r` → `\n`, trailing spaces and trailing empty lines dropped, the rest exact; still graded when the run fails (so the simulation can show what went out), but a failing or truncated run never passes. stderr has its own buffer and is never graded.
    - truncating tracebacks and output
+   - with `trace_vars` in the config (`build-config.ts` sets it for `kiosk` levels only): `var_history`, the objective variables' changes as `{line, var, type, preview, src}`. Compared by identity, previewed without running player code, at most 40 entries (`var_history_truncated`). `src` is the input whose loaded object the value is, so text typed by hand never counts as read from the buffer. Cost on Pyodide: `plans/reports/bench-261025-1211-var-history.md`.
 5. **`src/game/classify-run.ts`** maps the harness JSON to a `ReactionKey` and an outcome.
    - `compute-stars.ts` is the only place stars are decided. Stars are cumulative. Going over 100% alert (`limit / 0.4` statements) means caught: 0 stars and no counter-attack.
-   - `echo-reactions.ts` picks ECHO's line. Free reactions must never contain `int`, `float`, `round` or the answer; `echo-forbidden-terms.test.ts` enforces this.
-   - `terminal-lines.ts` builds the in-world log.
-6. The UI plays the result back. `src/ui/scanner-simulation.tsx` plus `scanner-timeline.ts` animate the outcome after the run finishes; they do not run live. The terminal and ECHO update when the animation is done.
+   - Order: run errors, then variables, then the topmost wrong output line (`output_missing`, `output_case_only`, `output_mismatch`, details `{out_line}`, `{col}`), then `output_extra`. A wrong output under counter-attack is `wrong_value_counter`.
+   - Optional keys refine a general one and are returned only when the level writes a line for them (`levelHasLine` in `classify-run.ts`, the one gate for all of them): `value_is_label` (a `str` variable holding the text of an input or objective name, e.g. `'goi_3'`) refines `wrong_value`. `RunOutcome.history`/`counterHistory` carry `var_history` to the simulation.
+   - `echo-reactions.ts` picks ECHO's line. Free reactions (and ECHO beats in `outro_beats`) must never contain a forbidden term or an answer: `echo-leaks.ts` matches `int|float|round` plus the level's `forbidden_terms`, every `expected` value and every `expected_output` line, case-insensitive on Unicode word boundaries (punctuation-only terms as substrings). Hints are exempt. `echo-forbidden-terms.test.ts` and the validator enforce it.
+   - `terminal-lines.ts` builds the in-world log; words that belong to a kind of simulation ("máy quét"/"CỔNG" vs "trạm R-17"/"KÊNH", result titles, panel notes) come from `sim-vocabulary.ts`. `output-diff.ts` builds the `cần:`/`nhận:` pair (`·` space, `→` tab, `▯` missing, `U+XXXX` for non-ASCII) for the terminal and the relay list.
+6. The UI plays the result back after the run finishes; nothing runs live. Each simulation is a pure timeline (`scanner-timeline.ts`, `relay-timeline.ts`, `kiosk-timeline.ts`, `sorter-timeline.ts`, all tested) plus a component (`scanner-simulation.tsx`, `relay-simulation.tsx`, `kiosk-simulation.tsx`, `sorter-simulation.tsx`) that plays it through `use-timeline-playback.ts` (frame holds, cues on the audio clock, Esc/skip, reduced motion, `onDone`). The terminal and ECHO update when the animation is done.
 
 ### Levels are data
 
-`src/levels/*.json` is loaded with `import.meta.glob` in `level-registry.ts` and validated by `validate-level.ts`. A new level should need only a JSON file. That covers `inputs`, `locked_lines`, `objectives`, `alert_limit_statements`, `tests` and `counter_attack_tests` with `expected` values, `hints`, about 30 `reactions` keyed by `ReactionKey`, `outro` and `lore_fragment`. Test fixtures, including a second level, are in `tests/fixtures/`.
+`src/levels/*.json` is loaded with `import.meta.glob` in `level-registry.ts` and validated by `validate-level.ts`. A new level should need only a JSON file. That covers `inputs`, `locked_lines`, `objectives`, `alert_limit_statements`, `tests` and `counter_attack_tests` with `expected` values, `hints`, about 30 `reactions` keyed by `ReactionKey`, `outro` and `lore_fragment`, plus the optional story fields `location` (entry gate line and simulation panel title), `component` (the Neural-ID component it builds) and `outro_beats`. The level id must also be listed in `chapter-1.json` `levels` (a test fails otherwise); that is enough for it to appear on the map and in the flow. Test fixtures, including a second level, are in `tests/fixtures/`.
+- `simulation: { "kind": … }` picks the scene in `src/ui/level-simulation.tsx` (missing: `scanner`). Kinds in `SIMULATION_KINDS` only (today `scanner`, `relay` with a required `station` call sign, `kiosk` with `devices`: 1–3 objectives drawn as reader screens, the other 1–6 objectives are memory cells, `sorter` with no options: four type lanes); the validator rejects a kind with no scene. A new kind adds a timeline, a component, a vocabulary entry and one branch.
+- Objectives are either variables (`{var, type, label}`, optional `kind: "var"`) or output lines (`{kind: "output_line", line, label}`, lines exactly 1..N). With N output lines, every test and counter test needs `expected_output` with exactly N lines (no newlines, no trailing spaces); `expected` only lists the variable objectives.
+- A variable objective's `type` is `int|float|str|bool`, or `type`: the variable must hold a shape itself, graded `type(v) is type and v is <shape>`, and its expected value names one of the four (`"int"`). A string `"int"` or `"<class 'int'>"` counts as the right content in the wrong shape.
+- Test `inputs` values may be strings, numbers or bools; they are injected with that Python type and shown in Python syntax (`"7351"`, `4096`, `True`). A round float (`2.0`) arrives as an `int` through JSON, so do not use one as a float input.
+- Optional reaction keys (`value_is_label`, `type_mismatch_unknown_shape`) are returned only when the level writes a line for them (`levelHasLine` in `classify-run.ts`); otherwise the general key applies.
+- `forbidden_terms` (optional) adds words to ECHO's banned list; it never replaces the common list.
+- `task_steps` (optional, 2–4 non-empty strings) is the "Việc cần làm" list appended to ECHO's first "Vào nhiệm vụ" chat message (`task-steps-panel.tsx`); backticks render as code. It must not contain any expected value or expected output line (forbidden terms do not apply, so it may name `print`).
+- `knowledge_summary` (optional: `title`, `sections[{heading, body, code?, output?}]`, `mistakes[{code, error, explain}]`, `next`) is the "Tổng kết kiến thức" screen at `#/learn/<id>`: results TIẾP TỤC → summary → `after-<id>` (routing in `src/story/progression.ts`); the map re-opens it. No leak check. `tests/integration/knowledge-summary.test.ts` runs every section `code` with python3 and requires a clean run printing exactly `output`; failing code goes in `mistakes`.
+- The run button glows until the first run of a level (`progress.runs === 0`).
 
 ### Storage boundary
 
 `src/storage/progress-repository.ts` defines the async `ProgressRepository` interface, which is the only door to persisted state:
-- The implementations are `localStorage` (versioned key `the-last-code:progress:v1`) and in-memory. The in-memory one is the "CHẾ ĐỘ KHÔNG LƯU" fallback for when storage is blocked.
+- The implementations are `localStorage` (versioned key `the-last-code:progress:v1`) and in-memory.
+- Seen stories: `getStory()` / `markStorySeen(id)`, stored as the optional `story: { seen }` field of `progress:v1` (no schema bump). Merging is a set union that never removes; a malformed field reads as empty and never touches stars. Unlocking has no stored state: it is derived from `bestStars`. The in-memory one is the "CHẾ ĐỘ KHÔNG LƯU" fallback for when storage is blocked.
 - A test fails if anything outside `src/storage/` touches `localStorage`.
 - A future Supabase implementation replaces this module only.
 
 ### UI, intro and audio
 
-- `src/ui/game-screen.tsx` lays out three columns: mission, code and simulation. Under 768 px these become three tabs.
+- `src/ui/game-screen.tsx` lays out three columns: mission, code and simulation. Under 768 px these become three tabs. The top bar has a BẢN ĐỒ button; the results dialog has TIẾP TỤC (primary, goes to the next story or level) and "Tối ưu tiếp", and shows "Đã thu: <component>" instead of the outro and lore.
 - The page never scrolls. Each panel scrolls on its own, with a sticky heading (`.col > .panel` rules in `src/styles/global.css`). Design tokens are in `tokens.css`.
+- The mission column holds only the briefing and the objectives. ECHO and the hint log live in `src/ui/echo-chat.tsx`, a floating, non-blocking chat:
+  - A portrait button with an unread dot, a preview bubble for each new line, and a chat panel with the session's ECHO history and the hint log (`hints-panel.tsx`) at its foot. `E` opens it outside text entry; Esc closes it.
+  - On wide screens the button shares the mission grid area and sits at its foot. On phones it sits at the end of the tab bar and the chat is a bottom sheet.
+  - The history is `GameState.chat` in `game-reducer.ts` (session only). Hints decoded earlier are rebuilt from `progress.hintsOpened`. The open, unread and bubble rules are the pure reducer in `src/game/echo-chat.ts`.
+  - `task_steps` continues the first "Vào nhiệm vụ" message as one chat turn. Until the chat is opened once per level per page session (`stepsSeen` in `echo-chat.ts`), the bubble adds "Mở để xem việc cần làm (E)" and the button reads "việc cần làm". The chat never opens by itself.
 - **Level intro**, also in `game-screen.tsx`:
   - It runs in the order `gate → briefing → objectives → done`.
-  - The `IntroGate` click is the first user gesture and unlocks audio.
-  - The briefing types out with `useTypewriter`, then the objectives lock in one by one, then the alert meter appears, then ECHO wakes.
+  - The `IntroGate` click is the first user gesture and unlocks audio. Reached straight from a story, the gate ignores clicks for 400 ms and held keys (`data-armed` turns true when it accepts clicks).
+  - The briefing types out with `useTypewriter`, then the objectives lock in one by one, then the alert meter appears, then ECHO wakes with its first bubble.
   - Any click or key skips to `done`; tab clicks do not count.
   - With `prefers-reduced-motion`, everything shows instantly.
 - **Audio** (`src/audio/`) is procedural Web Audio with no asset files:
   - `sound-recipes.ts` defines one `Cue` per sound. Adding a cue means adding a recipe; `sound-render.test.ts` renders every recipe with `OfflineAudioContext`.
-  - No `AudioContext` exists before the first gesture.
+  - `useAudio` lives in `Shell`, so one `AudioContext` lasts the whole session; screens get `audio` as a prop. `gestured` tells whether the page has seen its first gesture (story gate decision). `M` toggles sound on every screen.
+  - No `AudioContext` exists before the first gesture. The title's BẮT ĐẦU/TIẾP TỤC click unlocks and plays `pulse`.
+  - Story beats play their cue the moment the beat starts; JS timers only move between beats. `pulse` has an 800 ms merge window so the title click and the first prologue beat do not both sound.
   - Delayed cues must be scheduled on the audio clock (`play(cue, delayMs)`), not with JS timers, which re-renders cancel.
   - Mute is persisted.
 - **Test instrumentation:** e2e tests read `window.__TLC_AUDIO_PROBE__` when a page defines it before load; it is inert otherwise. Note that the Claude-in-Chrome screenshot action sends pointer events, which skip the intro. Verify the intro with the probe or with e2e tests, not with mid-animation screenshots.
 
 ## Repo conventions
 
-- Markdown goes only in `plans/` (plans and reports, named `{type}-{YYMMDD-HHMM}-{slug}.md`) or `docs/`.
+- Markdown goes only in `plans/` (plans and reports, named `{type}-{YYMMDD-HHMM}-{slug}.md`), `docs/`, or `design/` (game design: the overall GDD and one GDD per level).
 - `.claude/rules/` holds the workflow rules: brainstorm → plan → cook → test → review.
-- The directory is not a git repo yet.

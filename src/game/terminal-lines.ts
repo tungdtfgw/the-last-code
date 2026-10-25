@@ -1,6 +1,10 @@
 import { formatAlertPercent } from "./alert";
-import type { RunOutcome, VarVerdict } from "./classify-run";
-import type { LevelDefinition } from "./level-types";
+import type { OutputReport, RunOutcome, VarVerdict } from "./classify-run";
+import { BASE_TYPES, type LevelDefinition } from "./level-types";
+import { formatPyLiteral } from "./python-literal";
+import { describeLine } from "./output-diff";
+import { vocabularyFor, type SimVocabulary } from "./sim-vocabulary";
+import { typeGloss } from "./type-gloss";
 
 export type TerminalTone = "info" | "ok" | "reject" | "alarm" | "trace" | "omni" | "muted";
 
@@ -22,12 +26,17 @@ export function gateFor(outcome: RunOutcome): GateState {
 }
 
 const lengthNote = (v: VarVerdict) => (v.type === "str" && v.length !== null ? ` (${v.length} ký tự)` : "");
+/** A shape outside the four lanes gets its meaning in brackets: `tuple (nhiều giá trị…)`. */
+const shapeNote = (v: VarVerdict) => {
+  const g = BASE_TYPES.includes(v.type as never) ? undefined : typeGloss(v.type);
+  return g ? ` (${g})` : "";
+};
 
 function verdictLines(vars: VarVerdict[]): TerminalLine[] {
   return vars.map((v): TerminalLine => {
     if (!v.present) return { tone: "reject", text: `> KHÔNG CÓ TÍN HIỆU: ${v.name} không tồn tại sau khi chạy` };
     if (!v.typeOk)
-      return { tone: "reject", text: `> MÁY QUÉT TỪ CHỐI: ${v.name}: ${v.type}${lengthNote(v)}, yêu cầu ${v.expectedType}` };
+      return { tone: "reject", text: `> MÁY QUÉT TỪ CHỐI: ${v.name}: ${v.type}${shapeNote(v)}${lengthNote(v)}, yêu cầu ${v.expectedType}` };
     if (!v.valueOk) return { tone: "reject", text: `> SAI GIÁ TRỊ: ${v.name} = ${v.preview ?? "?"} không khớp mẫu` };
     return { tone: "ok", text: `> HỢP LỆ: ${v.name}: ${v.type} = ${v.preview ?? ""}` };
   });
@@ -37,9 +46,41 @@ const STOP_TEXT: Record<string, string> = {
   timeout: "> TIẾN TRÌNH BỊ CẮT: quá thời gian",
   resource_limit: "> TIẾN TRÌNH BỊ CẮT: bộ nhớ quá tải",
   blocked_import: "> MÔ-ĐUN BỊ PHONG TỎA",
-  input_unsupported: "> KHÔNG CÓ KÊNH NHẬP LIỆU: dữ liệu đã nằm sẵn trong chip",
+  input_unsupported: "> KHÔNG CÓ KÊNH NHẬP LIỆU: dữ liệu đã nạp sẵn",
   system_exit: "> CHƯƠNG TRÌNH TỰ DỪNG GIỮA CHỪNG",
 };
+
+/**
+ * Output lines as the station reports them. `emittedOnly`: the program stopped, so
+ * only lines that actually went out are listed (no "missing" lines after the error).
+ * `failedOnly`: counter-attack, where only what broke is worth a line.
+ */
+function outputLines(
+  output: OutputReport | undefined,
+  vocab: SimVocabulary,
+  opts: { emittedOnly?: boolean; failedOnly?: boolean } = {},
+): TerminalLine[] {
+  if (!output) return [];
+  const out: TerminalLine[] = [];
+  for (const l of output.lines) {
+    if (l.status === "ok") {
+      if (!opts.failedOnly) out.push({ tone: "ok", text: `> ${vocab.sent}: dòng ${l.line} · ${l.expected}` });
+    } else if (l.status === "missing") {
+      if (!opts.emittedOnly) out.push({ tone: "reject", text: `> KHÔNG CÓ DÒNG: dòng ${l.line}` });
+    } else {
+      const d = describeLine(l);
+      out.push({
+        tone: "reject",
+        text: `> ${vocab.dropped}: dòng ${l.line} · sai ở vị trí ${d.col}${l.caseOnly ? " (chỉ khác hoa thường)" : ""}`,
+      });
+      out.push({ tone: "muted", text: `    cần:  ${d.need.before}${d.need.mark}${d.need.after}` });
+      out.push({ tone: "muted", text: `    nhận: ${d.got.before}${d.got.mark}${d.got.after}${d.codePoint ? ` · ${d.codePoint}` : ""}` });
+    }
+  }
+  if (output.extraCount > 0) out.push({ tone: "reject", text: `> DÒNG THỪA: ${output.extraCount} dòng ngoài giao thức` });
+  if (output.truncated) out.push({ tone: "reject", text: "> ĐẦU RA BỊ CẮT: quá dài, phiên bị bỏ" });
+  return out;
+}
 
 function traceLines(outcome: RunOutcome): TerminalLine[] {
   const e = outcome.error;
@@ -73,7 +114,9 @@ const alertLine = (outcome: RunOutcome, level: LevelDefinition): TerminalLine[] 
 
 /** The in-world log for one run (GDD 4.2). Pure, so it can be tested and rendered as text nodes. */
 export function buildTerminalLines(outcome: RunOutcome, level: LevelDefinition, runNumber: number): TerminalLine[] {
-  const out: TerminalLine[] = [{ tone: "muted", text: `> LƯỢT CHẠY #${runNumber}: gửi tín hiệu tới máy quét` }];
+  const vocab = vocabularyFor(level);
+  const out: TerminalLine[] = [{ tone: "muted", text: `> LƯỢT CHẠY #${runNumber}: ${vocab.runTarget}` }];
+  const closed: TerminalLine = { tone: "reject", text: `> ${vocab.gate}: ĐÓNG` };
 
   if (outcome.key === "engine_error") {
     out.push({ tone: "alarm", text: "> LÕI PYTHON KHÔNG PHẢN HỒI. ĐANG KHỞI ĐỘNG LẠI" });
@@ -82,26 +125,31 @@ export function buildTerminalLines(outcome: RunOutcome, level: LevelDefinition, 
 
   if (!outcome.basePassed) {
     if (outcome.stopStatus && STOP_TEXT[outcome.stopStatus]) {
+      out.push(...outputLines(outcome.output, vocab, { emittedOnly: true }));
       out.push({ tone: "alarm", text: STOP_TEXT[outcome.stopStatus] });
       if (outcome.stopStatus !== "timeout") out.push(...traceLines(outcome));
     } else if (outcome.error) {
+      // Lines printed before the error still went out.
+      out.push(...outputLines(outcome.output, vocab, { emittedOnly: true }));
       out.push({ tone: "alarm", text: "> SENTINEL ĐÃ PHÁT HIỆN XÂM NHẬP" });
       out.push(...traceLines(outcome));
       out.push(...alertLine(outcome, level));
     } else {
       out.push(...verdictLines(outcome.vars));
+      out.push(...outputLines(outcome.output, vocab));
       out.push(...alertLine(outcome, level));
     }
-    out.push({ tone: "reject", text: "> CỔNG: ĐÓNG" });
+    out.push(closed);
     return out;
   }
 
   out.push(...verdictLines(outcome.vars));
+  out.push(...outputLines(outcome.output, vocab));
   out.push(...alertLine(outcome, level));
 
   if (outcome.sentinelCaught) {
     out.push({ tone: "alarm", text: "> SENTINEL ĐÃ KHÓA MỤC TIÊU — MỨC CẢNH BÁO: 100%+" });
-    out.push({ tone: "reject", text: "> CỔNG: ĐÓNG" });
+    out.push(closed);
     return out;
   }
   if (outcome.stars === 1) out.push({ tone: "alarm", text: "> TÍN HIỆU BỊ GHI NHẬN: vượt ngưỡng tàng hình" });
@@ -111,18 +159,18 @@ export function buildTerminalLines(outcome: RunOutcome, level: LevelDefinition, 
     const inputs = outcome.counterInputs ?? {};
     out.push({
       tone: "omni",
-      text: "> " + level.inputs.map((name) => `${name} = ${JSON.stringify(inputs[name] ?? "")}`).join("   "),
+      text: "> " + level.inputs.map((name) => `${name} = ${formatPyLiteral(inputs[name] ?? "")}`).join("   "),
     });
     if (outcome.counterAborted) {
       out.push({
         tone: "alarm",
         text:
           outcome.counterAborted === "timeout"
-            ? "> TIẾN TRÌNH BỊ CẮT KHI OMNI PHẢN CÔNG: quá thời gian. Kết quả dữ liệu gốc vẫn được giữ."
-            : "> LÕI PYTHON SỤP KHI OMNI PHẢN CÔNG. Kết quả dữ liệu gốc vẫn được giữ.",
+            ? "> TIẾN TRÌNH BỊ CẮT KHI OMNI PHẢN CÔNG: quá thời gian. Vẫn giữ kết quả với dữ liệu gốc."
+            : "> LÕI PYTHON SỤP KHI OMNI PHẢN CÔNG. Vẫn giữ kết quả với dữ liệu gốc.",
       });
     } else if (outcome.counterSurvived) {
-      out.push({ tone: "ok", text: "> DỮ LIỆU MỚI ĐI QUA MÁY QUÉT: mã vẫn đứng vững" });
+      out.push({ tone: "ok", text: `> ${vocab.counterSurvived}` });
     } else if (outcome.error?.phase === "counter") {
       out.push(...traceLines(outcome));
     } else if (outcome.key === "timeout") {
@@ -136,6 +184,7 @@ export function buildTerminalLines(outcome: RunOutcome, level: LevelDefinition, 
               ? { tone: "reject", text: `> LỆCH MẪU: ${v.name} = ${v.preview ?? "?"}` }
               : verdictLines([v])[0],
           ),
+        ...outputLines(outcome.counterOutput, vocab, { failedOnly: true }),
       );
     }
   }
@@ -143,8 +192,8 @@ export function buildTerminalLines(outcome: RunOutcome, level: LevelDefinition, 
   const gate = gateFor(outcome);
   out.push(
     gate === "open"
-      ? { tone: "ok", text: "> CỔNG: MỞ HOÀN TOÀN" }
-      : { tone: "info", text: "> CỔNG: MỞ MỘT NỬA" },
+      ? { tone: "ok", text: `> ${vocab.gate}: MỞ HOÀN TOÀN` }
+      : { tone: "info", text: `> ${vocab.gate}: MỞ MỘT NỬA` },
   );
   return out;
 }
