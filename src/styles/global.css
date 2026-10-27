@@ -5082,3 +5082,190 @@ body:has(.learn-screen)::before {
     width: 40px;
   }
 }
+
+/* ---------- Checkpoint gate (simulation kind "checkpoint") ---------- */
+
+.checkpoint-stage {
+  flex: 0 0 auto;
+}
+
+.checkpoint-floor {
+  stroke: var(--line-strong);
+  stroke-width: 1.5;
+}
+
+.checkpoint-ring path {
+  fill: none;
+  stroke: var(--line-strong);
+  stroke-width: 4;
+  transition: stroke 0.3s ease;
+}
+
+.checkpoint-ring.is-scanning path {
+  stroke: var(--signal);
+  animation: checkpoint-scan 0.9s ease-in-out infinite;
+}
+
+.checkpoint-ring.is-locked path {
+  stroke: var(--ok);
+}
+
+.checkpoint-ring.is-rejected path {
+  stroke: var(--alarm);
+}
+
+.checkpoint-ring.is-notReached path {
+  stroke: var(--n-3);
+  stroke-dasharray: 4 6;
+}
+
+.checkpoint-ring-text {
+  font-family: var(--font-mono);
+  font-size: 9px;
+  letter-spacing: var(--tracking-label);
+  fill: var(--text-muted);
+}
+
+.checkpoint-ring.is-rejected .checkpoint-ring-text {
+  fill: var(--alarm);
+}
+
+@keyframes checkpoint-scan {
+  50% {
+    opacity: 0.45;
+  }
+}
+
+.checkpoint-leaf {
+  fill: var(--n-2);
+  stroke: var(--line-strong);
+  transition: transform 0.6s ease;
+}
+
+.checkpoint-gate.is-half .checkpoint-leaf.is-left {
+  transform: translateX(-24px);
+}
+
+.checkpoint-gate.is-half .checkpoint-leaf.is-right {
+  transform: translateX(24px);
+}
+
+.checkpoint-gate.is-open .checkpoint-leaf.is-left {
+  transform: translateX(-52px);
+}
+
+.checkpoint-gate.is-open .checkpoint-leaf.is-right {
+  transform: translateX(52px);
+}
+
+.checkpoint-label {
+  font-family: var(--font-display);
+  font-size: 12px;
+  letter-spacing: var(--tracking-label);
+  fill: var(--signal);
+}
+
+.checkpoint-label.is-alarm {
+  fill: var(--alarm);
+}
+
+.checkpoint-booth-body {
+  fill: var(--n-0);
+  stroke: var(--line);
+}
+
+.checkpoint-booth-glass {
+  fill: var(--n-1);
+  stroke: var(--line);
+  transition: fill 0.4s ease;
+}
+
+.checkpoint-booth.is-lit .checkpoint-booth-glass {
+  fill: oklch(84% 0.09 85 / 0.35);
+}
+
+.checkpoint-figure {
+  fill: var(--n-0);
+  transform: translateY(14px);
+  transition: transform 0.6s ease;
+}
+
+.checkpoint-booth.is-lit .checkpoint-figure {
+  transform: translateY(0);
+}
+
+.checkpoint-id {
+  display: grid;
+  grid-template-columns: repeat(6, minmax(0, 1fr));
+  gap: var(--s-1);
+  padding: var(--s-2) var(--s-3);
+  border-top: 1px solid var(--line);
+  font-family: var(--font-mono);
+  font-size: var(--text-2xs);
+}
+
+.checkpoint-id-cell {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+  padding: var(--s-1);
+  border: 1px solid var(--line);
+  color: var(--text-faint);
+  transition: background 0.3s ease, border-color 0.3s ease;
+}
+
+.checkpoint-id-cell.is-active {
+  border-color: var(--signal);
+}
+
+.checkpoint-id-cell.is-lit {
+  border-color: var(--signal);
+  background: var(--signal-dim);
+  color: var(--text);
+}
+
+.checkpoint-id-cell.is-red {
+  border-color: var(--alarm);
+  background: var(--alarm-dim);
+  color: var(--text);
+}
+
+.checkpoint-id-cell.is-white {
+  border-color: var(--n-9);
+  background: oklch(93% 0.01 var(--hue) / 0.22);
+  color: var(--text);
+}
+
+.checkpoint-id-name {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.checkpoint-round {
+  color: var(--signal);
+}
+
+.checkpoint-stdin {
+  color: var(--text-muted);
+}
+
+@media (max-width: 480px) {
+  .checkpoint-id {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .checkpoint-ring.is-scanning path {
+    animation: none;
+  }
+
+  .checkpoint-leaf,
+  .checkpoint-figure,
+  .checkpoint-booth-glass,
+  .checkpoint-id-cell {
+    transition: none;
+  }
+}

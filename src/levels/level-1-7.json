@@ -1,0 +1,290 @@
+{
+  "schema_version": 1,
+  "id": "1.7",
+  "chapter": 1,
+  "title": "Cổng Kiểm Soát",
+  "difficulty": "boss",
+  "concepts": [
+    "print",
+    "variables",
+    "types",
+    "type_conversion",
+    "operators",
+    "input",
+    "f_string"
+  ],
+  "simulation": {
+    "kind": "checkpoint"
+  },
+  "starter_code": "# Dữ liệu phiên cổng nạp mỗi vòng quét (KHÔNG được sửa 4 dòng này)\nho_ten = \"ĐỖ MINH AN\"\nma_khu = \"K-07\"\nma_phien = 4096\nchieu_cao = \"1.72\"\n\n# Cổng hỏi qua kênh nhập: dòng 1 là mã hỏi, dòng 2 là mức năng lượng\nma_hoi = input()\nmuc = input()\n\nprint(\"NID/2089\")\nprint(\"HO SO: {ho_ten} / {ma_khu}\")\nprint(\"KHUON:\", \"<class 'int'>\")\nprint(f\"SINH TRAC: {chieu_cao * 2}\")\nprint(f\"NANG LUONG: {muc / 100} PIN + {muc % 100}\")\nprint(f\"LOI DAP: {ma_hoi + 7}\")\n",
+  "locked_lines": [
+    2,
+    3,
+    4,
+    5
+  ],
+  "inputs": [
+    "ho_ten",
+    "ma_khu",
+    "ma_phien",
+    "chieu_cao"
+  ],
+  "objectives": [
+    {
+      "kind": "output_line",
+      "line": 1
+    },
+    {
+      "kind": "output_line",
+      "line": 2
+    },
+    {
+      "kind": "output_line",
+      "line": 3
+    },
+    {
+      "kind": "output_line",
+      "line": 4
+    },
+    {
+      "kind": "output_line",
+      "line": 5
+    },
+    {
+      "kind": "output_line",
+      "line": 6
+    }
+  ],
+  "alert_limit_statements": 9,
+  "float_abs_tolerance": 1e-09,
+  "tests": [
+    {
+      "inputs": {
+        "ho_ten": "ĐỖ MINH AN",
+        "ma_khu": "K-07",
+        "ma_phien": 4096,
+        "chieu_cao": "1.72"
+      },
+      "stdin": [
+        "4172",
+        "828"
+      ],
+      "expected": {},
+      "expected_output": [
+        "NID/2089",
+        "HO SO: ĐỖ MINH AN / K-07",
+        "KHUON: <class 'int'>",
+        "SINH TRAC: 3.44",
+        "NANG LUONG: 8 PIN + 28",
+        "LOI DAP: 4179"
+      ]
+    },
+    {
+      "inputs": {
+        "ho_ten": "ĐỖ MINH AN",
+        "ma_khu": "K-07",
+        "ma_phien": "7351",
+        "chieu_cao": "1.80"
+      },
+      "stdin": [
+        "9035",
+        "1500"
+      ],
+      "expected": {},
+      "expected_output": [
+        "NID/2089",
+        "HO SO: ĐỖ MINH AN / K-07",
+        "KHUON: <class 'str'>",
+        "SINH TRAC: 3.6",
+        "NANG LUONG: 15 PIN + 0",
+        "LOI DAP: 9042"
+      ]
+    },
+    {
+      "inputs": {
+        "ho_ten": "ĐỖ MINH AN",
+        "ma_khu": "K-07",
+        "ma_phien": 2.5,
+        "chieu_cao": "1.653"
+      },
+      "stdin": [
+        "0815",
+        "1234"
+      ],
+      "expected": {},
+      "expected_output": [
+        "NID/2089",
+        "HO SO: ĐỖ MINH AN / K-07",
+        "KHUON: <class 'float'>",
+        "SINH TRAC: 3.31",
+        "NANG LUONG: 12 PIN + 34",
+        "LOI DAP: 822"
+      ]
+    }
+  ],
+  "counter_attack_tests": [
+    {
+      "inputs": {
+        "ho_ten": "ĐỖ MINH AN",
+        "ma_khu": "K-12",
+        "ma_phien": true,
+        "chieu_cao": "1.5"
+      },
+      "stdin": [
+        " 4172",
+        "1500.0"
+      ],
+      "expected": {},
+      "expected_output": [
+        "NID/2089",
+        "HO SO: ĐỖ MINH AN / K-12",
+        "KHUON: <class 'bool'>",
+        "SINH TRAC: 3.0",
+        "NANG LUONG: 15 PIN + 0",
+        "LOI DAP: 4179"
+      ]
+    }
+  ],
+  "forbidden_terms": [
+    "str",
+    "bool",
+    "type",
+    "input",
+    "print",
+    "f-string",
+    "ngoặc nhọn",
+    "nháy",
+    "ngoặc kép",
+    "đổi kiểu",
+    "ép kiểu",
+    "chuyển kiểu",
+    "làm tròn",
+    "lũy thừa",
+    "chia nguyên",
+    "chia lấy dư",
+    "số dư",
+    "phần dư",
+    "//",
+    "%",
+    "**",
+    "ho_ten",
+    "ma_khu",
+    "ma_phien",
+    "chieu_cao",
+    "ma_hoi",
+    "muc",
+    "ĐỖ MINH AN",
+    "K-07",
+    "K-12",
+    "4096",
+    "7351",
+    "2.5",
+    "True",
+    "1.72",
+    "1.80",
+    "1.653",
+    "1.5",
+    "4172",
+    "828",
+    "9035",
+    "1500",
+    "0815",
+    "1234",
+    "1500.0",
+    "4179",
+    "9042",
+    "822",
+    "3.44",
+    "3.6",
+    "3.31",
+    "3.306",
+    "3.0"
+  ],
+  "outro_beats": [
+    {
+      "kind": "kai"
+    },
+    {
+      "kind": "log",
+      "cue": "terminal_line"
+    },
+    {
+      "kind": "card",
+      "fx": "eight_fragments",
+      "cue": "pulse"
+    },
+    {
+      "kind": "card",
+      "cue": "glitch"
+    },
+    {
+      "kind": "echo"
+    },
+    {
+      "kind": "kai"
+    }
+  ],
+  "knowledge_summary": {
+    "sections": [
+      {
+        "code": "lop = \"10A\"\nprint(\"Lop\", lop)\nprint(\"Lop\" + lop)\nprint(\"lop\" == \"Lop\")",
+        "output": "Lop 10A\nLop10A\nFalse"
+      },
+      {
+        "code": "ca = \"SANG\"\nprint(ca)\nca = \"DEM\"\nprint(ca)",
+        "output": "SANG\nDEM"
+      },
+      {
+        "code": "print(type(12), type(\"12\"))\nprint(type(1.5), type(False))",
+        "output": "<class 'int'> <class 'str'>\n<class 'float'> <class 'bool'>"
+      },
+      {
+        "code": "print(int(\"12\") + 3)\nprint(float(\"0.5\") * 3)\nprint(int(float(\"7.0\")))\nprint(round(2 / 3, 2))",
+        "output": "15\n1.5\n7\n0.67"
+      },
+      {
+        "code": "print(17 // 5, 17 % 5)\nprint(2 ** 3)\nprint(7 / 2)\nprint(2 + 3 * 4)",
+        "output": "3 2\n8\n3.5\n14"
+      },
+      {
+        "code": "ten = input()\ntuoi = int(input())\nprint(f\"{ten} sang nam {tuoi + 1} tuoi\")",
+        "stdin": "Mai\n15\n",
+        "output": "Mai sang nam 16 tuoi"
+      },
+      {
+        "code": "gia = \"45\"\nprint(f\"Tong: {int(gia) * 2}\")\ngia = \"120\"\nprint(f\"Tong: {int(gia) * 2}\")",
+        "output": "Tong: 90\nTong: 240"
+      }
+    ],
+    "mistakes": [
+      {
+        "code": "print(\"Nid/2089\")",
+        "error": "Không báo lỗi, nhưng in ra: Nid/2089"
+      },
+      {
+        "code": "print(\"HO SO: {ho_ten} / {ma_khu}\")",
+        "error": "Không báo lỗi, nhưng in ra: HO SO: {ho_ten} / {ma_khu}"
+      },
+      {
+        "code": "print(\"KHUON:\", \"<class 'int'>\")",
+        "error": "Không báo lỗi. Với ma_phien = \"7351\" dòng này vẫn in <class 'int'>"
+      },
+      {
+        "code": "print(f\"SINH TRAC: {chieu_cao * 2}\")",
+        "error": "Không báo lỗi, nhưng in ra: SINH TRAC: 1.721.72"
+      },
+      {
+        "code": "print(f\"NANG LUONG: {int(muc) / 100} PIN + {int(muc) % 100}\")",
+        "error": "Không báo lỗi, nhưng in ra: NANG LUONG: 8.28 PIN + 28"
+      },
+      {
+        "code": "print(f\"LOI DAP: {ma_hoi + 7}\")",
+        "error": "TypeError: can only concatenate str (not \"int\") to str"
+      },
+      {
+        "code": "muc = int(input())",
+        "error": "ValueError: invalid literal for int() with base 10: '1500.0'"
+      }
+    ]
+  }
+}

@@ -3,6 +3,7 @@ import { BASE_TYPES, simulationOf, type LevelDefinition } from "../game/level-ty
 import { typeTitle } from "../game/type-gloss";
 import { FenceSimulation } from "./fence-simulation";
 import { InterrogationSimulation } from "./interrogation-simulation";
+import { CheckpointSimulation } from "./checkpoint-simulation";
 import { KioskSimulation } from "./kiosk-simulation";
 import { RelaySimulation } from "./relay-simulation";
 import { ScannerSimulation } from "./scanner-simulation";
@@ -41,6 +42,8 @@ export function LevelSimulation(props: SimulationProps) {
       return <FenceSimulation {...props} />;
     case "interrogation":
       return <InterrogationSimulation {...props} />;
+    case "checkpoint":
+      return <CheckpointSimulation {...props} />;
     case "scanner":
       return <ScannerSimulation {...props} />;
   }

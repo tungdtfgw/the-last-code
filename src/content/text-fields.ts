@@ -88,7 +88,7 @@ export const LEVEL_TEXT: TextSpec = {
 export const CHAPTER_TEXT: TextSpec = {
   fields: [
     { path: "prologue[].text", label: "Nhịp mở đầu", group: "Mở đầu", leaf: BEAT_TEXT },
-    { path: "teaser[].text", label: "Nhịp còn tiếp", group: "Còn tiếp", leaf: BEAT_TEXT },
+    { path: "teaser[].text", label: "Nhịp hết chương", group: "Hết chương", leaf: BEAT_TEXT },
   ],
   anchors: [
     { path: "prologue", anchor: ["kind"] },
