@@ -39,6 +39,11 @@ describe("fence timeline", () => {
     expect(end.scene.cells).toHaveLength(MAX_CELLS);
   });
 
+  test("a run cut short by the statement budget under the new load: the scene says the process was cut", () => {
+    const end = timeline(withLines({ 8: ENERGY, ...SPLIT, 13: "while dung_luong == 110: pass" })).at(-1)!;
+    expect(end.scene).toMatchObject({ fence: "half", signal: "alarm", status: "RÀO SÁNG LẠI MỘT NỬA · TIẾN TRÌNH BỊ CẮT" });
+  });
+
   test("a Python error: no energy goes out, the status shows the traceback line", () => {
     const t = timeline(withLines({ 8: ENERGY, 11: "so_pin = nang_luong // 0" }));
     expect(t).toHaveLength(2);

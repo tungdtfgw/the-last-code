@@ -834,6 +834,10 @@ class StdinChannel(unittest.TestCase):
         self.assertEqual([x["stdout"] for x in r["base_results"]], ["A\n", "C\n"])
         self.assertEqual([x["stdin_read"] for x in r["base_results"]], [1, 1])
 
+    def test_prompt_is_positional_only_as_in_cpython(self):
+        b = base(grade('a = input(prompt="Ma: ")\n', stdin_config(["1"])))
+        self.assertEqual((b["status"], b["error"]["type"]), ("runtime_error", "TypeError"))
+
     def test_input_call_counts_as_one_statement(self):
         self.assertEqual(base(grade("x = input()\n", stdin_config(["1"])))["line_count"], 1)
 

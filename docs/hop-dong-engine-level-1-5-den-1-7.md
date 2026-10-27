@@ -117,7 +117,7 @@ Test cho hạ tầng dùng level mẫu trong `tests/fixtures/` (một level gi�
 
 **Mỗi nhánh màn phải tự đủ:** JSON câu đố và migration câu chữ trong cùng commit (`server/content/content-migration.test.ts` đòi mọi level trong bundle có dòng D1). Không merge JSON level mà thiếu migration.
 
-**Phát hành:** chỉ deploy khi cả ba màn và đoạn hết chương đã vào nhánh tích hợp. Lý do: deploy riêng 1.5 thì `teaser` vẫn nói "bốn thành phần, còn hai" sau 1.5; deploy 1.7 mà thiếu `0008` thì đoạn sau 1.7 là "Còn tiếp" cũ. Trên D1 thật: áp `0005`–`0008` rồi deploy code ngay (`docs/huong-dan-deploy.md` mục 9).
+**Phát hành:** chỉ deploy khi cả ba màn và đoạn hết chương đã vào nhánh tích hợp. Lý do: deploy riêng 1.5 thì `teaser` vẫn nói "bốn thành phần, còn hai" sau 1.5; deploy 1.7 mà thiếu `0008` thì đoạn sau 1.7 là "Còn tiếp" cũ. Trên D1 thật: áp `0005`–`0009` rồi deploy code ngay. `0009_story_seen_chapter_1_ending.sql` xóa `teaser` khỏi `story_seen`: người chơi đã xem "Còn tiếp" cũ vẫn được phát đoạn hết chương sau 1.7, và bản đồ không cho xem trước nó (`docs/huong-dan-deploy.md` mục 9).
 
 ## 8. Không đổi
 

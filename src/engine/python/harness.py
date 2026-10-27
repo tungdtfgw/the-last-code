@@ -215,7 +215,7 @@ def _stdin_input(lines, out, state, preview_chars):
     the line read is returned exactly as given. Past the last line: EOFError, CPython's message.
     """
 
-    def input(prompt=""):  # noqa: A001 - the player's builtin
+    def input(prompt="", /):  # noqa: A001 - the player's builtin
         text = str(prompt)  # errors (a player __str__) propagate as in CPython
         if text:
             out.write(text)

@@ -252,7 +252,7 @@ export function buildFenceTimeline(outcome: RunOutcome, level: LevelDefinition):
   };
   frames.push({ scene: { ...counter, status: "OMNI PHẢN CÔNG", shake: true }, hold: 1200, cues: ["siren"] });
 
-  if (outcome.counterAborted || outcome.error?.phase === "counter" || !outcome.counterVars) {
+  if (outcome.counterAborted || outcome.error?.phase === "counter" || outcome.key === "timeout" || !outcome.counterVars) {
     const why =
       outcome.counterAborted === "engine_error"
         ? "LÕI PYTHON KHÔNG PHẢN HỒI"
