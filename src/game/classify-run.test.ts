@@ -1,12 +1,10 @@
 import { describe, expect, test } from "vitest";
 import type { HarnessOutput, HarnessOutputLine, HarnessReport, HarnessTestResult, HarnessVar } from "../engine/harness-types";
-import levelJson from "../levels/level-1-4.json";
-import level12Json from "../levels/level-1-2.json";
-import level13Json from "../levels/level-1-3.json";
 import { classifyRun } from "./classify-run";
 import type { LevelDefinition } from "./level-types";
+import { realLevel } from "../../tests/content-fixture";
 
-const level = levelJson as unknown as LevelDefinition;
+const level = realLevel("1.4");
 
 const good = (type: string, preview = "x"): HarnessVar => ({
   present: true,
@@ -212,7 +210,7 @@ describe("classifyRun", () => {
 });
 
 describe("value_is_label (level 1.2)", () => {
-  const level12 = level12Json as unknown as LevelDefinition;
+  const level12 = realLevel("1.2");
   const VARS_12 = ["ho_ten", "ma_khu", "so_hieu", "khu_cu", "the_quet", "the_cong"];
   /** Base result of 1.2 where `wrong` vars hold a wrong str with the given preview. */
   const run12 = (wrong: Record<string, string>, lvl = level12) => {
@@ -237,7 +235,7 @@ describe("value_is_label (level 1.2)", () => {
 });
 
 describe("type_mismatch_unknown_shape (level 1.3)", () => {
-  const level13 = level13Json as unknown as LevelDefinition;
+  const level13 = realLevel("1.3");
   const wrong = (type: string): HarnessVar => ({ ...good(type), type_ok: false, value_ok: false });
   const vars = { ho_ten: good("str"), tuoi: good("int"), chieu_cao: wrong("tuple"), da_tiem: good("bool"), khuon_phien: good("type") };
   const run = (over: Record<string, HarnessVar>, lvl = level13) =>

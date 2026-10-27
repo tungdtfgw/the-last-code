@@ -1,7 +1,8 @@
 import { describe, expect, test } from "vitest";
-import chapter from "./chapter-1.json";
-import { getDefaultRegistry } from "../game/level-registry";
+import { levelFiles, realChapterJson } from "../../tests/content-fixture";
 import { validateChapter } from "./validate-chapter";
+
+const chapter = realChapterJson();
 
 const clone = () => JSON.parse(JSON.stringify(chapter));
 
@@ -15,7 +16,7 @@ describe("chapter 1 data", () => {
   });
 
   test("every chapter-1 level file is listed in chapter.levels", () => {
-    const chapterLevels = getDefaultRegistry().listLevels().filter((l) => l.chapter === 1);
+    const chapterLevels = Object.values(levelFiles()).filter((l) => (l as { chapter?: unknown }).chapter === 1) as { id: string }[];
     expect(chapterLevels.length).toBeGreaterThan(0);
     for (const level of chapterLevels) expect(chapter.levels, level.id).toContain(level.id);
   });

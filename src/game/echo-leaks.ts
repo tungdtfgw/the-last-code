@@ -1,4 +1,4 @@
-import type { LevelDefinition } from "./level-types";
+import type { LevelDefinition } from "./level-types.js";
 
 /** Free ECHO lines never name a conversion function, in any level. */
 export const COMMON_TERMS = ["int", "float", "round"];

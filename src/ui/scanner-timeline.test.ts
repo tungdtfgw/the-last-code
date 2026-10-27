@@ -1,10 +1,9 @@
 import { describe, expect, test } from "vitest";
 import { gradeFixture } from "../../tests/integration/run-harness";
-import type { LevelDefinition } from "../game/level-types";
-import levelJson from "../levels/level-1-4.json";
 import { PACKET_MAX_W, buildTimeline, summarize, timelineDuration } from "./scanner-timeline";
+import { realLevel } from "../../tests/content-fixture";
 
-const level = levelJson as unknown as LevelDefinition;
+const level = realLevel("1.4");
 const timeline = (f: string) => buildTimeline(gradeFixture(level, f), level);
 const last = (f: string) => timeline(f).at(-1)!;
 const cues = (f: string) => timeline(f).flatMap((x) => x.cues);

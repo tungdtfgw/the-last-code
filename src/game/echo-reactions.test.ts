@@ -1,11 +1,11 @@
 import { describe, expect, test } from "vitest";
 import { gradeFixture } from "../../tests/integration/run-harness";
-import levelJson from "../levels/level-1-4.json";
 import type { RunOutcome } from "./classify-run";
 import { REPEAT_PREFIX, renderTemplate, selectEntry, selectReaction } from "./echo-reactions";
 import type { LevelDefinition } from "./level-types";
+import { realLevel } from "../../tests/content-fixture";
 
-const level = levelJson as unknown as LevelDefinition;
+const level = realLevel("1.4");
 const say = (fixture: string) => selectReaction(gradeFixture(level, fixture), level, []).primary;
 
 describe("ECHO says the line that matches the run (AC 8)", () => {

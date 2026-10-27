@@ -1,14 +1,21 @@
+import { cpSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
+import { tmpdir } from "node:os";
+import { join } from "node:path";
 import { afterEach, describe, expect, test } from "vitest";
+import sample from "../tests/fixtures/levels/level-test-sample.json";
+import { extractText, LEVEL_TEXT, stripText } from "../src/content/text-fields";
+import { LEVELS_DIR, loadBundledContent } from "./content/bundled-content";
 import { readConfig } from "./config";
 import { createHandler } from "./router";
 import { testAuthContext, tokenOf } from "./test-helpers";
 
+const ADMINS = new Set(["boss"]);
 let env = testAuthContext();
-let handle = createHandler({ ctx: env.ctx, secureCookies: false });
+let handle = createHandler({ ctx: env.ctx, secureCookies: false, admins: ADMINS });
 afterEach(() => {
   env.cleanup();
   env = testAuthContext();
-  handle = createHandler({ ctx: env.ctx, secureCookies: false });
+  handle = createHandler({ ctx: env.ctx, secureCookies: false, admins: ADMINS });
 });
 
 const call = (method: string, path: string, body?: unknown, cookie?: string, headers: Record<string, string> = {}) =>
@@ -20,10 +27,11 @@ const call = (method: string, path: string, body?: unknown, cookie?: string, hea
     }),
   );
 
-async function signedIn() {
-  expect((await call("POST", "/api/auth/register", { username: "alice", email: "a@x.io", password: "password1" })).status).toBe(201);
-  expect((await call("POST", "/api/auth/activate", { token: tokenOf(env.mails()[0]) })).status).toBe(200);
-  const res = await call("POST", "/api/auth/login", { username: "alice", password: "password1" });
+async function signedIn(username = "alice") {
+  const email = username === "alice" ? "a@x.io" : `${username}@x.io`;
+  expect((await call("POST", "/api/auth/register", { username, email, password: "password1" })).status).toBe(201);
+  expect((await call("POST", "/api/auth/activate", { token: tokenOf(env.mails().at(-1)!) })).status).toBe(200);
+  const res = await call("POST", "/api/auth/login", { username, password: "password1" });
   expect(res.status).toBe(200);
   const setCookie = res.headers.get("set-cookie")!;
   return { setCookie, cookie: setCookie.split(";")[0] };
@@ -132,5 +140,118 @@ describe("readConfig", () => {
     const local = readConfig({ DB_DRIVER: "sqlite", MAIL_TRANSPORT: "outbox", APP_ORIGIN: "http://localhost:4173", AUTH_RATE_LIMIT: "off" });
     expect(local.ok && local.config).toMatchObject({ callerLimits: false, secureCookies: false, mail: { transport: "outbox" } });
     expect(readConfig({ ...prod, MAIL_TRANSPORT: "outbox" }).ok).toBe(false);
+  });
+
+  test("ADMIN_USERNAMES is read like a login name; malformed names are dropped", () => {
+    const local = { DB_DRIVER: "sqlite", MAIL_TRANSPORT: "outbox", APP_ORIGIN: "http://localhost:4173" };
+    const r = readConfig({ ...local, ADMIN_USERNAMES: " Boss , tung_dt,,bad name!" });
+    expect(r.ok && r.config.admins).toEqual(["boss", "tung_dt"]);
+    const none = readConfig(local);
+    expect(none.ok && none.config.admins).toEqual([]);
+  });
+});
+
+describe("content API", () => {
+  // A fresh database holds the text migrations: every bundled document starts at revision 1.
+  const level14 = JSON.parse(readFileSync(new URL("../src/levels/level-1-4.json", import.meta.url), "utf8"));
+  const DOC = "/api/admin/content/level/1.4";
+  const textOf = async (cookie: string) => JSON.parse(JSON.stringify((await (await call("GET", DOC, undefined, cookie)).json()).text));
+
+  test("admin routes need a session (401) and an admin name (403)", async () => {
+    expect((await call("GET", "/api/admin/content")).status).toBe(401);
+    const player = await signedIn("alice");
+    expect((await call("GET", "/api/admin/content", undefined, player.cookie)).status).toBe(403);
+    expect((await call("PUT", DOC, { baseRevision: 1, text: {} }, player.cookie)).status).toBe(403);
+    expect(await (await call("GET", "/api/auth/me", undefined, player.cookie)).json()).toMatchObject({ user: { isAdmin: false } });
+    const admin = await signedIn("boss");
+    expect(await (await call("GET", "/api/auth/me", undefined, admin.cookie)).json()).toMatchObject({ user: { username: "boss", isAdmin: true } });
+    const list = await call("GET", "/api/admin/content", undefined, admin.cookie);
+    expect(list.status).toBe(200);
+    const { docs } = await list.json();
+    expect(docs.map((d: { docId: string }) => d.docId)).toEqual(expect.arrayContaining(["chapter:1", "level:1.1", "level:1.4"]));
+    expect(docs.find((d: { docId: string }) => d.docId === "level:1.4")).toMatchObject({ revision: 1, updatedBy: "migration", drift: [], errors: [] });
+  });
+
+  test("save, conflict, history and the players' text", async () => {
+    const { cookie } = await signedIn("boss");
+    const start = await (await call("GET", DOC, undefined, cookie)).json();
+    expect(start).toMatchObject({ revision: 1, updatedBy: "migration" });
+    const original = JSON.parse(JSON.stringify(start.text));
+
+    const text = await textOf(cookie);
+    text.briefing = "Lời dẫn mới.";
+    const first = await call("PUT", DOC, { baseRevision: 1, text }, cookie);
+    expect(first.status).toBe(200);
+    expect(await first.json()).toMatchObject({ revision: 2 });
+
+    // A second editor still on revision 1 is refused with who saved last.
+    const stale = await call("PUT", DOC, { baseRevision: 1, text: original }, cookie);
+    expect(stale.status).toBe(409);
+    expect(await stale.json()).toMatchObject({ error: "stale_revision", revision: 2, updatedBy: "boss" });
+
+    text.briefing = "Lời dẫn thứ hai.";
+    expect((await call("PUT", DOC, { baseRevision: 2, text }, cookie)).status).toBe(200);
+
+    const history = await (await call("GET", `${DOC}/history`, undefined, cookie)).json();
+    expect(history.revisions.map((r: { revision: number; savedBy: string }) => [r.revision, r.savedBy])).toEqual([
+      [3, "boss"],
+      [2, "boss"],
+      [1, "migration"],
+    ]);
+    // Restoring the migrated text goes through the same save.
+    const old = await (await call("GET", `${DOC}/history/1`, undefined, cookie)).json();
+    expect(old.text).toEqual(original);
+    expect((await call("PUT", DOC, { baseRevision: 3, text: old.text }, cookie)).status).toBe(200);
+    expect((await call("GET", `${DOC}/history/9`, undefined, cookie)).status).toBe(404);
+
+    const player = await signedIn("alice");
+    const texts = await (await call("GET", "/api/content/text", undefined, player.cookie)).json();
+    expect(texts.docs["level:1.4"]).toMatchObject({ revision: 4, text: original });
+    expect(Object.keys(texts.docs)).toEqual(expect.arrayContaining(["chapter:1", "level:1.1", "level:1.4"]));
+  });
+
+  test("puzzle keys and leaking lines are refused with 422 and nothing is stored", async () => {
+    const { cookie } = await signedIn("boss");
+    const withTests = await call("PUT", DOC, { baseRevision: 1, text: { ...(await textOf(cookie)), tests: [] } }, cookie);
+    expect(withTests.status).toBe(422);
+    expect(await withTests.json()).toMatchObject({ error: "invalid_text", errors: [{ path: "tests" }] });
+
+    const leaking = await textOf(cookie);
+    leaking.reactions.wrong_value = `Đáp án là ${level14.tests[0].expected.ma_xac_thuc}.`;
+    const res = await call("PUT", DOC, { baseRevision: 1, text: leaking }, cookie);
+    expect(res.status).toBe(422);
+    expect((await res.json()).errors.map((e: { path: string }) => e.path)).toEqual(["reactions.wrong_value"]);
+    expect((await (await call("GET", DOC, undefined, cookie)).json()).revision).toBe(1);
+  });
+
+  test("a bundled level without a text migration is listed with an error and can be neither opened nor created", async () => {
+    const dir = mkdtempSync(join(tmpdir(), "tlc-levels-"));
+    try {
+      cpSync(LEVELS_DIR, dir, { recursive: true });
+      writeFileSync(join(dir, "level-9-9.json"), JSON.stringify(stripText(sample, LEVEL_TEXT)));
+      handle = createHandler({ ctx: env.ctx, secureCookies: false, admins: ADMINS, content: loadBundledContent(dir) });
+      const { cookie } = await signedIn("boss");
+      const { docs } = await (await call("GET", "/api/admin/content", undefined, cookie)).json();
+      expect(docs.find((d: { docId: string }) => d.docId === "level:9.9")).toMatchObject({ revision: 0, errors: [{ message: expect.stringMatching(/thêm migration/) }] });
+      const NEW = "/api/admin/content/level/9.9";
+      expect(await call("GET", NEW, undefined, cookie)).toMatchObject({ status: 404 });
+      const put = await call("PUT", NEW, { baseRevision: 0, text: extractText(sample, LEVEL_TEXT) }, cookie);
+      expect(put.status).toBe(404);
+      expect(await put.json()).toEqual({ error: "no_text" });
+      expect((await (await call("GET", "/api/content/text", undefined, cookie)).json()).docs["level:9.9"]).toBeUndefined();
+    } finally {
+      rmSync(dir, { recursive: true, force: true });
+    }
+  });
+
+  test("writes are JSON with a size limit, a valid revision and a known document", async () => {
+    const { cookie } = await signedIn("boss");
+    const form = await handle(new Request(`http://localhost${DOC}`, { method: "PUT", headers: { cookie, "content-type": "text/plain" }, body: "{}" }));
+    expect(form.status).toBe(415);
+    expect((await call("PUT", DOC, { baseRevision: 1, text: { briefing: "x".repeat(300 * 1024) } }, cookie)).status).toBe(413);
+    expect((await call("PUT", DOC, { baseRevision: -1, text: await textOf(cookie) }, cookie)).status).toBe(400);
+    expect((await call("PUT", DOC, { baseRevision: 0, text: await textOf(cookie) }, cookie)).status).toBe(409);
+    expect((await call("PUT", "/api/admin/content/level/9.9", { baseRevision: 1, text: {} }, cookie)).status).toBe(404);
+    expect((await call("GET", "/api/admin/content/story/1", undefined, cookie)).status).toBe(404);
   });
 });

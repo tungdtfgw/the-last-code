@@ -1,8 +1,6 @@
 import { describe, expect, test, vi } from "vitest";
-import level14 from "../levels/level-1-4.json";
-import { buildRegistry, getDefaultRegistry } from "../game/level-registry";
+import { realChapter, realLevelJson, realRegistry, registryOf } from "../../tests/content-fixture";
 import type { StarCount } from "../storage/progress-repository";
-import chapter from "./chapter-1.json";
 import {
   buildChapterContext,
   chapterTotals,
@@ -14,7 +12,9 @@ import {
   titleContinue,
   type ProgressSnapshot,
 } from "./progression";
-import type { ChapterDefinition } from "./story-types";
+
+const level14 = realLevelJson("1.4");
+const chapter = realChapter();
 
 // A summary-less copy of 1.4, so each test opts into the knowledge step explicitly.
 const asLevel = (id: string) => {
@@ -23,8 +23,8 @@ const asLevel = (id: string) => {
 };
 const ctxWith = (ids: string[], extra: Record<string, unknown> = {}) =>
   buildChapterContext(
-    chapter as ChapterDefinition,
-    buildRegistry({ ...Object.fromEntries(ids.map((id) => [`./level-${id}.json`, asLevel(id)])), ...extra }),
+    chapter,
+    registryOf({ ...Object.fromEntries(ids.map((id) => [`./level-${id}.json`, asLevel(id)])), ...extra }),
   );
 const snap = (stars: Record<string, StarCount> = {}, seen: string[] = []): ProgressSnapshot => ({ stars, seen: new Set(seen) });
 const level = (id: string) => ({ kind: "level", id }) as const;
@@ -82,7 +82,7 @@ describe("1.1, 1.2 and 1.4 built (1.3 missing)", () => {
 });
 
 describe("the shipped chapter (src/levels)", () => {
-  const ctx = buildChapterContext(chapter as ChapterDefinition, getDefaultRegistry());
+  const ctx = buildChapterContext(chapter, realRegistry());
   const seen = (...ids: string[]) => snap({ "1.1": 3, "1.2": 3, "1.3": 3, "1.4": 3 }, ids);
 
   test("plays through: prologue → 1.1 → 1.2 → 1.3 → 1.4 → teaser → map, each level behind the one before", () => {
@@ -100,7 +100,7 @@ describe("the shipped chapter (src/levels)", () => {
     const totals = chapterTotals(ctx, seen());
     expect(totals).toMatchObject({ stars: 12, maxStars: 12, slots: 6 });
     expect(totals.components.map((c) => c.slot)).toEqual([0, 1, 2, 3]);
-    const teaserLine = (chapter as ChapterDefinition).teaser.find((b) => b.text.includes("thành phần"))!.text;
+    const teaserLine = chapter.teaser.find((b) => b.text.includes("thành phần"))!.text;
     expect(teaserLine).toMatch(/^Bốn thành phần\. Còn hai\./);
   });
 });

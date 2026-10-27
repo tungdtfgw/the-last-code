@@ -1,5 +1,5 @@
-import { CUES } from "../audio/sound-recipes";
-import { BACKDROPS, BEAT_FX, BEAT_KINDS } from "./story-types";
+import { CUES } from "../audio/cue-names.js";
+import { BACKDROPS, BEAT_FX, BEAT_KINDS } from "./story-types.js";
 
 const KEYS = new Set(["kind", "text", "cue", "backdrop", "fx", "hold_ms"]);
 const MAX_BEATS = 30;

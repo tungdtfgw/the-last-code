@@ -1,17 +1,12 @@
-import type { OutcomeDetails, RunOutcome } from "./classify-run";
+import type { RunOutcome } from "./classify-run";
 import type { LevelDefinition, ReactionKey } from "./level-types";
+import { renderTemplate } from "./echo-line-check";
+
+export { renderTemplate };
 
 export interface EchoLine {
   primary: string;
   followUp?: string;
-}
-
-/** Fill {line} {vars} {error_type} {count}; unknown or missing data becomes "?". */
-export function renderTemplate(template: string, details: OutcomeDetails): string {
-  return template.replace(/\{(\w+)\}/g, (_m, name: string) => {
-    const value = (details as Record<string, unknown>)[name];
-    return value === undefined || value === null || value === "" ? "?" : String(value);
-  });
 }
 
 export const reactionText = (level: LevelDefinition, key: ReactionKey) =>

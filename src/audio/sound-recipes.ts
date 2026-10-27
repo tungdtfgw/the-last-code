@@ -2,25 +2,9 @@
  * Procedural sound recipes (Web Audio only, no asset files).
  * Each recipe schedules nodes starting at `when` and returns its duration in seconds.
  */
-export const CUES = [
-  "key_blip",
-  "terminal_line",
-  "run",
-  "scan_pass",
-  "scan_reject",
-  "locked_blocked",
-  "alarm",
-  "siren",
-  "gate_open",
-  "gate_close_far",
-  "star",
-  "echo_voice",
-  "teletype",
-  "objective_lock",
-  "pulse",
-  "glitch",
-] as const;
-export type Cue = (typeof CUES)[number];
+import { CUES, type Cue } from "./cue-names";
+
+export { CUES, type Cue };
 
 type Recipe = (ctx: BaseAudioContext, out: AudioNode, when: number) => number;
 

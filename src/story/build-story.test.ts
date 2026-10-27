@@ -1,12 +1,11 @@
 import { describe, expect, test } from "vitest";
-import level14 from "../levels/level-1-4.json";
-import { buildRegistry } from "../game/level-registry";
-import chapter from "./chapter-1.json";
+import { realChapter, realLevelJson, registryOf } from "../../tests/content-fixture";
 import { buildStory } from "./build-story";
 import { buildChapterContext } from "./progression";
-import type { ChapterDefinition } from "./story-types";
 
-const ctxOf = (level: object) => buildChapterContext(chapter as ChapterDefinition, buildRegistry({ "./l.json": level }));
+const level14 = realLevelJson("1.4");
+const chapter = realChapter();
+const ctxOf = (level: object) => buildChapterContext(chapter, registryOf({ "./l.json": level }));
 
 describe("buildStory", () => {
   test("after-1.4: outro → lore → component card → outro beats", () => {

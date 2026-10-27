@@ -2,16 +2,22 @@ import { spawnSync } from "node:child_process";
 import { readdirSync, readFileSync } from "node:fs";
 import { describe, expect, test } from "vitest";
 import type { LevelDefinition } from "../../src/game/level-types";
+import { levelFiles, realLevelJson } from "../content-fixture";
 
 // Every code example in a knowledge summary must run with real Python and print exactly
 // its `output`. Real levels without a summary add nothing; the fixture keeps the check alive.
 
-const DIRS = ["../../src/levels/", "../fixtures/levels/"].map((d) => new URL(d, import.meta.url));
-const levels = DIRS.flatMap((dir) =>
-  readdirSync(dir)
+// Real levels: the puzzle file (code, output) with its migrated text (headings); fixtures carry both.
+const FIXTURES = new URL("../fixtures/levels/", import.meta.url);
+const levels = [
+  ...Object.entries(levelFiles()).map(([path, file]) => ({
+    file: path.split("/").pop()!,
+    level: realLevelJson((file as { id: string }).id) as LevelDefinition,
+  })),
+  ...readdirSync(FIXTURES)
     .filter((f) => f.endsWith(".json"))
-    .map((f) => ({ file: f, level: JSON.parse(readFileSync(new URL(f, dir), "utf8")) as LevelDefinition })),
-);
+    .map((f) => ({ file: f, level: JSON.parse(readFileSync(new URL(f, FIXTURES), "utf8")) as LevelDefinition })),
+];
 const examples = levels.flatMap(({ file, level }) =>
   (level.knowledge_summary?.sections ?? [])
     .map((s, i) => ({ name: `${file} sections[${i}] "${s.heading}"`, code: s.code, output: s.output }))

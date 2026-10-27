@@ -1,11 +1,13 @@
 import { describe, expect, test } from "vitest";
-import level from "../levels/level-1-4.json";
-import level11 from "../levels/level-1-1.json";
-import level12 from "../levels/level-1-2.json";
-import level13 from "../levels/level-1-3.json";
 import sample from "../../tests/fixtures/levels/level-test-sample.json";
 import knowledgeSample from "../../tests/fixtures/levels/level-test-knowledge.json";
+import { realLevelJson } from "../../tests/content-fixture";
 import { validateLevel } from "./validate-level";
+
+const level = realLevelJson("1.4");
+const level11 = realLevelJson("1.1");
+const level12 = realLevelJson("1.2");
+const level13 = realLevelJson("1.3");
 
 const clone = () => JSON.parse(JSON.stringify(level));
 

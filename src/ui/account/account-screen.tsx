@@ -4,7 +4,7 @@ import { errorMessage } from "../../account/account-errors";
 import { maskEmail } from "../../account/account-rules";
 import { AuthLayout, type Notice } from "./auth-layout";
 
-export function AccountScreen(props: { api: AccountApi; user: AccountUser; onSignOut(): Promise<boolean>; onTitle(): void }) {
+export function AccountScreen(props: { api: AccountApi; user: AccountUser; onSignOut(): Promise<boolean>; onTitle(): void; onAdmin?(): void }) {
   const [busy, setBusy] = useState(false);
   const [notice, setNotice] = useState<Notice | null>(null);
 
@@ -39,6 +39,11 @@ export function AccountScreen(props: { api: AccountApi; user: AccountUser; onSig
         </div>
       </dl>
       <div className="auth-actions">
+        {props.user.isAdmin && props.onAdmin && (
+          <button type="button" className="btn btn-ghost" onClick={props.onAdmin} disabled={busy}>
+            Quản lý kịch bản
+          </button>
+        )}
         <button type="button" className="btn btn-ghost" onClick={() => void changePassword()} disabled={busy}>
           Đổi mật khẩu qua email
         </button>

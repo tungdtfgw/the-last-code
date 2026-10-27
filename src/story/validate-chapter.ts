@@ -1,6 +1,6 @@
-import { findEchoLeak } from "../game/echo-leaks";
-import type { ChapterDefinition } from "./story-types";
-import { validateBeats } from "./validate-beats";
+import { findEchoLeak } from "../game/echo-leaks.js";
+import type { ChapterDefinition } from "./story-types.js";
+import { validateBeats } from "./validate-beats.js";
 
 export type ChapterValidation = { ok: true; chapter: ChapterDefinition } | { ok: false; errors: string[] };
 

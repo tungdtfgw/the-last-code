@@ -43,6 +43,7 @@ export default defineConfig({
       OUTBOX_DIR: ".data/e2e-outbox",
       AUTH_RATE_LIMIT: "off",
       APP_ORIGIN: "http://localhost:4173",
+      ADMIN_USERNAMES: "e2e_admin",
     },
     port: 4173,
     reuseExistingServer: false,

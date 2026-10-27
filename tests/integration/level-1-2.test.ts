@@ -1,12 +1,11 @@
 import { describe, expect, test } from "vitest";
-import levelJson from "../../src/levels/level-1-2.json";
+import { realLevel } from "../content-fixture";
 import { classifyRun } from "../../src/game/classify-run";
-import type { LevelDefinition } from "../../src/game/level-types";
 import { runHarness } from "./run-harness";
 
 // Level 1.2 through the real harness (python3): GDD 1.2 §5, §6, §7, §14, §15 #1–5.
 
-const level = levelJson as unknown as LevelDefinition;
+const level = realLevel("1.2");
 const STARTER = level.starter_code.split("\n");
 
 /** Starter code with some 1-based editor lines replaced. */

@@ -1,4 +1,4 @@
-import type { StoryBeat } from "../story/story-types";
+import type { StoryBeat } from "../story/story-types.js";
 
 /** The four coloured shapes (GDD 5.2); also the values a `type` objective may expect. */
 export const BASE_TYPES = ["int", "float", "str", "bool"] as const;

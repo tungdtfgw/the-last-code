@@ -1,6 +1,6 @@
 import type { IncomingMessage, ServerResponse } from "node:http";
 import { fileURLToPath } from "node:url";
-import { runnerImport, type Connect, type Plugin } from "vite";
+import { loadEnv, runnerImport, type Connect, type Plugin } from "vite";
 
 type Handle = (request: Request) => Promise<Response>;
 
@@ -38,6 +38,8 @@ async function send(res: ServerResponse, response: Response) {
  * so local play and e2e get the same API as Vercel. The router is loaded with
  * Vite's module runner when the server starts, never bundled into the client.
  * Local defaults (SQLite, mail outbox, origin from the port) apply only to unset variables.
+ * `vite dev` also fills unset variables from `.env`/`.env.local` (e.g. `LOCAL_ADMIN_*`);
+ * `vite preview` does not, so e2e runs only see what Playwright sets.
  */
 export function apiPlugin(): Plugin {
   let handle: Promise<Handle> | null = null;
@@ -48,7 +50,7 @@ export function apiPlugin(): Plugin {
     process.env.APP_ORIGIN ??= `http://localhost:${port}`;
     return (req, res, next) => {
       if (!req.url?.startsWith("/api/")) return next();
-      handle ??= runnerImport<{ createLocalHandle: () => Handle }>(LOCAL_HANDLER).then((m) => m.module.createLocalHandle());
+      handle ??= runnerImport<{ createLocalHandle: () => Promise<Handle> }>(LOCAL_HANDLER).then((m) => m.module.createLocalHandle());
       handle
         .then(async (h) => send(res, await h(await toRequest(req))))
         .catch((err) => {
@@ -62,6 +64,8 @@ export function apiPlugin(): Plugin {
   return {
     name: "the-last-code-api",
     configureServer(server) {
+      const fileEnv = loadEnv(server.config.mode, server.config.envDir || server.config.root, "");
+      for (const [name, value] of Object.entries(fileEnv)) process.env[name] ??= value;
       server.middlewares.use(middleware(server.config.server.port ?? 5173));
     },
     configurePreviewServer(server) {

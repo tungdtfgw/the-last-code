@@ -1,12 +1,13 @@
-import { readFileSync } from "node:fs";
 import { expect, test } from "./fixtures";
 import type { LevelDefinition } from "../../src/game/level-types";
+import { realLevelJson } from "../content-fixture";
 import { enterMission } from "./helpers";
 
 // "Việc cần làm" in the ECHO chat and the "Tổng kết kiến thức" screen, on level 1.1.
-// Skipped until the level JSON carries the content (other content work fills it in).
+// Each block skips when the migrated text of 1.1 has no such field.
 
-const level = JSON.parse(readFileSync(new URL("../../src/levels/level-1-1.json", import.meta.url), "utf8")) as LevelDefinition;
+// The text the preview server's fresh database gets from the migrations.
+const level = realLevelJson("1.1") as LevelDefinition;
 
 /** 1.1 passed with one star, prologue and its transition already seen. */
 const seedPassed = (page: import("@playwright/test").Page) =>
@@ -20,7 +21,7 @@ const seedPassed = (page: import("@playwright/test").Page) =>
   });
 
 test.describe("knowledge summary", () => {
-  test.beforeEach(() => test.skip(!level.knowledge_summary, "SKIP: level-1-1.json chưa có knowledge_summary"));
+  test.beforeEach(() => test.skip(!level.knowledge_summary, "SKIP: câu chữ của 1.1 chưa có knowledge_summary"));
 
   test("map Kiến thức opens the summary; it scrolls inside, the page does not; Enter returns to the map", async ({ page }) => {
     await seedPassed(page);
@@ -50,7 +51,7 @@ test.describe("knowledge summary", () => {
 });
 
 test.describe("task steps", () => {
-  test.beforeEach(() => test.skip(!level.task_steps, "SKIP: level-1-1.json chưa có task_steps"));
+  test.beforeEach(() => test.skip(!level.task_steps, "SKIP: câu chữ của 1.1 chưa có task_steps"));
 
   test("Việc cần làm continues ECHO's opening chat message, not in the mission column", async ({ page }) => {
     await page.goto("/#/level/1.1");

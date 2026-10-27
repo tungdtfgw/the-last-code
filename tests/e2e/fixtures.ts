@@ -56,16 +56,21 @@ export const mailCount = (email: string) => {
 /** The token at the end of a mail link (`…/#/activate/<token>`). */
 export const tokenOf = (link: string) => link.split("/").pop()!;
 
-/** Registers and, unless told otherwise, activates and signs in an account through the API. */
-export async function createAccount(opts: { activate?: boolean } = {}): Promise<Account> {
+/**
+ * Registers and, unless told otherwise, activates and signs in an account through the API.
+ * `username` names it (the admin in `ADMIN_USERNAMES`); a name an earlier test already
+ * registered is only signed in.
+ */
+export async function createAccount(opts: { activate?: boolean; username?: string } = {}): Promise<Account> {
   const api = await request.newContext({ baseURL: BASE_URL });
-  const username = uniqueName();
+  const username = opts.username ?? uniqueName();
   const email = `${username}@e2e.test`;
   const reg = await api.post("/api/auth/register", { data: { username, email, password: PASSWORD } });
-  if (reg.status() !== 201) throw new Error(`register ${reg.status()}: ${await reg.text()}`);
+  const taken = reg.status() === 409 && opts.username !== undefined && (await reg.json()).error === "username_taken";
+  if (reg.status() !== 201 && !taken) throw new Error(`register ${reg.status()}: ${await reg.text()}`);
   let session = "";
   if (opts.activate !== false) {
-    await api.post("/api/auth/activate", { data: { token: tokenOf((await latestMail(email)).link) } });
+    if (!taken) await api.post("/api/auth/activate", { data: { token: tokenOf((await latestMail(email)).link) } });
     const login = await api.post("/api/auth/login", { data: { username, password: PASSWORD } });
     if (!login.ok()) throw new Error(`login ${login.status()}`);
     session = /tlc_session=([^;]+)/.exec(login.headers()["set-cookie"] ?? "")?.[1] ?? "";
@@ -77,6 +82,9 @@ export async function createAccount(opts: { activate?: boolean } = {}): Promise<
 export async function signIn(context: BrowserContext, account: Account) {
   await context.addCookies([{ name: "tlc_session", value: account.session, url: BASE_URL, httpOnly: true, sameSite: "Lax" }]);
 }
+
+/** The admin of the e2e server (`ADMIN_USERNAMES` in `playwright.config.ts`). */
+export const ADMIN_USERNAME = "e2e_admin";
 
 /** For tests that build their own context (reduced motion, viewport, blocked storage): a new account, signed in. */
 export async function newSignedInContext(browser: Browser, options: BrowserContextOptions = {}, account?: Account) {

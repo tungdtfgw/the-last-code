@@ -1,13 +1,10 @@
 import { describe, expect, test } from "vitest";
 import { gradeFixture, runHarness } from "../../tests/integration/run-harness";
-import levelJson from "../levels/level-1-4.json";
-import level11Json from "../levels/level-1-1.json";
-import level13Json from "../levels/level-1-3.json";
 import { classifyRun } from "./classify-run";
-import type { LevelDefinition } from "./level-types";
 import { buildTerminalLines, gateFor } from "./terminal-lines";
+import { realLevel } from "../../tests/content-fixture";
 
-const level = levelJson as unknown as LevelDefinition;
+const level = realLevel("1.4");
 const lines = (fixture: string) => buildTerminalLines(gradeFixture(level, fixture), level, 1).map((l) => l.text);
 
 describe("terminal lines (GDD 4.2)", () => {
@@ -72,7 +69,7 @@ describe("terminal lines (GDD 4.2)", () => {
 });
 
 describe("terminal lines, level 1.1 (relay R-17, GDD 1.1 §5)", () => {
-  const l11 = level11Json as unknown as LevelDefinition;
+  const l11 = realLevel("1.1");
   const starter = l11.starter_code.split("\n");
   const edit = (changes: Record<number, string>) => starter.map((l, i) => changes[i + 1] ?? l).join("\n");
   const run = (text: string, n: number) =>
@@ -123,7 +120,7 @@ describe("terminal lines, level 1.1 (relay R-17, GDD 1.1 §5)", () => {
 
 
 describe("terminal lines, level 1.3 (sorter, inputs that are not strings)", () => {
-  const level13 = level13Json as unknown as LevelDefinition;
+  const level13 = realLevel("1.3");
   const STARTER = level13.starter_code.split("\n");
   const TWO_STAR = [...STARTER.slice(0, 4), 'ho_ten = "ĐỖ MINH AN"', "tuoi = 27", "chieu_cao = 1.72", "da_tiem = True", "khuon_phien = int", ""].join("\n");
 

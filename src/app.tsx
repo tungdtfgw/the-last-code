@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { AccountGate, type GameProps } from "./account/account-gate";
 import { useAudio } from "./audio/use-audio";
-import { getDefaultRegistry } from "./game/level-registry";
+import { buildRegistry, bundledLevelModules } from "./game/level-registry";
 import { routeHash, sameRoute } from "./shell/route";
 import { useHashRoute } from "./shell/use-hash-route";
 import { useProgressSnapshot } from "./shell/use-progress-snapshot";
@@ -194,9 +194,14 @@ function Shell({ ctx, repository, user, onAccount }: { ctx: ChapterContext } & G
   }
 }
 
-function Boot() {
-  const chapter = getChapter();
-  const ctx = useMemo(() => (chapter.ok ? buildChapterContext(chapter.chapter, getDefaultRegistry()) : null), [chapter]);
+/** Applies the D1 text to the bundled puzzle files and builds the chapter, then the shell. */
+function GameRoot(game: GameProps) {
+  const { texts } = game;
+  const chapter = useMemo(() => getChapter(texts), [texts]);
+  const ctx = useMemo(
+    () => (chapter.ok ? buildChapterContext(chapter.chapter, buildRegistry(bundledLevelModules(), texts)) : null),
+    [chapter, texts],
+  );
   if (!ctx) {
     return (
       <FatalScreen
@@ -207,7 +212,11 @@ function Boot() {
       />
     );
   }
-  return <AccountGate renderGame={(game) => <Shell key={game.user.id} ctx={ctx} {...game} />} />;
+  return <Shell key={game.user.id} ctx={ctx} {...game} />;
+}
+
+function Boot() {
+  return <AccountGate renderGame={(game) => <GameRoot {...game} />} />;
 }
 
 export function App() {

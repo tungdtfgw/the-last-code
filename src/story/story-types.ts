@@ -1,4 +1,4 @@
-import type { Cue } from "../audio/sound-recipes";
+import type { Cue } from "../audio/cue-names.js";
 
 export const BEAT_KINDS = ["log", "kai", "echo", "card"] as const;
 export type BeatKind = (typeof BEAT_KINDS)[number];

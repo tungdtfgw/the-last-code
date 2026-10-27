@@ -6,9 +6,9 @@ import {
   type ExpectedValue,
   type LevelDefinition,
   type ValueType,
-} from "./level-types";
-import { validateBeats } from "../story/validate-beats";
-import { findEchoLeak, levelLeaks, type LeakSet } from "./echo-leaks";
+} from "./level-types.js";
+import { validateBeats } from "../story/validate-beats.js";
+import { findEchoLeak, levelLeaks, type LeakSet } from "./echo-leaks.js";
 
 export type ValidationResult =
   | { ok: true; level: LevelDefinition }

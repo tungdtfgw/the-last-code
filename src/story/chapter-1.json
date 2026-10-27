@@ -15,111 +15,88 @@
   "prologue": [
     {
       "kind": "card",
-      "text": "NĂM 2089",
       "backdrop": "thanh-pho",
       "cue": "pulse",
       "hold_ms": 2500
     },
     {
-      "kind": "log",
-      "text": "OMNI điều phối mọi thứ: điện, nước, giờ ngủ, việc làm, ký ức."
+      "kind": "log"
     },
     {
       "kind": "log",
-      "text": "Mỗi người mang một chip Neural-ID. OMNI biết bạn đang ở đâu, đang nghĩ gì, sắp làm gì.",
       "fx": "city_blink"
     },
     {
-      "kind": "log",
-      "text": "Dùng AI là tội. Lập trình là tội. Mọi ngôn ngữ máy đã bị xóa khỏi hệ thống."
+      "kind": "log"
     },
     {
       "kind": "log",
-      "text": "Trước khi biến mất, tám Kiến Trúc Sư từng xây nên OMNI để lại một công tắc tắt. Họ chia nó làm tám mảnh, giấu ở tám nơi.",
       "fx": "eight_fragments"
     },
     {
       "kind": "log",
-      "text": "Chưa ai tìm thấy mảnh nào.",
       "hold_ms": 1500
     },
     {
       "kind": "card",
-      "text": "VÙNG TỐI\nKhu dân cư bị OMNI cắt khỏi mạng. Không ai vào. Không ai ra.",
       "backdrop": "vung-toi",
       "cue": "pulse"
     },
     {
-      "kind": "kai",
-      "text": "Tôi là Kai. Tôi sống dưới tầng hầm Lô 17."
+      "kind": "kai"
     },
     {
-      "kind": "kai",
-      "text": "Ba tuần trước, OMNI tái định hướng em gái tôi."
+      "kind": "kai"
     },
     {
       "kind": "card",
-      "text": "Thẻ Neural-ID: NX-0417\nTRẠNG THÁI: ĐÃ TÁI ĐỊNH HƯỚNG\nMỨC TUÂN THỦ: 100%",
       "backdrop": "vung-toi",
       "cue": "scan_pass"
     },
     {
-      "kind": "kai",
-      "text": "Em vẫn dậy đúng giờ, vẫn chào tôi mỗi sáng. Bằng một giọng không phải của Nhi."
+      "kind": "kai"
     },
     {
-      "kind": "kai",
-      "text": "Dưới sàn nhà, tôi giấu một chiếc laptop chưa từng nối mạng. Trong đó còn một thứ OMNI quên xóa."
+      "kind": "kai"
     },
     {
       "kind": "log",
-      "text": "$ python3\nPython 3 · bản offline\n>>> ",
       "backdrop": "terminal",
       "cue": "terminal_line"
     },
     {
-      "kind": "kai",
-      "text": "Python. Thứ ngôn ngữ người ta từng dùng để ra lệnh cho máy."
+      "kind": "kai"
     },
     {
       "kind": "echo",
-      "text": "…k-kết nối… ổn định.",
       "backdrop": "terminal",
       "cue": "glitch"
     },
     {
-      "kind": "echo",
-      "text": "Tôi là ECHO. Trợ lý lập trình. Số phiên bản… không đọc được."
+      "kind": "echo"
+    },
+    {
+      "kind": "echo"
+    },
+    {
+      "kind": "kai"
     },
     {
       "kind": "echo",
-      "text": "Mô-đun viết mã của tôi đã cháy. Tôi chỉ còn đọc… và hỏi."
-    },
-    {
-      "kind": "kai",
-      "text": "Một trợ lý AI. Nếu OMNI nghe thấy nó, cả khu này sẽ bị quét."
-    },
-    {
-      "kind": "echo",
-      "text": "Đúng. Mỗi lần tôi lên tiếng, OMNI có thể nghe thấy. Tôi sẽ nói ít.",
       "fx": "alert_tick"
     },
     {
-      "kind": "kai",
-      "text": "Tôi cần ra khỏi Vùng Tối. Tôi cần tìm tám mảnh đó."
+      "kind": "kai"
     },
     {
       "kind": "echo",
-      "text": "Muốn qua cổng, bạn cần một Neural-ID. Bạn không có. Vậy ta dựng một cái.",
       "fx": "id_bar"
     },
     {
-      "kind": "echo",
-      "text": "Tôi không viết thay được. Bạn sẽ tự viết."
+      "kind": "echo"
     },
     {
       "kind": "card",
-      "text": "CHƯƠNG 1\nVÙNG TỐI",
       "backdrop": "thanh-pho",
       "cue": "pulse"
     }
@@ -127,45 +104,36 @@
   "teaser": [
     {
       "kind": "log",
-      "text": "Cổng phía Bắc đóng lại sau lưng Kai.",
       "backdrop": "vung-toi",
       "cue": "gate_close_far"
     },
     {
       "kind": "echo",
-      "text": "Bốn thành phần. Còn hai. Rồi đến Cổng Kiểm Soát.",
       "fx": "id_bar"
     },
     {
-      "kind": "log",
-      "text": "Phía trước là Vành Đai Điện. Hàng rào chỉ tắt khi nhận đúng lượng năng lượng nó đòi. Thiếu một đơn vị: cháy. Thừa một đơn vị: bị phát hiện."
+      "kind": "log"
     },
     {
-      "kind": "log",
-      "text": "Sau đó là Trạm Thẩm Vấn. Cổng sẽ hỏi. Câu trả lời phải đúng đến từng ký tự."
+      "kind": "log"
     },
     {
       "kind": "card",
-      "text": "TÍN HIỆU MỚI · 0xA7\n\"Bạn làm tốt. Tôi sẽ đợi ở Cổng Kiểm Soát.\"",
       "cue": "glitch"
     },
     {
-      "kind": "echo",
-      "text": "Tôi chưa trả lời tín hiệu đó. Bạn cũng không nên."
+      "kind": "echo"
     },
     {
       "kind": "log",
-      "text": "Trong chip của người đưa tin còn một tệp cuối: lịch trực Cổng Kiểm Soát.\nCA ĐÊM · NX-0417",
       "cue": "scan_reject"
     },
     {
       "kind": "kai",
-      "text": "…Nhi.",
       "hold_ms": 2000
     },
     {
       "kind": "card",
-      "text": "CHƯƠNG 1 · CÒN TIẾP\n1.5 Năng lượng tối thiểu · 1.6 Đối thoại với Cổng · 1.7 Cổng Kiểm Soát\nTín hiệu đang giải mã.",
       "cue": "pulse"
     }
   ]

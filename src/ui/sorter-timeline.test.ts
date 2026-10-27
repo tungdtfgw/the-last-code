@@ -1,13 +1,12 @@
 import { describe, expect, test } from "vitest";
 import { runHarness } from "../../tests/integration/run-harness";
 import { classifyRun } from "../game/classify-run";
-import type { LevelDefinition } from "../game/level-types";
-import levelJson from "../levels/level-1-3.json";
 import { buildSorterTimeline, summarizeSorter, type SorterFrame } from "./sorter-timeline";
+import { realLevel } from "../../tests/content-fixture";
 
 // GDD 1.3 §5 and §13 #29, from real harness runs.
 
-const level = levelJson as unknown as LevelDefinition;
+const level = realLevel("1.3");
 const STARTER = level.starter_code.split("\n");
 const edit = (changes: Record<number, string | null>) =>
   STARTER.flatMap((l, i) => (i + 1 in changes ? (changes[i + 1] === null ? [] : [changes[i + 1]!]) : [l])).join("\n");

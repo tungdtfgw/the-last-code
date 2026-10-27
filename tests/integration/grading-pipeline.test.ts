@@ -1,10 +1,9 @@
 import { describe, expect, test } from "vitest";
-import levelJson from "../../src/levels/level-1-4.json";
-import type { LevelDefinition } from "../../src/game/level-types";
+import { realLevel } from "../content-fixture";
 import { classifyRun } from "../../src/game/classify-run";
 import { gradeFixture, readFixture, runHarness } from "./run-harness";
 
-const level = levelJson as unknown as LevelDefinition;
+const level = realLevel("1.4");
 
 describe("grading pipeline: editor text → prepareSource → python3 harness → classifyRun", () => {
   test("original starter: runs, wrong types, 201-char packet, no traceback (AC 1)", () => {

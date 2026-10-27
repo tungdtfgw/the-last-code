@@ -4,24 +4,27 @@ import { HttpProgressRepository } from "../storage/http-repository";
 import { importLocalProgress } from "../storage/import-local-progress";
 import { FatalScreen } from "../ui/fatal-screen";
 import { AccountScreen } from "../ui/account/account-screen";
+import { AdminScreen } from "../ui/admin/admin-screen";
 import { ActivateScreen } from "../ui/account/activate-screen";
 import { AuthLayout } from "../ui/account/auth-layout";
 import { ForgotScreen } from "../ui/account/forgot-screen";
 import { LoginScreen } from "../ui/account/login-screen";
 import { RegisterScreen } from "../ui/account/register-screen";
 import { ResetScreen } from "../ui/account/reset-screen";
-import { createAccountApi, type AccountApi, type AccountUser } from "./account-api";
-import { isPublicAuthRoute, isSignedOutOnly, parseAuthRoute } from "./auth-route";
+import { createAccountApi, type AccountApi, type AccountUser, type ContentTexts } from "./account-api";
+import { isAdminRoute, isPublicAuthRoute, isSignedOutOnly, parseAuthRoute } from "./auth-route";
 
 type Phase =
   | { kind: "checking" }
   | { kind: "offline" }
   | { kind: "signed-out"; notice: string | null }
-  | { kind: "signed-in"; user: AccountUser; repository: HttpProgressRepository };
+  | { kind: "signed-in"; user: AccountUser; repository: HttpProgressRepository; texts: ContentTexts };
 
 export interface GameProps {
   user: AccountUser;
   repository: HttpProgressRepository;
+  /** Text saved on the admin page, applied over the bundled level and chapter files. */
+  texts: ContentTexts;
   onAccount(): void;
 }
 
@@ -59,15 +62,16 @@ export function AccountGate({ renderGame, api: given }: { renderGame(props: Game
   /** Signed in: import old local progress, read the account's progress, build the repository. */
   const enter = useCallback(
     async (user: AccountUser): Promise<boolean> => {
+      const textsRequest = api.getContentText();
       await importLocalProgress(api);
-      const snap = await api.getProgress();
-      if (!snap.ok) {
-        if (snap.status === 401) setPhase({ kind: "signed-out", notice: SESSION_ENDED });
+      const [snap, texts] = await Promise.all([api.getProgress(), textsRequest]);
+      if (!snap.ok || !texts.ok) {
+        if (snap.status === 401 || texts.status === 401) setPhase({ kind: "signed-out", notice: SESSION_ENDED });
         else setPhase({ kind: "offline" });
         return false;
       }
       const repository = new HttpProgressRepository(snap.data, api, settings, { userId: user.id });
-      setPhase({ kind: "signed-in", user, repository });
+      setPhase({ kind: "signed-in", user, repository, texts: texts.data.docs });
       return true;
     },
     [api, settings],
@@ -98,9 +102,13 @@ export function AccountGate({ renderGame, api: given }: { renderGame(props: Game
     };
   }, [repository]);
 
-  // Signed out, only the public account screens; signed in, no login/register/forgot.
+  // Signed out, only the public account screens; signed in, no login/register/forgot, and the admin page for admins only.
   const redirect =
-    phase.kind === "signed-out" && !isPublicAuthRoute(route) ? "#/login" : phase.kind === "signed-in" && isSignedOutOnly(route) ? "#/" : null;
+    phase.kind === "signed-out" && !isPublicAuthRoute(route)
+      ? "#/login"
+      : phase.kind === "signed-in" && (isSignedOutOnly(route) || (isAdminRoute(route) && !phase.user.isAdmin))
+        ? "#/"
+        : null;
   useEffect(() => {
     if (redirect) go(redirect, true);
   }, [redirect, go]);
@@ -117,6 +125,19 @@ export function AccountGate({ renderGame, api: given }: { renderGame(props: Game
     go("#/login", true);
     return true;
   }, [phase, api, go]);
+
+  /** A save on the admin page: the game shows the new text without a reload. */
+  const onTextSaved = useCallback((docId: string, entry: ContentTexts[string]) => {
+    setPhase((p) => (p.kind === "signed-in" ? { ...p, texts: { ...p.texts, [docId]: entry } } : p));
+  }, []);
+
+  /** The admin API answered 401: the session ended. */
+  const onAdminSessionExpired = useCallback(() => {
+    setPhase((p) => {
+      if (p.kind === "signed-in") p.repository.close();
+      return { kind: "signed-out", notice: SESSION_ENDED };
+    });
+  }, []);
 
   /** After a password reset every session is gone, this one included. */
   const afterReset = useCallback(() => {
@@ -160,8 +181,21 @@ export function AccountGate({ renderGame, api: given }: { renderGame(props: Game
       return <ResetScreen api={api} token={route.token} onDone={afterReset} />;
     case "account":
       if (phase.kind !== "signed-in") return null;
-      return <AccountScreen api={api} user={phase.user} onSignOut={signOut} onTitle={() => go("#/")} />;
+      return <AccountScreen api={api} user={phase.user} onSignOut={signOut} onTitle={() => go("#/")} onAdmin={() => go("#/admin")} />;
+    case "admin":
+    case "admin-doc":
+      if (phase.kind !== "signed-in") return null;
+      return (
+        <AdminScreen
+          api={api}
+          user={phase.user}
+          doc={route.kind === "admin-doc" ? { kind: route.doc, id: route.id } : null}
+          go={go}
+          onTextSaved={onTextSaved}
+          onSessionExpired={onAdminSessionExpired}
+        />
+      );
   }
   if (phase.kind !== "signed-in") return null;
-  return renderGame({ user: phase.user, repository: phase.repository, onAccount: () => go("#/account") });
+  return renderGame({ user: phase.user, repository: phase.repository, texts: phase.texts, onAccount: () => go("#/account") });
 }

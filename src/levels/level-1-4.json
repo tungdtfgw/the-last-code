@@ -7,13 +7,6 @@
   "concepts": [
     "type_conversion"
   ],
-  "briefing": "[NHẬT KÝ HỆ THỐNG – CỔNG PHÍA BẮC]\nChip Neural-ID thu hồi từ một người đã chết. Dữ liệu còn đọc được… nhưng toàn là chuỗi ký tự.\nMáy quét chỉ nhận số. Đưa chuỗi vào là báo động.",
-  "task_steps": [
-    "Dữ liệu chip trong `tuoi`, `chieu_cao` và `cap_do` là chuỗi, kể cả khi trông như số. Không sửa 3 dòng khóa đó.",
-    "Sửa các dòng tính cho mỗi biến ra đúng kiểu ở ô Mục tiêu: `ma_xac_thuc` là `int`, `chi_so` là `float` làm tròn 2 chữ số thập phân, `hop_le` là `bool` chứ không phải chữ.",
-    "Đừng gõ tay kết quả. Sau lượt chạy đầu, OMNI đổi dữ liệu chip, và mã phải tính đúng cả với dữ liệu mới.",
-    "Bấm CHẠY. Xong khi cả 3 mục tiêu chuyển xanh. Dùng không quá 8 câu lệnh và qua được lượt OMNI đổi dữ liệu thì được thêm sao."
-  ],
   "starter_code": "# Dữ liệu đọc từ chip (KHÔNG được sửa 3 dòng này)\ntuoi = \"27\"\nchieu_cao = \"1.72\"\ncap_do = \"3\"\n\n# Mã xác thực = tuổi × 100 + cấp độ\nma_xac_thuc = tuoi * 100 + cap_do\n\n# Chỉ số sinh học = chiều cao × 2, làm tròn 2 chữ số\nchi_so = chieu_cao * 2\n\nhop_le = \"True\"\n",
   "locked_lines": [
     2,
@@ -28,22 +21,19 @@
   "objectives": [
     {
       "var": "ma_xac_thuc",
-      "type": "int",
-      "label": "Mã xác thực = tuổi × 100 + cấp độ"
+      "type": "int"
     },
     {
       "var": "chi_so",
-      "type": "float",
-      "label": "Chỉ số sinh học = chiều cao × 2, làm tròn 2 chữ số thập phân"
+      "type": "float"
     },
     {
       "var": "hop_le",
-      "type": "bool",
-      "label": "Cờ hợp lệ: giá trị đúng/sai, không phải chữ"
+      "type": "bool"
     }
   ],
   "alert_limit_statements": 8,
-  "float_abs_tolerance": 1e-09,
+  "float_abs_tolerance": 1e-9,
   "tests": [
     {
       "inputs": {
@@ -72,108 +62,52 @@
       }
     }
   ],
-  "counter_attack_banner": "CẢNH BÁO: OMNI ĐÃ THAY ĐỔI ĐỊNH DẠNG CHIP",
-  "forbidden_terms": ["ép kiểu", "đổi kiểu", "chuyển kiểu", "str", "× 100", "nhân 100", "* 100"],
-  "hints": [
-    "Nhìn mô phỏng sau khi chạy. Dữ liệu chip là chữ, kể cả khi trông như số. Nhân chữ với 100 không ra phép tính… Python chép chữ đó nối đuôi nhau 100 lần.",
-    "Python có sẵn công cụ đổi hình dạng. Mỗi công cụ mang đúng tên hình dạng nó tạo ra, cũng là tên làn máy quét đòi. Đổi dữ liệu chip trước, rồi mới tính. Chip có thể ghi số kèm phần thập phân… nên thứ tự đổi cũng quan trọng.",
-    "Mảnh tài liệu Python còn đọc được:\nint(\"42\")        → 42\nint(7.9)         → 7      (cắt bỏ phần thập phân)\nfloat(\"2.5\")     → 2.5\nfloat(3)         → 3.0\nround(2.71828, 3) → 2.718\nMỗi hàm nhận một giá trị và trả về giá trị mới mang hình dạng khác. Giá trị gốc không đổi."
+  "forbidden_terms": [
+    "ép kiểu",
+    "đổi kiểu",
+    "chuyển kiểu",
+    "str",
+    "× 100",
+    "nhân 100",
+    "* 100"
   ],
-  "reactions": {
-    "entry": "Cổng phía Bắc. Chip của người đưa tin vẫn phát. Máy quét phía trước chỉ nhận số.",
-    "type_mismatch": "Máy quét từ chối {vars}. Sai hình dạng. Nó không đọc nội dung… chỉ đọc hình dạng.",
-    "type_mismatch_value_match": "Con số của {vars} khớp. Hình dạng thì không. Với máy quét, đó vẫn là vật lạ.",
-    "wrong_value": "Hình dạng đúng. Con số sai. {vars} không khớp mẫu máy quét đang chờ.",
-    "missing_var": "Sau khi chạy, bộ nhớ không có {vars}. Máy quét không có gì để đọc.",
-    "SyntaxError": "Dòng {line}. Trình dịch không hiểu cấu trúc này. Chưa câu lệnh nào chạy.",
-    "IndentationError": "Dòng {line}. Lề trái lệch. Với Python, khoảng trắng… là ngữ pháp.",
-    "TypeError": "Dòng {line}. TypeError. Hai thứ khác hình dạng vừa bị ép vào cùng một phép toán.",
-    "ValueError": "Dòng {line}. ValueError. Nội dung bên trong không chuyển được sang hình dạng đó.",
-    "NameError": "Dòng {line}. NameError. Dòng này gọi một cái tên chưa từng có. Soát từng ký tự.",
-    "ZeroDivisionError": "Dòng {line}. Chia cho không. Lõi từ chối.",
-    "AttributeError": "Dòng {line}. AttributeError. Dữ liệu này không mang thứ bạn đang gọi.",
-    "runtime_error": "Dòng {line}. {error_type}. Chương trình dừng giữa chừng. Đọc dòng truy vết.",
-    "timeout": "Mã chạy quá lâu. Tôi cắt kết nối… trước khi OMNI lần ra dấu.",
-    "resource_limit": "Bộ nhớ quá tải. Tôi cắt tiến trình… để laptop còn sống.",
-    "blocked_import": "Mô-đun đó bị phong tỏa. Ở Vùng Tối, ta chỉ có những gì đang cầm trong tay.",
-    "input_unsupported": "Không có ai ở đầu kia để trả lời. Dữ liệu đã nằm sẵn trong chip.",
-    "system_exit": "Chương trình tự dừng giữa chừng. Máy quét không nhận được gì.",
-    "alert_exceeded": "Qua máy quét. Nhưng {count} câu lệnh… Sentinel đã ghi nhận tín hiệu. Chạy gọn hơn.",
-    "counter_ValueError": "OMNI đổi định dạng chip. Dòng {line} vỡ: ValueError. Dữ liệu mới mang hình dạng bạn chưa lường.",
-    "counter_error": "OMNI đổi dữ liệu. Dòng {line}: {error_type}. Mã không trụ nổi.",
-    "counter_type_mismatch": "Dữ liệu mới đi qua mã của bạn… và ra sai hình dạng ở {vars}.",
-    "wrong_value_counter": "OMNI đổi dữ liệu chip. Kết quả của bạn không đổi theo. Nó viết cho một con chip đã chết.",
-    "counter_timeout": "OMNI đổi dữ liệu chip. Mã của bạn treo trên dữ liệu mới… Tôi cắt kết nối. Cổng chỉ mở một nửa.",
-    "two_stars": "Qua cổng. Không để lại dấu vết.",
-    "three_stars": "Cổng mở hoàn toàn. OMNI đổi dữ liệu, mã vẫn đứng vững. …Tôi ghi nhận điều đó.",
-    "repeated_fail": "Cùng một lỗi, lần thứ {count}. Nhật ký gợi ý vẫn ở đây. Tôi chỉ hỏi được… không trả lời thay.",
-    "engine_error": "Lõi Python không phản hồi. Đang khởi động lại…",
-    "generic": "Có gì đó không khớp. Đọc lại kết quả máy quét.",
-    "string_repeated": "Nhìn chữ số trong mô phỏng. Chúng bị chép nối đuôi nhau. Nhân chữ với một con số không ra phép tính… chỉ lặp chữ đó từng ấy lần."
-  },
-  "reaction_variants": {
-    "type_mismatch": "{vars} vẫn sai hình dạng. Con số trông ra sao, máy quét mặc kệ… nó chỉ đọc hình dạng.",
-    "string_repeated": "Dữ liệu chip vẫn là chữ khi phép nhân chạy. Chữ nhân lên thì dài ra… không lớn lên.",
-    "ValueError": "Dòng {line}. Vẫn ValueError. Đọc phần cuối thông báo lỗi. Đó là thứ Python đang cố đổi hình dạng."
-  },
-  "outro": "Cổng phía Bắc mở. Trong bộ nhớ chip còn sót một dòng log chưa bị xóa:",
-  "lore_fragment": "KTS-03: Nếu ai đọc được dòng này, mảnh đầu tiên nằm dưới Cổng Kiểm Soát. Đừng tin tín hiệu nào mang mã 0xA7.",
-  "location": "Cổng phía Bắc",
-  "component": "Dữ liệu sinh trắc",
   "outro_beats": [
     {
-      "kind": "kai",
-      "text": "0xA7. Người đã dẫn tôi tới cái xác này."
+      "kind": "kai"
     },
     {
-      "kind": "echo",
-      "text": "Tôi đã đọc lại mọi gói 0xA7 gửi. Không gói nào đi qua trạm chuyển tiếp nào của Mạng Mù."
+      "kind": "echo"
     },
     {
-      "kind": "kai",
-      "text": "Vậy nó đến từ đâu?"
+      "kind": "kai"
     },
     {
-      "kind": "echo",
-      "text": "Từ một tầng mạng mà Vùng Tối không có."
+      "kind": "echo"
     }
   ],
   "knowledge_summary": {
-    "title": "Đổi kiểu dữ liệu: int(), float(), str(), round()",
     "sections": [
       {
-        "heading": "Chuỗi trông như số vẫn là chuỗi",
-        "body": "Giá trị trong dấu nháy là chuỗi (`str`), kể cả khi chỉ gồm chữ số. Với chuỗi, `*` lặp chuỗi đó nhiều lần, còn `+` nối hai chuỗi lại.\nPython không báo lỗi ở đây. Chương trình vẫn chạy, chỉ có kết quả là sai.",
         "code": "so = \"12\"\nprint(so * 3)\nprint(so + \"5\")\nprint(type(so))",
         "output": "121212\n125\n<class 'str'>"
       },
       {
-        "heading": "`int()` và `float()` đổi chuỗi thành số",
-        "body": "`int(x)` trả về số nguyên, `float(x)` trả về số thực. Đổi kiểu trước, tính sau. Khi đó `*` và `+` làm phép toán trên số.",
         "code": "a = \"12\"\nb = \"0.5\"\nprint(int(a) * 3 + 1)\nprint(float(b) * 4)",
         "output": "37\n2.0"
       },
       {
-        "heading": "Chuỗi có phần thập phân: đổi qua `float()` trước",
-        "body": "`int()` chỉ đọc được chuỗi viết như số nguyên. Gặp chuỗi như `\"8.0\"`, nó báo `ValueError`. Cách làm là đổi sang `float` trước, rồi mới đổi sang `int`.\nKhi nhận một số thực, `int()` cắt bỏ phần thập phân chứ không làm tròn.",
         "code": "print(int(float(\"8.0\")))\nprint(int(5.99))",
         "output": "8\n5"
       },
       {
-        "heading": "`round(x, n)` làm tròn",
-        "body": "`round(x, n)` trả về `x` làm tròn tới `n` chữ số sau dấu chấm. Không có `n` thì kết quả là số nguyên.\nMáy tính lưu số thực ở hệ nhị phân nên phép tính có thể lệch rất nhỏ, như `0.1 + 0.2` dưới đây; `round()` đưa kết quả về đúng số chữ số bạn cần.",
         "code": "d = 2.346\nprint(round(d, 2))\nprint(round(d))\nprint(0.1 + 0.2)\nprint(round(0.1 + 0.2, 2))",
         "output": "2.35\n2\n0.30000000000000004\n0.3"
       },
       {
-        "heading": "Hàm đổi kiểu không sửa giá trị gốc",
-        "body": "`int(x)` tạo ra một giá trị mới, còn `x` vẫn là chuỗi như cũ. Muốn dùng kết quả thì gán nó cho một biến.",
         "code": "x = \"40\"\ny = int(x)\nprint(type(x), type(y))",
         "output": "<class 'str'> <class 'int'>"
       },
       {
-        "heading": "`str()` và kiểu `bool`",
-        "body": "`str(x)` đổi một giá trị thành chuỗi, cần khi muốn nối số vào chữ bằng `+`.\n`True` và `False` là hai giá trị kiểu `bool`, viết không có dấu nháy. Viết trong dấu nháy thì đó là chuỗi.",
         "code": "diem = 9\nprint(\"Diem: \" + str(diem))\nmo = False\nprint(type(mo), type(\"False\"))",
         "output": "Diem: 9\n<class 'bool'> <class 'str'>"
       }
@@ -181,30 +115,24 @@
     "mistakes": [
       {
         "code": "ma_xac_thuc = tuoi * 100 + cap_do",
-        "error": "Không báo lỗi, nhưng kết quả là một chuỗi dài 201 ký tự: \"2727…273\"",
-        "explain": "`tuoi` và `cap_do` là chuỗi, nên `*` lặp chuỗi `\"27\"` 100 lần rồi `+` nối thêm `\"3\"` vào cuối. Đổi cả hai sang số trước khi tính."
+        "error": "Không báo lỗi, nhưng kết quả là một chuỗi dài 201 ký tự: \"2727…273\""
       },
       {
         "code": "ma_xac_thuc = int(tuoi) * 100 + cap_do",
-        "error": "TypeError: unsupported operand type(s) for +: 'int' and 'str'",
-        "explain": "Mới đổi `tuoi`, còn `cap_do` vẫn là chuỗi. Python không cộng số với chuỗi. Phải đổi mọi giá trị trong phép tính sang số."
+        "error": "TypeError: unsupported operand type(s) for +: 'int' and 'str'"
       },
       {
         "code": "int(\"31.0\")",
-        "error": "ValueError: invalid literal for int() with base 10: '31.0'",
-        "explain": "`int()` không đọc được chuỗi có dấu chấm. Dùng `int(float(\"31.0\"))`: `float()` đọc chuỗi trước, `int()` lấy phần nguyên sau."
+        "error": "ValueError: invalid literal for int() with base 10: '31.0'"
       },
       {
         "code": "hop_le = \"True\"",
-        "error": "Không báo lỗi, nhưng `hop_le` có kiểu `str`, không phải `bool`",
-        "explain": "Dấu nháy biến `True` thành chuỗi bốn ký tự. Viết `True` không có dấu nháy."
+        "error": "Không báo lỗi, nhưng `hop_le` có kiểu `str`, không phải `bool`"
       },
       {
         "code": "chi_so = float(chieu_cao) * 2",
-        "error": "Không báo lỗi. Với `chieu_cao = \"1.653\"` kết quả là 3.306, chưa làm tròn",
-        "explain": "Với `\"1.72\"`, kết quả 3.44 tình cờ đã tròn nên lỗi không lộ ra. Dữ liệu khác thì lộ. Bọc phép tính trong `round(..., 2)`."
+        "error": "Không báo lỗi. Với `chieu_cao = \"1.653\"` kết quả là 3.306, chưa làm tròn"
       }
-    ],
-    "next": "Bạn sẽ dùng các toán tử số học `+`, `-`, `*`, `/`, `//`, `%`, `**` trên những con số vừa đổi kiểu."
+    ]
   }
 }

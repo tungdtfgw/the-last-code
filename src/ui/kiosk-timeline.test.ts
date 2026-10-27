@@ -1,11 +1,10 @@
 import { describe, expect, test } from "vitest";
 import { runHarness } from "../../tests/integration/run-harness";
 import { classifyRun } from "../game/classify-run";
-import type { LevelDefinition } from "../game/level-types";
-import levelJson from "../levels/level-1-2.json";
 import { buildKioskTimeline, summarizeKiosk, type KioskFrame } from "./kiosk-timeline";
+import { realLevel } from "../../tests/content-fixture";
 
-const level = levelJson as unknown as LevelDefinition;
+const level = realLevel("1.2");
 const starter = level.starter_code.split("\n");
 const edit = (changes: Record<number, string>) => starter.map((l, i) => changes[i + 1] ?? l).join("\n");
 const body = (text: string) => [...starter.slice(0, 7), text].join("\n");

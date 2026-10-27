@@ -1,9 +1,9 @@
-import { mkdtempSync, rmSync } from "node:fs";
+import { mkdtempSync, readdirSync, rmSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { afterEach, expect, test } from "vitest";
 import { all, sql } from "./db";
-import { SqliteDb } from "./sqlite-db";
+import { MIGRATIONS_DIR, SqliteDb } from "./sqlite-db";
 
 let dir: string | null = null;
 afterEach(() => {
@@ -18,7 +18,9 @@ test("migrations apply exactly once across reopenings", async () => {
   await all(a, "INSERT INTO rate_limits (key, window_start, count) VALUES ('k', 'now', 1)");
   a.close();
   const b = new SqliteDb(path);
-  expect(await all(b, "SELECT name FROM d1_migrations ORDER BY id")).toEqual([{ name: "0001_init.sql" }, { name: "0002_draft_rev.sql" }]);
+  const files = readdirSync(MIGRATIONS_DIR).filter((f) => f.endsWith(".sql")).sort();
+  expect(files.slice(0, 3)).toEqual(["0001_init.sql", "0002_draft_rev.sql", "0003_content_text.sql"]);
+  expect(await all(b, "SELECT name FROM d1_migrations ORDER BY id")).toEqual(files.map((name) => ({ name })));
   expect(await all(b, "SELECT count FROM rate_limits")).toEqual([{ count: 1 }]);
   b.close();
 });
