@@ -2,7 +2,7 @@
 
 Ngày: 2026-10-25. Chạy tự động, không hỏi được người dùng: mọi quyết định cần hỏi đã được tự chốt và liệt kê ở mục cuối.
 Thiết kế chi tiết: `design/chuong-1/gdd-1.2-gan-nhan.md`. Hợp đồng truyện: `design/gdd-mo-dau.md` mục 1, 5.2 và 6.2.
-Nguồn đã đọc: `CLAUDE.md`, `design/gdd-mo-dau.md`, `design/gdd.md` (4.1, 4.2, 4.5, 7, 7.1), `plans/reports/brainstorm-261025-0928-mo-dau-va-cot-truyen-chuong-1.md`, `design/chuong-1/gdd-1.4-tin-hieu-lech-pha.md`, `src/levels/level-1-4.json`, `src/game/{level-types,validate-level,classify-run,compute-stars,alert,build-config,prepare-source,terminal-lines,echo-reactions}.ts`, `src/game/echo-forbidden-terms.test.ts`, `src/engine/python/harness.py`, `src/engine/harness-types.ts`, `src/ui/scanner-timeline.ts`, `src/ui/scanner-simulation.tsx`, `src/ui/game-screen.tsx`, `tests/integration/grading-pipeline.test.ts`, `docs/nhat-ky-loi-prototype-1-4.md`.
+Nguồn đã đọc: `CLAUDE.md`, `design/gdd-mo-dau.md`, `design/gdd.md` (4.1, 4.2, 4.5, 7, 7.1), `design/quyet-dinh/mo-dau-va-cot-truyen-chuong-1.md`, `design/chuong-1/gdd-1.4-tin-hieu-lech-pha.md`, `src/levels/level-1-4.json`, `src/game/{level-types,validate-level,classify-run,compute-stars,alert,build-config,prepare-source,terminal-lines,echo-reactions}.ts`, `src/game/echo-forbidden-terms.test.ts`, `src/engine/python/harness.py`, `src/engine/harness-types.ts`, `src/ui/scanner-timeline.ts`, `src/ui/scanner-simulation.tsx`, `src/ui/game-screen.tsx`, `tests/integration/grading-pipeline.test.ts`, `docs/nhat-ky-loi-prototype-1-4.md`.
 
 ## Hiện trạng (đã kiểm trong mã nguồn)
 

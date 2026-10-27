@@ -1,7 +1,7 @@
 # Level 1.2 – "Gán nhãn"
 
 > Chương 1 – Vùng Tối · Độ khó: Easy · Khái niệm: biến, phép gán, gán lại
-> Dữ liệu chơi (bản nháp ở mục 16): `src/levels/level-1-2.json`. Thiết kế tổng: `design/gdd.md`. Trục truyện: `design/gdd-mo-dau.md` mục 6.2. Brainstorm: `plans/reports/brainstorm-261025-0928-level-1-2-gan-nhan.md`.
+> Dữ liệu chơi (bản nháp ở mục 16): `src/levels/level-1-2.json`. Thiết kế tổng: `design/gdd.md`. Trục truyện: `design/gdd-mo-dau.md` mục 6.2. Brainstorm: `design/quyet-dinh/level-1-2-gan-nhan.md`.
 
 ## 1. Briefing
 
@@ -64,7 +64,7 @@ Bộ đệm được engine nạp sẵn; dòng 2–5 chỉ để hiển thị v�
 
 ## 4. Mục tiêu
 
-Tất cả kiểu `str`, so đúng từng ký tự sau khi chuẩn hóa NFC (xem `plans/reports/decision-261025-0928-hop-dong-engine-level-1-1-den-1-3.md` mục 3).
+Tất cả kiểu `str`, so đúng từng ký tự sau khi chuẩn hóa NFC (xem `docs/hop-dong-engine-level-1-1-den-1-3.md` mục 3).
 
 | Biến | Nhãn hiển thị | Với dữ liệu trên |
 |---|---|---|
@@ -261,7 +261,7 @@ Câu thay thế khi cùng khóa lặp ở lượt kế tiếp (`reaction_variant
 
 ## 16. Bản nháp JSON
 
-> Bản nháp ban đầu, giữ để đối chiếu. Câu chữ đã được rà lại ngày 25/10/2026 (`plans/reports/content-261025-1430-level-1-2.md`); khi khác nhau, `src/levels/level-1-2.json` là bản đúng.
+> Bản nháp ban đầu, giữ để đối chiếu. Câu chữ đã được rà lại ngày 25/10/2026; khi khác nhau, `src/levels/level-1-2.json` là bản đúng.
 
 Hợp lệ với `validate-level.ts` hiện tại sau khi thêm `value_is_label` vào `REACTION_KEYS` (đã kiểm); các trường `location`, `component`, `simulation`, `forbidden_terms`, `outro_beats` hiện bị bỏ qua cho tới khi validator kiểm chúng. Đã chạy code khởi đầu và hai lời giải qua `harness.py` bằng `python3`, và chạy kiểm chống lộ: không câu nào lộ.
 

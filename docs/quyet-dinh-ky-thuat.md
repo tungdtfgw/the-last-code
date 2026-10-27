@@ -11,7 +11,7 @@ Mẫu một mục: ngày · quyết định · các phương án đã xét · l�
 
 - **Ngày:** 24/10/2026 · **Trạng thái:** đang áp dụng
 - **Quyết định:** app là trang tĩnh do Vite build. Python của người chơi chạy bằng Pyodide trong Web Worker, không có máy chủ chạy code.
-- **Lý do:** mọi thứ chạy phía client (Pyodide, Web Worker, Web Audio). Next.js chỉ thêm SSR và hydration mà không đem lại gì. Nguồn: `plans/261024-2332-level-1-4-prototype/plan.md`.
+- **Lý do:** mọi thứ chạy phía client (Pyodide, Web Worker, Web Audio). Next.js chỉ thêm SSR và hydration mà không đem lại gì.
 
 ## QĐ-02 · Lưu tiến độ qua một interface duy nhất
 

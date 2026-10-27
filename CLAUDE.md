@@ -7,11 +7,12 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 "Mã Cuối Cùng" (The Last Code): a browser game that teaches Python. The current code is a game shell (title screen, prologue, transitions between levels, the "Còn tiếp" teaser and the Dark Zone map) around two playable levels: 1.1 "Khởi động" (`print`, graded on stdout) and 1.4 "Tín hiệu lệch pha". Playing needs an account (username + password, activated by an email link); progress lives on the server (Vercel Function + Cloudflare D1 through a gateway Worker). Player code still runs only in Pyodide inside a Web Worker; the server never runs Python. All in-game text is Vietnamese; code identifiers are English.
 
 Sources of truth, in priority order:
-1. `plans/reports/brainstorm-261024-2316-level-1-4-prototype.md`: the accepted contract. It wins over the GDD where they differ.
+1. `design/quyet-dinh/level-1-4-prototype.md`: the accepted contract. It wins over the GDD where they differ.
 2. `design/gdd.md` (v0.2): the overall game design. Section 4.5 holds the counting and star rules, 4.1 the ECHO rules. Per-level designs live in `design/chuong-<n>/gdd-<chapter>.<level>-<slug>.md`; the game opening is `design/gdd-mo-dau.md`.
-   - For the shell and story: `design/gdd-mo-dau.md` (opening script, transitions, map, unlock rules) and its contract `plans/reports/brainstorm-261025-0928-mo-dau-va-cot-truyen-chuong-1.md`.
+   - For the shell and story: `design/gdd-mo-dau.md` (opening script, transitions, map, unlock rules) and its contract `design/quyet-dinh/mo-dau-va-cot-truyen-chuong-1.md`.
+   - Accepted design contracts for the other levels and features are in `design/quyet-dinh/`; the engine contract for levels 1.1–1.3 is `docs/hop-dong-engine-level-1-1-den-1-3.md`.
 3. `docs/nhat-ky-loi-prototype-1-4.md`: past bugs and their root causes. Read it before touching the runner, harness, audio or intro.
-4. `plans/261024-2332-level-1-4-prototype/edge-case-matrix.md`: about 60 edge cases, each mapped to the test that covers it.
+4. `docs/ma-tran-edge-case-1-4.md`: about 60 edge cases, each mapped to the test that covers it.
 5. `docs/quyet-dinh-ky-thuat.md`: technical decisions (hosting, database, mail, accounts, password hashing) and why. Whenever a technology choice or an architecture decision changes, log it there as a new entry and mark the replaced entry's status; never delete old entries.
 
 ## Commands
@@ -79,7 +80,7 @@ One click on CHẠY flows through these stages:
    - NFC on every string comparison (`str` variables and output lines)
    - grading stdout line by line against a test's `expected_output`: `\r\n`/`\r` → `\n`, trailing spaces and trailing empty lines dropped, the rest exact; still graded when the run fails (so the simulation can show what went out), but a failing or truncated run never passes. stderr has its own buffer and is never graded.
    - truncating tracebacks and output
-   - with `trace_vars` in the config (`build-config.ts` sets it for `kiosk` levels only): `var_history`, the objective variables' changes as `{line, var, type, preview, src}`. Compared by identity, previewed without running player code, at most 40 entries (`var_history_truncated`). `src` is the input whose loaded object the value is, so text typed by hand never counts as read from the buffer. Cost on Pyodide: `plans/reports/bench-261025-1211-var-history.md`.
+   - with `trace_vars` in the config (`build-config.ts` sets it for `kiosk` levels only): `var_history`, the objective variables' changes as `{line, var, type, preview, src}`. Compared by identity, previewed without running player code, at most 40 entries (`var_history_truncated`). `src` is the input whose loaded object the value is, so text typed by hand never counts as read from the buffer. Cost on Pyodide: `docs/do-chi-phi-var-history.md`.
 5. **`src/game/classify-run.ts`** maps the harness JSON to a `ReactionKey` and an outcome.
    - `compute-stars.ts` is the only place stars are decided. Stars are cumulative. Going over 100% alert (`limit / 0.4` statements) means caught: 0 stars and no counter-attack.
    - Order: run errors, then variables, then the topmost wrong output line (`output_missing`, `output_case_only`, `output_mismatch`, details `{out_line}`, `{col}`), then `output_extra`. A wrong output under counter-attack is `wrong_value_counter`.
@@ -147,5 +148,11 @@ One click on CHẠY flows through these stages:
 
 ## Repo conventions
 
-- Markdown goes only in `plans/` (plans and reports, named `{type}-{YYMMDD-HHMM}-{slug}.md`), `docs/`, or `design/` (game design: the overall GDD and one GDD per level).
+- Markdown goes only in `plans/`, `docs/` or `design/`.
+- `plans/` is local working space and is not in git: plans, phase files, agent reports (`{type}-{YYMMDD-HHMM}-{slug}.md`) and journals. Nothing tracked may link into it, and nothing in it is a source of truth.
+- Project decisions live in tracked documents, never only in `plans/`:
+  - technology and architecture choices: a new entry in `docs/quyet-dinh-ky-thuat.md`;
+  - game design: `design/` (the overall GDD, one GDD per level, and accepted design contracts in `design/quyet-dinh/`);
+  - engine contracts, test matrices and measurements behind a decision: `docs/` (e.g. `docs/hop-dong-engine-level-1-1-den-1-3.md`).
+  When a brainstorm or plan settles a decision, write it into one of these before the work is closed; a report in `plans/` alone is lost to everyone else.
 - `.claude/rules/` holds the workflow rules: brainstorm → plan → cook → test → review.

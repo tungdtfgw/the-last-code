@@ -1,11 +1,11 @@
 # Quyết định: hợp đồng engine chung cho Level 1.1–1.3
 
 Ngày: 2026-10-25. Người chốt: main agent, sau khi validate ba brainstorm:
-- `plans/reports/brainstorm-261025-0928-level-1-1-khoi-dong.md` (GDD: `design/chuong-1/gdd-1.1-khoi-dong.md`)
-- `plans/reports/brainstorm-261025-0928-level-1-2-gan-nhan.md` (GDD: `design/chuong-1/gdd-1.2-gan-nhan.md`)
-- `plans/reports/brainstorm-261025-0928-level-1-3-bon-loai-tin-hieu.md` (GDD: `design/chuong-1/gdd-1.3-bon-loai-tin-hieu.md`)
+- `design/quyet-dinh/level-1-1-khoi-dong.md` (GDD: `design/chuong-1/gdd-1.1-khoi-dong.md`)
+- `design/quyet-dinh/level-1-2-gan-nhan.md` (GDD: `design/chuong-1/gdd-1.2-gan-nhan.md`)
+- `design/quyet-dinh/level-1-3-bon-loai-tin-hieu.md` (GDD: `design/chuong-1/gdd-1.3-bon-loai-tin-hieu.md`)
 
-Vỏ game (định tuyến, đoạn truyện, bản đồ, `location`/`component`/`outro_beats`, điểm mở rộng `LevelSimulation`) do plan `plans/261025-0928-mo-dau-va-chuyen-canh/` làm. Tài liệu này chỉ chốt những chỗ ba đề xuất level chồng hoặc lệch nhau. Khi một GDD level nói khác tài liệu này, tài liệu này thắng.
+Vỏ game (định tuyến, đoạn truyện, bản đồ, `location`/`component`/`outro_beats`, điểm mở rộng `LevelSimulation`) thuộc `design/gdd-mo-dau.md`. Tài liệu này chỉ chốt những chỗ ba đề xuất level chồng hoặc lệch nhau. Khi một GDD level nói khác tài liệu này, tài liệu này thắng.
 
 ## Thứ tự làm
 

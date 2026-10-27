@@ -1,7 +1,7 @@
 # Level 1.1 – "Khởi động"
 
 > Chương 1 – Vùng Tối · Độ khó: Easy · Khái niệm: `print`, chuỗi
-> Dữ liệu chơi (sẽ tạo): `src/levels/level-1-1.json`. Thiết kế tổng: `design/gdd.md`. Hợp đồng truyện: `design/gdd-mo-dau.md` mục 6.1. Brainstorm: `plans/reports/brainstorm-261025-0928-level-1-1-khoi-dong.md`.
+> Dữ liệu chơi (sẽ tạo): `src/levels/level-1-1.json`. Thiết kế tổng: `design/gdd.md`. Hợp đồng truyện: `design/gdd-mo-dau.md` mục 6.1. Brainstorm: `design/quyet-dinh/level-1-1-khoi-dong.md`.
 > Với phần lớn người chơi, đây là dòng code đầu tiên họ viết.
 
 ## 1. Briefing
@@ -246,6 +246,6 @@ Cột "Test" chỉ đánh **Có** cho hàng kiểm việc chấm đúng, luật 
 
 ## 14. Dữ liệu level
 
-Dữ liệu chơi nằm ở `src/levels/level-1-1.json` và là nguồn đúng duy nhất; bản nháp JSON từng chép ở đây đã bỏ vì nó lệch dần với file thật. Văn bản người chơi đọc được rà lại ngày 25/10/2026 theo skill `van-viet-tu-nhien` (danh sách câu đã sửa: `plans/reports/content-261025-1430-level-1-1.md`).
+Dữ liệu chơi nằm ở `src/levels/level-1-1.json` và là nguồn đúng duy nhất; bản nháp JSON từng chép ở đây đã bỏ vì nó lệch dần với file thật. Văn bản người chơi đọc được rà lại ngày 25/10/2026 theo skill `van-viet-tu-nhien`.
 
 Ghi chú về dữ liệu: `wrong_value_counter` được dùng lại cho phản công sai đầu ra. Các khóa về biến (`type_mismatch`, `type_mismatch_value_match`, `wrong_value`, `missing_var`, `counter_type_mismatch`) và `two_stars` không có vì không thể xảy ra ở level này; nếu có thì rơi về `generic`. Cue `glitch` là cue mới do `design/gdd-mo-dau.md` mục 5.2 thêm.

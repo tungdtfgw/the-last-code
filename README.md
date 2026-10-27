@@ -7,8 +7,8 @@ và bốn level chơi được: 1.1 "Khởi động" (`print`, chấm theo đầ
 1.2 "Gán nhãn" (biến, gán lại, mô phỏng ki-ốt phát lại lịch sử gán), 1.3 "Bốn loại tín hiệu" (bốn kiểu
 cơ bản và `type()`, máy phân loại bốn làn) và 1.4 "Tín hiệu lệch pha" (máy quét).
 Thiết kế: `design/gdd.md`, mở đầu và chuyển cảnh: `design/gdd-mo-dau.md`; quyết định đã chốt:
-`plans/reports/brainstorm-261024-2316-level-1-4-prototype.md`,
-`plans/reports/brainstorm-261025-0928-mo-dau-va-cot-truyen-chuong-1.md`.
+`design/quyet-dinh/level-1-4-prototype.md`,
+`design/quyet-dinh/mo-dau-va-cot-truyen-chuong-1.md`.
 
 ## Luồng chơi
 

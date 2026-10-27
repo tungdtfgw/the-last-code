@@ -1,7 +1,7 @@
 # Level 1.3 – "Bốn loại tín hiệu"
 
 > Chương 1 – Vùng Tối · Độ khó: Easy · Khái niệm: bốn kiểu cơ bản `str`, `int`, `float`, `bool` và `type()`
-> Dữ liệu chơi (đề xuất): `src/levels/level-1-3.json`. Thiết kế tổng: `design/gdd.md`. Trục truyện: `design/gdd-mo-dau.md` mục 6.3. Brainstorm: `plans/reports/brainstorm-261025-0928-level-1-3-bon-loai-tin-hieu.md`.
+> Dữ liệu chơi (đề xuất): `src/levels/level-1-3.json`. Thiết kế tổng: `design/gdd.md`. Trục truyện: `design/gdd-mo-dau.md` mục 6.3. Brainstorm: `design/quyet-dinh/level-1-3-bon-loai-tin-hieu.md`.
 
 Khác với 1.4: ở 1.4 dữ liệu đến dưới dạng chuỗi và người chơi **chuyển** nó sang hình dạng khác bằng hàm. Ở 1.3 không có hàm chuyển nào; người chơi **nhận ra** hình dạng của một giá trị và **viết lại** giá trị đó cho đúng hình dạng ngay từ cách viết, rồi dùng `type()` để hỏi hình dạng thay vì đoán.
 
@@ -231,7 +231,7 @@ Nhẹ nhàng ôn 1.1–1.2: `ho_ten` dùng lại tên giả từ 1.2; `print(...
 
 Bản nháp JSON từng nằm ở đây đã lệch so với file thật (tên khóa `echo_forbidden_terms`, `simulation` dạng chuỗi), nên đã bỏ. Nguồn duy nhất là `src/levels/level-1-3.json`. File dùng mục tiêu loại `"type"`, input số/bool, các trường tùy chọn `location`, `component`, `outro_beats`, `simulation`, `forbidden_terms`, `reaction_variants`, `task_steps`, `knowledge_summary` và khóa `type_mismatch_unknown_shape`.
 
-Sửa văn ngày 25/10/2026 (giọng truyện, rà theo skill `van-viet-tu-nhien`): briefing tách câu và bỏ bị động "được chép tay"; nhãn `da_tiem`, `khuon_phien`; gợi ý 1, 2; phản ứng `type_mismatch`, `SyntaxError`, `TypeError`, `wrong_value_counter`; câu thay thế `type_mismatch`. Đoạn kết, KTS-07 và nhịp truyện giữ nguyên. Danh sách trước/sau: `plans/reports/content-261025-1430-level-1-3.md`.
+Sửa văn ngày 25/10/2026 (giọng truyện, rà theo skill `van-viet-tu-nhien`): briefing tách câu và bỏ bị động "được chép tay"; nhãn `da_tiem`, `khuon_phien`; gợi ý 1, 2; phản ứng `type_mismatch`, `SyntaxError`, `TypeError`, `wrong_value_counter`; câu thay thế `type_mismatch`. Đoạn kết, KTS-07 và nhịp truyện giữ nguyên.
 
 Ghi chú cho người làm: giá trị kỳ vọng `"int"`/`"str"` của mục tiêu `type` được thêm vào tập "đáp án" của test lộ đáp án, nên không câu phản ứng nào được chứa chúng như một từ đứng riêng. Lời giải mẫu cho test tích hợp nên đặt ở `tests/fixtures/solutions/1.3/` (gốc, chỉ còn tuple, chỉ còn chuỗi "27", khuôn là chuỗi, 2 sao, 3 sao, NFD) để không trùng tên với lời giải của 1.4.
 

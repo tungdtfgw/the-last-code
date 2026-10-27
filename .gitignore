@@ -18,3 +18,6 @@ __pycache__
 .dev.vars
 .vercel
 .claude/agent-memory/
+
+# Local working space: plans, agent reports, journals (decisions live in docs/ and design/).
+plans/

@@ -2,7 +2,7 @@
 
 Các lỗi đã gặp khi thiết kế, làm và kiểm thử prototype Level 1.4 "Tín hiệu lệch pha" (24–25/10/2026). Mỗi mục ghi triệu chứng, nguyên nhân và cách đã xử lý, để tham chiếu khi làm các level sau.
 
-Nguồn chi tiết: `plans/reports/cook-261024-2332-level-1-4-prototype.md`, `plans/261024-2332-level-1-4-prototype/edge-case-matrix.md`. Thiết kế: `design/gdd.md` (bản 0.2).
+Nguồn chi tiết: `docs/ma-tran-edge-case-1-4.md`. Thiết kế: `design/gdd.md` (bản 0.2).
 
 ## 1. Lỗi trong tài liệu thiết kế
 

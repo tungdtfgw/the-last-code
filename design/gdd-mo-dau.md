@@ -1,6 +1,6 @@
 # Mở đầu game, chuyển cảnh và cốt truyện Chương 1
 
-> Phiên bản 0.1 · 25/10/2026 · Thiết kế tổng: `design/gdd.md` · Brainstorm: `plans/reports/brainstorm-261025-0928-mo-dau-va-cot-truyen-chuong-1.md`
+> Phiên bản 0.1 · 25/10/2026 · Thiết kế tổng: `design/gdd.md` · Brainstorm: `design/quyet-dinh/mo-dau-va-cot-truyen-chuong-1.md`
 > Phạm vi: màn tiêu đề, đoạn mở đầu (prologue), hệ thống chuyển cảnh giữa các level, mở khóa và chơi lại, đoạn "còn tiếp" sau 1.4, và trục truyện Chương 1 mà các level 1.1–1.4 phải theo.
 
 ## 1. Tên riêng và sự thật cố định của Chương 1
