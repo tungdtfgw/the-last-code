@@ -124,7 +124,7 @@
   "hints": [
     "Ki-ốt không đọc cả đoạn mã một lần. Nó chạy từng dòng, từ trên xuống. Mỗi thiết bị đọc ô nhớ đúng lúc dòng của nó chạy… và chỉ thấy thứ ô đó đang giữ lúc ấy.",
     "Thứ tự ki-ốt cần:\n1. Gắn nhãn cho từng gói trong bộ đệm.\n2. Chép mã khu đang giữ sang ô nhật ký.\n3. Gán lại ô mã khu bằng gói sửa.\n4. Rồi mới để hai thiết bị đọc.\nKhông gõ lại giá trị nào. Mọi thứ đã nằm trong bộ đệm.",
-    "Mảnh tài liệu Python còn đọc được:\nnhiet_do = \"18°C\"     # gán: tên bên trái nhận giá trị bên phải\nbao_cao = nhiet_do     # bao_cao nhận cùng giá trị \"18°C\"\nnhiet_do = \"21°C\"     # gán lại: nhiet_do đổi, bao_cao vẫn là \"18°C\"\nprint(nhiet_do)        → 21°C\nprint(\"nhiet_do\")      → nhiet_do   (trong dấu nháy là chữ, không phải tên)\nTên đặt được: chữ cái không dấu, chữ số, dấu _. Không bắt đầu bằng chữ số. Không có khoảng trắng.\nNhiet_do và nhiet_do là hai tên khác nhau.\nDùng một tên trước khi gán cho nó → NameError."
+    "Mảnh tài liệu Python còn đọc được:\nnhiet_do = \"18°C\"     # gán: tên bên trái nhận giá trị bên phải\nbao_cao = nhiet_do     # bao_cao nhận cùng giá trị \"18°C\"\nnhiet_do = \"21°C\"     # gán lại: nhiet_do đổi, bao_cao vẫn là \"18°C\"\nprint(nhiet_do)        → 21°C\nprint(\"nhiet_do\")      → nhiet_do   (trong dấu nháy là chữ, không phải tên)\nTên đặt được: chữ cái, chữ số, dấu _. Không bắt đầu bằng chữ số. Không có khoảng trắng. Chữ không dấu dễ gõ đúng hơn.\nNhiet_do và nhiet_do là hai tên khác nhau.\nDùng một tên trước khi gán cho nó → NameError."
   ],
   "reactions": {
     "entry": "Ki-ốt còn điện. Nó không đọc gói tin… chỉ đọc ô nhớ có nhãn. Drone đi qua theo chu kỳ. Viết ít thôi.",

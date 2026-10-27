@@ -73,6 +73,7 @@
     }
   ],
   "counter_attack_banner": "CẢNH BÁO: OMNI ĐÃ THAY ĐỔI ĐỊNH DẠNG CHIP",
+  "forbidden_terms": ["ép kiểu", "đổi kiểu", "chuyển kiểu", "str", "× 100", "nhân 100", "* 100"],
   "hints": [
     "Nhìn mô phỏng sau khi chạy. Dữ liệu chip là chữ, kể cả khi trông như số. Nhân chữ với 100 không ra phép tính… Python chép chữ đó nối đuôi nhau 100 lần.",
     "Python có sẵn công cụ đổi hình dạng. Mỗi công cụ mang đúng tên hình dạng nó tạo ra, cũng là tên làn máy quét đòi. Đổi dữ liệu chip trước, rồi mới tính. Chip có thể ghi số kèm phần thập phân… nên thứ tự đổi cũng quan trọng.",
