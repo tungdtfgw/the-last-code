@@ -93,7 +93,7 @@ export interface TestCase {
  * Simulations that exist in code. A level may only name one of these, so it never
  * falls back to a scene that does not exist. Later levels add their kind here.
  */
-export const SIMULATION_KINDS = ["scanner", "relay", "kiosk", "sorter"] as const;
+export const SIMULATION_KINDS = ["scanner", "relay", "kiosk", "sorter", "fence"] as const;
 export type SimulationKind = (typeof SIMULATION_KINDS)[number];
 export type SimulationConfig =
   | { kind: "scanner" }
@@ -102,7 +102,9 @@ export type SimulationConfig =
   /** `devices`: objectives drawn as reader screens (1.2: drone scanner, zone gate); the rest are memory cells. */
   | { kind: "kiosk"; devices: string[] }
   /** Four-lane shape sorter (1.3). */
-  | { kind: "sorter" };
+  | { kind: "sorter" }
+  /** Power fence (1.5): `energy`, `cells`, `remainder` are int objectives, `capacity` the input holding one cell's charge. */
+  | { kind: "fence"; energy: string; cells: string; remainder: string; capacity: string };
 
 /** The level's simulation; missing means the gate scanner. */
 export const simulationOf = (level: Pick<LevelDefinition, "simulation">): SimulationConfig =>

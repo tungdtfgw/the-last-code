@@ -4657,3 +4657,145 @@ body:has(.learn-screen)::before {
     justify-content: start;
   }
 }
+
+/* ---------- Power fence (simulation kind "fence") ---------- */
+
+.fence-post {
+  fill: var(--signal);
+  stroke: var(--signal);
+  filter: drop-shadow(0 0 4px var(--signal));
+  transition: fill 600ms var(--ease-out), stroke 600ms var(--ease-out), filter 600ms var(--ease-out);
+}
+
+.fence-post.is-dark {
+  fill: var(--surface-raised);
+  stroke: var(--line-strong);
+  filter: none;
+}
+
+.fence-wire {
+  stroke: var(--signal);
+  stroke-width: 1.5;
+  opacity: 0.8;
+  transition: stroke 600ms var(--ease-out), opacity 600ms var(--ease-out);
+}
+
+.fence-wire.is-dark {
+  stroke: var(--line);
+  opacity: 0.6;
+}
+
+.fence-posts.is-discharge .fence-post,
+.fence-posts.is-discharge .fence-wire {
+  fill: var(--alarm);
+  stroke: var(--alarm);
+}
+
+.fence-spark {
+  fill: none;
+  stroke: var(--alarm);
+  stroke-width: 2;
+  animation: alarm-lamp 0.3s steps(1) infinite;
+}
+
+.fence-dock {
+  fill: none;
+  stroke: var(--line);
+  stroke-dasharray: 3 3;
+}
+
+.fence-cell-body {
+  fill: color-mix(in oklch, currentColor 70%, var(--bg-deep));
+  stroke: currentColor;
+  stroke-width: 1.5;
+}
+
+.fence-cell-cap {
+  fill: currentColor;
+}
+
+.fence-cell.is-cut .fence-cell-body {
+  fill: color-mix(in oklch, currentColor 25%, var(--bg-deep));
+  stroke-dasharray: 4 2;
+}
+
+.fence-cut {
+  stroke: var(--alarm);
+  stroke-width: 2.5;
+}
+
+.fence-more {
+  font-size: 16px;
+  fill: var(--text-muted);
+}
+
+.fence-meter-frame {
+  fill: var(--surface);
+  stroke: var(--line-strong);
+}
+
+.fence-meter-below {
+  fill: var(--alarm-dim);
+}
+
+.fence-meter-fill {
+  fill: var(--signal);
+  transition: y 600ms var(--ease-out), height 600ms var(--ease-out);
+}
+
+.fence-meter.is-exact .fence-meter-fill {
+  fill: var(--ok);
+}
+
+.fence-meter.is-over .fence-meter-fill,
+.fence-meter-negative {
+  fill: var(--alarm);
+}
+
+.fence-meter-zero {
+  stroke: var(--text-muted);
+}
+
+.fence-meter-mark {
+  stroke: var(--text);
+  stroke-width: 2;
+  stroke-dasharray: 5 3;
+}
+
+.fence-meter-need,
+.fence-meter-value {
+  font-size: 16px;
+  fill: var(--text-muted);
+}
+
+.fence-meter-value {
+  fill: var(--text);
+  font-weight: 700;
+}
+
+.fence-verdict {
+  font-family: var(--font-display) !important;
+  font-size: 16px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+}
+
+.fence-verdict.tone-ok {
+  fill: var(--ok);
+}
+
+.fence-verdict.tone-alarm {
+  fill: var(--alarm);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .fence-post,
+  .fence-wire,
+  .fence-meter-fill {
+    transition: none;
+  }
+
+  .fence-spark {
+    animation: none;
+  }
+}

@@ -45,6 +45,7 @@ const PUZZLE_STRINGS = [
   "simulation.kind",
   "simulation.station",
   "simulation.devices[]",
+  ...["energy", "cells", "remainder", "capacity"].map((k) => `simulation.${k}`),
   "forbidden_terms[]",
   "outro_beats[].kind",
   "outro_beats[].cue",

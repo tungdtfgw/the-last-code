@@ -1,0 +1,153 @@
+{
+  "schema_version": 1,
+  "id": "1.5",
+  "chapter": 1,
+  "title": "Năng lượng tối thiểu",
+  "difficulty": "medium",
+  "concepts": [
+    "arithmetic_operators",
+    "operator_precedence"
+  ],
+  "starter_code": "# Số đo của Vành Đai Điện (KHÔNG được sửa 4 dòng này)\nso_doan = 6\ndien_ap = 12\ndu_tru = 36\ndung_luong = 100\n\n# Năng lượng cần = số đoạn × điện áp mũ 2 − phần dự trữ\nnang_luong = so_doan * dien_ap ^ 2 - du_tru\n\n# Số pin đầy, và phần lẻ rút từ một pin nữa\nso_pin = nang_luong / dung_luong\nphan_le = nang_luong - so_pin\n",
+  "locked_lines": [
+    2,
+    3,
+    4,
+    5
+  ],
+  "inputs": [
+    "so_doan",
+    "dien_ap",
+    "du_tru",
+    "dung_luong"
+  ],
+  "objectives": [
+    {
+      "var": "nang_luong",
+      "type": "int"
+    },
+    {
+      "var": "so_pin",
+      "type": "int"
+    },
+    {
+      "var": "phan_le",
+      "type": "int"
+    }
+  ],
+  "alert_limit_statements": 4,
+  "float_abs_tolerance": 1e-09,
+  "tests": [
+    {
+      "inputs": {
+        "so_doan": 6,
+        "dien_ap": 12,
+        "du_tru": 36,
+        "dung_luong": 100
+      },
+      "expected": {
+        "nang_luong": 828,
+        "so_pin": 8,
+        "phan_le": 28
+      }
+    }
+  ],
+  "counter_attack_tests": [
+    {
+      "inputs": {
+        "so_doan": 7,
+        "dien_ap": 15,
+        "du_tru": 75,
+        "dung_luong": 110
+      },
+      "expected": {
+        "nang_luong": 1500,
+        "so_pin": 13,
+        "phan_le": 70
+      }
+    }
+  ],
+  "simulation": {
+    "kind": "fence",
+    "energy": "nang_luong",
+    "cells": "so_pin",
+    "remainder": "phan_le",
+    "capacity": "dung_luong"
+  },
+  "forbidden_terms": [
+    "lũy thừa",
+    "luỹ thừa",
+    "mũ",
+    "bình phương",
+    "chia nguyên",
+    "chia lấy dư",
+    "phần nguyên",
+    "số dư",
+    "phần dư",
+    "**",
+    "//",
+    "%",
+    "làm tròn"
+  ],
+  "outro_beats": [
+    {
+      "kind": "log"
+    },
+    {
+      "kind": "echo"
+    },
+    {
+      "kind": "kai"
+    }
+  ],
+  "knowledge_summary": {
+    "sections": [
+      {
+        "code": "a = 17\nb = 5\nprint(a + b)\nprint(a - b)\nprint(a * b)\nprint(a / b)\nprint(a // b)\nprint(a % b)\nprint(a ** 2)",
+        "output": "22\n12\n85\n3.4\n3\n2\n289"
+      },
+      {
+        "code": "print(9 / 3)\nprint(9 // 3)\nprint(type(9 / 3), type(9 // 3))",
+        "output": "3.0\n3\n<class 'float'> <class 'int'>"
+      },
+      {
+        "code": "a = 23\nb = 4\nprint(a // b, a % b)\nprint(a // b * b + a % b)",
+        "output": "5 3\n23"
+      },
+      {
+        "code": "print(2 + 3 * 4 ** 2)\nprint((2 + 3) * 4 ** 2)",
+        "output": "50\n80"
+      },
+      {
+        "code": "print(7 // 2)\nprint(round(7 / 2))\nprint(round(2.5), round(3.5))",
+        "output": "3\n4\n2 4"
+      },
+      {
+        "code": "print(3 ^ 2)\nprint(3 ** 2)",
+        "output": "1\n9"
+      }
+    ],
+    "mistakes": [
+      {
+        "code": "nang_luong = so_doan * dien_ap ^ 2 - du_tru",
+        "error": "Không báo lỗi, nhưng kết quả là -106"
+      },
+      {
+        "code": "so_pin = nang_luong / dung_luong",
+        "error": "Không báo lỗi, nhưng `so_pin` có kiểu `float` (8.28), không phải `int`"
+      },
+      {
+        "code": "nang_luong = (so_doan * dien_ap) ** 2 - du_tru",
+        "error": "Không báo lỗi, nhưng kết quả là 5148"
+      },
+      {
+        "code": "so_pin = round(nang_luong / dung_luong)",
+        "error": "Không báo lỗi. Với số đo 7, 15, 75, 110 kết quả là 14, trong khi chỉ có 13 pin đầy"
+      },
+      {
+        "code": "so_pin = nang_luong // 0",
+        "error": "ZeroDivisionError: integer division or modulo by zero"
+      }
+    ]
+  }
+}

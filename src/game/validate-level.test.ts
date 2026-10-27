@@ -121,6 +121,24 @@ describe("validateLevel", () => {
     if (!r.ok) expect(r.errors.join("\n")).toMatch(message);
   });
 
+  test("level 1.5 (fence simulation) is valid", () => {
+    const level15 = realLevelJson("1.5");
+    expect(validateLevel(level15)).toEqual({ ok: true, level: level15 });
+  });
+
+  const cases15: [string, (l: any) => void, RegExp][] = [
+    ["cells naming a variable that is not an objective", (l) => (l.simulation.cells = "khong_co"), /simulation\.cells phải là tên một mục tiêu biến kiểu int/],
+    ["one objective in two roles", (l) => (l.simulation.remainder = "so_pin"), /simulation\.remainder "so_pin" trùng/],
+    ["a capacity that is not an input", (l) => (l.simulation.capacity = "nang_luong"), /simulation\.capacity phải là tên một biến đầu vào/],
+  ];
+  test.each(cases15)("level 1.5: rejects %s", (_name, mutate, message) => {
+    const l = JSON.parse(JSON.stringify(realLevelJson("1.5")));
+    mutate(l);
+    const r = validateLevel(l);
+    expect(r.ok).toBe(false);
+    if (!r.ok) expect(r.errors.join("\n")).toMatch(message);
+  });
+
   test("rejects non-object", () => {
     expect(validateLevel(null).ok).toBe(false);
     expect(validateLevel("x").ok).toBe(false);

@@ -70,6 +70,18 @@ export function vocabularyFor(level: Pick<LevelDefinition, "simulation">): SimVo
         round: "VÒNG",
         headlines: ["Rào mở, bị ghi nhận", "Rào mở một nửa", "Rào mở hoàn toàn"],
       };
+    case "fence":
+      return {
+        runTarget: "nạp năng lượng vào Vành Đai Điện",
+        gate: "RÀO",
+        counterSurvived: "TẢI MỚI ĐI QUA ĐỒNG HỒ: mã vẫn đứng vững",
+        sent: "ĐÃ PHÁT",
+        dropped: "BỎ GÓI",
+        objectivesNote: "rào chỉ nhận đúng lượng năng lượng",
+        terminalNote: "nhật ký đồng hồ đo",
+        round: "VÒNG",
+        headlines: ["Rào tắt, bị ghi nhận", "Rào tắt một nửa", "Rào tắt hoàn toàn"],
+      };
     case "scanner":
       return SCANNER;
   }

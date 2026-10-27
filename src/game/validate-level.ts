@@ -61,12 +61,26 @@ function checkSorter(objectives: { var: string; type: ValueType }[], errors: str
   }
 }
 
+/** Power fence: three different int objectives (energy, full cells, remainder) and the input holding one cell's charge. */
+function checkFence(sim: Record<string, unknown>, objectives: { var: string; type: ValueType }[], inputs: string[], errors: string[]) {
+  const seen: string[] = [];
+  for (const key of ["energy", "cells", "remainder"]) {
+    const name = sim[key];
+    if (!isString(name) || !objectives.some((o) => o.var === name && o.type === "int"))
+      errors.push(`simulation.${key} phải là tên một mục tiêu biến kiểu int`);
+    else if (seen.includes(name)) errors.push(`simulation.${key} "${name}" trùng với một vai khác của rào`);
+    else seen.push(name);
+  }
+  if (!isString(sim.capacity) || !inputs.includes(sim.capacity)) errors.push("simulation.capacity phải là tên một biến đầu vào");
+}
+
 /** Keys each simulation kind accepts; a new kind adds its entry here. */
 const SIM_KEYS: Record<SimulationKind, readonly string[]> = {
   scanner: ["kind"],
   relay: ["kind", "station"],
   kiosk: ["kind", "devices"],
   sorter: ["kind"],
+  fence: ["kind", "energy", "cells", "remainder", "capacity"],
 };
 
 /** Limits of a test's stdin channel: lines `input()` reads. */
@@ -294,6 +308,7 @@ export function validateLevel(raw: unknown): ValidationResult {
         errors.push("simulation.station phải là chuỗi không rỗng ≤ 12 ký tự");
       if (sim.kind === "kiosk") checkKiosk(sim.devices, objectives.map((o) => o.var), errors);
       if (sim.kind === "sorter") checkSorter(objectives, errors);
+      if (sim.kind === "fence") checkFence(sim, objectives, inputs, errors);
     }
   }
 
