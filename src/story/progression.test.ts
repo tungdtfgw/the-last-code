@@ -85,10 +85,11 @@ describe("the shipped chapter (src/levels)", () => {
   const ctx = buildChapterContext(chapter, realRegistry());
   const seen = (...ids: string[]) => snap({ "1.1": 3, "1.2": 3, "1.3": 3, "1.4": 3 }, ids);
 
-  test("plays through: prologue → 1.1 → 1.2 → 1.3 → 1.4 → teaser → map, each level behind the one before", () => {
+  test("plays through: prologue → 1.1 → 1.2 → 1.3 → 1.4 → 1.6 → teaser → map, each level behind the one before", () => {
     expect(storyEnd("prologue", ctx, seen("prologue"))).toEqual(level("1.1"));
     expect(["1.1", "1.2", "1.3"].map((id) => storyEnd(`after-${id}`, ctx, seen()))).toEqual([level("1.2"), level("1.3"), level("1.4")]);
-    expect(storyEnd("after-1.4", ctx, seen())).toEqual(story("teaser"));
+    expect(storyEnd("after-1.4", ctx, seen())).toEqual(level("1.6"));
+    expect(storyEnd("after-1.6", ctx, seen())).toEqual(story("teaser"));
     expect(storyEnd("teaser", ctx, seen("teaser"))).toEqual(MAP);
     expect(nodeStates(ctx, snap({ "1.1": 1, "1.2": 1 })).slice(2, 4)).toMatchObject([
       { id: "1.3", status: "open", next: true },
@@ -98,7 +99,7 @@ describe("the shipped chapter (src/levels)", () => {
 
   test("after 1.4 the Neural-ID holds four of six components, as the teaser says", () => {
     const totals = chapterTotals(ctx, seen());
-    expect(totals).toMatchObject({ stars: 12, maxStars: 12, slots: 6 });
+    expect(totals).toMatchObject({ stars: 12, maxStars: 15, slots: 6 });
     expect(totals.components.map((c) => c.slot)).toEqual([0, 1, 2, 3]);
     const teaserLine = chapter.teaser.find((b) => b.text.includes("thành phần"))!.text;
     expect(teaserLine).toMatch(/^Bốn thành phần\. Còn hai\./);
