@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project
 
-"Mã Cuối Cùng" (The Last Code): a browser game that teaches Python. The current code is a game shell (title screen, prologue, transitions between levels, the "Còn tiếp" teaser and the Dark Zone map) around two playable levels: 1.1 "Khởi động" (`print`, graded on stdout) and 1.4 "Tín hiệu lệch pha". There is no backend. Player code runs in Pyodide inside a Web Worker. All in-game text is Vietnamese; code identifiers are English.
+"Mã Cuối Cùng" (The Last Code): a browser game that teaches Python. The current code is a game shell (title screen, prologue, transitions between levels, the "Còn tiếp" teaser and the Dark Zone map) around two playable levels: 1.1 "Khởi động" (`print`, graded on stdout) and 1.4 "Tín hiệu lệch pha". Playing needs an account (username + password, activated by an email link); progress lives on the server (Vercel Function + Cloudflare D1 through a gateway Worker). Player code still runs only in Pyodide inside a Web Worker; the server never runs Python. All in-game text is Vietnamese; code identifiers are English.
 
 Sources of truth, in priority order:
 1. `plans/reports/brainstorm-261024-2316-level-1-4-prototype.md`: the accepted contract. It wins over the GDD where they differ.
@@ -12,15 +12,16 @@ Sources of truth, in priority order:
    - For the shell and story: `design/gdd-mo-dau.md` (opening script, transitions, map, unlock rules) and its contract `plans/reports/brainstorm-261025-0928-mo-dau-va-cot-truyen-chuong-1.md`.
 3. `docs/nhat-ky-loi-prototype-1-4.md`: past bugs and their root causes. Read it before touching the runner, harness, audio or intro.
 4. `plans/261024-2332-level-1-4-prototype/edge-case-matrix.md`: about 60 edge cases, each mapped to the test that covers it.
+5. `docs/quyet-dinh-ky-thuat.md`: technical decisions (hosting, database, mail, accounts, password hashing) and why. Whenever a technology choice or an architecture decision changes, log it there as a new entry and mark the replaced entry's status; never delete old entries.
 
 ## Commands
 
 ```bash
-npm run dev                  # Vite on :5173 (strict port; check `lsof -i :5173` first, the user often has one running)
+npm run dev                  # Vite on :5173 with the local API (strict port; check `lsof -i :5173` first, the user often has one running)
 npm run build                # tsc --noEmit + vite build
 npm run preview              # serve the build on :4173
 npm run typecheck
-npm test                     # Vitest: src/**/*.test.ts(x) + tests/integration (runs the real harness via local python3)
+npm test                     # Vitest: src/**/*.test.ts(x), server/**, workers/d1-gateway/src/** and tests/integration (runs the real harness via local python3)
 npx vitest run src/game/compute-stars.test.ts      # single Vitest file
 npx vitest run -t "counter_timeout"                # by test name
 npm run test:py              # unittest for the Python harness (python3 >= 3.13)
@@ -35,6 +36,9 @@ E2E notes:
 - Projects are `chromium`, `firefox` and `mobile-chromium`. WebKit is opt-in with `E2E_WEBKIT=1` because Playwright WebKit segfaults on macOS 26.
 - The `webServer` config starts its own preview on :4173, so nothing else may hold that port.
 - The full suite takes about 7 minutes. Run the relevant spec first.
+- Every route needs a signed-in player. Specs import `test`/`expect` from `tests/e2e/fixtures.ts`, not `@playwright/test`: each test gets a fresh activated account (made through the real API, mails read from `.data/e2e-outbox/`) and its session cookie. A test that builds its own context uses `newSignedInContext(browser, options)`. The preview server runs with `DB_DRIVER=sqlite`, `SQLITE_PATH=.data/e2e.sqlite`, `AUTH_RATE_LIMIT=off`; both are wiped before each run.
+- Seeding progress with `localStorage` in `addInitScript` still works: on entry the game folds it into the account (idempotent, never overwrites a server draft) and clears it.
+- Drafts reach the server at most every 10 s per level, or at once when the page is hidden or left. To check a draft from another tab, navigate the writing tab away first.
 - `/` is the title screen. Level tests open `LEVEL_URL` (`/#/level/1.4`) or call `gotoLevel(page, id)`; every one must pass the level's entry gate with `enterMission(page)` after every `goto` or `reload`. `enterMission` waits for the gate's `data-armed="true"`.
 - `page.goto` to the same URL with only a hash is a same-document navigation, not a reload. Reload when a test needs a fresh start.
 
@@ -42,7 +46,7 @@ E2E notes:
 
 ### Shell and routing
 
-- `src/app.tsx`: `App → ErrorBoundary → Boot → Shell`. `Shell` owns the repository, `useAudio`, the hash route, a progress snapshot (`src/shell/use-progress-snapshot.ts`) and the global `M` key, and renders one of four screens: `TitleScreen`, `ChapterMap`, `StoryScreen`, `GameScreen`.
+- `src/app.tsx`: `App → ErrorBoundary → Boot → AccountGate → Shell`. `Shell` (keyed by user id) gets the repository and user from the gate and owns `useAudio`, the hash route, a progress snapshot (`src/shell/use-progress-snapshot.ts`) and the global `M` key, and renders one of four screens: `TitleScreen`, `ChapterMap`, `StoryScreen`, `GameScreen`.
 - Routes (`src/shell/route.ts`): `#/` (empty or unknown → title), `#/map`, `#/story/<id>`, `#/level/<id>`. `use-hash-route.ts` pushes for player actions and replaces (`history.replaceState` plus a manual state update) for redirects and finished stories, so Back never replays a story.
 - Every route goes through `guardRoute`: unbuilt or broken levels, unknown stories and `after-<id>` for a level without a star go to the map. Built levels are always reachable by link, even when locked on the map.
 - A broken chapter file shows "DỮ LIỆU CHƯƠNG HỎNG". A broken level file shows as "TÍN HIỆU HỎNG" on the map.
@@ -100,10 +104,22 @@ One click on CHẠY flows through these stages:
 ### Storage boundary
 
 `src/storage/progress-repository.ts` defines the async `ProgressRepository` interface, which is the only door to persisted state:
-- The implementations are `localStorage` (versioned key `the-last-code:progress:v1`) and in-memory.
-- Seen stories: `getStory()` / `markStorySeen(id)`, stored as the optional `story: { seen }` field of `progress:v1` (no schema bump). Merging is a set union that never removes; a malformed field reads as empty and never touches stars. Unlocking has no stored state: it is derived from `bestStars`. The in-memory one is the "CHẾ ĐỘ KHÔNG LƯU" fallback for when storage is blocked.
+- The game uses `HttpProgressRepository` (`http-repository.ts`): built from one `GET /api/progress` snapshot and kept in memory, so reads never hit the network. Memory is the player's truth: writes merge into it with `mergeLevelProgress`/`mergeStory`, and every PUT is built at send time from memory with the level's whole state (stars, runs, hints always; the draft plus its edit-time `draftRev` until a 2xx confirms that revision). The server keeps MAX for counters and the highest `draftRev` for the draft (`level_progress.draft_rev`), so arrival order does not matter and any later success repairs an earlier failure. Answers only raise memory, never lower it. Draft-only changes go out at most every 10 s per level; other changes go at once; while the page is hidden, or on `visibilitychange`/`pagehide`, unconfirmed drafts go at once. Network errors and 5xx retry after 1, 3, 9 s, then `onPersistenceLost` ("CHẾ ĐỘ KHÔNG LƯU"); other 4xx count as lost at once; 401 fires `onSessionExpired` (the gate goes to `#/login`). Writes carry `x-tlc-user`; the server answers 409 if the session belongs to someone else. Sign-out flushes, waits up to 3 s, logs out, then `close()` stops every retry. `keepalive` only under 60 KB with no other keepalive request in flight.
+- Settings (mute) stay on the device: `createSettingsStore()` (`localStorage`, memory when blocked).
+- `localStorage` (`the-last-code:progress:v1`) and in-memory implementations remain. On entry `importLocalProgress` folds old local progress into the account (`POST /api/progress/import`) and removes only the progress key; network/5xx keeps it for next time, other 4xx drops it.
+- Seen stories: `getStory()` / `markStorySeen(id)`; merging is a set union that never removes. Unlocking has no stored state: it is derived from `bestStars`.
 - A test fails if anything outside `src/storage/` touches `localStorage`.
-- A future Supabase implementation replaces this module only.
+
+### Accounts and server
+
+- `src/account/account-gate.tsx` decides between account screens and the game: `GET /api/auth/me` → 401 shows the account screens (anything else redirects to `#/login`), network/5xx shows "KHÔNG KẾT NỐI ĐƯỢC MÁY CHỦ". Signed in, it imports old local progress, loads the snapshot and renders `Shell`. Account hashes (`src/account/auth-route.ts`): `#/login`, `#/register`, `#/forgot`, `#/account`, `#/activate/<token>`, `#/reset/<token>`; the game router reads them as unknown. Activate/reset screens take the token out of the address bar. Screens: `src/ui/account/`; copy in `account-errors.ts`; field rules shared with the server in `src/account/account-rules.ts`.
+- `server/router.ts` is the whole API (`createHandler(deps)` for tests, `handle` for Vercel). `api/index.ts` exports it (`vercel.json` rewrites every `/api/*` there; a `[...path]` file name is not routed outside Next.js); `server/vite-api-plugin.ts` serves it in `vite dev`/`preview` through `server/local-handler.ts` (loaded once with Vite's `runnerImport`, so every driver is imported statically there). Writes must be JSON (415 otherwise; with `SameSite=Lax` this is the CSRF guard); body limits in bytes (16/256/512 KB).
+- `server/auth/accounts.ts`: register, activate (`alreadyActive` on a reused link of an active account), resend, login, password reset by email; `md5(salt + password)` in `password.ts` (QĐ-07). Tokens, session ids: 32 random bytes, only SHA-256 stored. One-time token claims are an `UPDATE … RETURNING` and the dependent statements in the same batch are guarded by `changes() = 1` (or the fresh salt), never by timestamps. Rate limits (`rate-limit.ts`) count first, decide after, in one statement: 10 wrong logins per username lock it for 15 min from the tripping attempt, 1 mail/min and 5/day per address, 60 register/resend/forgot requests an hour per network (IPv4 address or IPv6 /64 from `x-forwarded-for`, counted whether or not the account exists), 450 mails/day overall of which first activation mails may use 300 (QĐ-14). `AUTH_RATE_LIMIT=off` drops only the per-address and per-network limits and only with `DB_DRIVER=sqlite`.
+- `server/db/`: `Db.batch(statements)` runs in one transaction. `SqliteDb` (`node:sqlite`) applies `db/migrations/*.sql` itself, tracked in `d1_migrations` like wrangler. `GatewayDb` posts to `workers/d1-gateway` (Bearer secret, max 64 statements / 512 KB). The Worker's entry module may export only handlers (workerd rejects other exports), so its logic lives in `gateway.ts`.
+- `server/config.ts` reads the environment once: `DB_DRIVER` (`gateway` default, `sqlite`), `D1_GATEWAY_URL`, `D1_GATEWAY_SECRET`, `SQLITE_PATH`, `MAIL_TRANSPORT` (`smtp` default, `outbox` only with sqlite), `OUTBOX_DIR`, `GMAIL_USER`, `GMAIL_APP_PASSWORD`, `APP_ORIGIN` (mail links; `https` turns on `Secure` cookies), `AUTH_RATE_LIMIT`. Missing values → 500 `server_misconfigured`, names logged.
+- Relative imports in `server/`, `api/` and the `src/` files the server uses must end in `.js` (Vercel does not add extensions); `server/imports.test.ts` enforces it and keeps those `src/` files free of other runtime imports. `server/client-bundle.test.ts` checks `dist/` holds no server code.
+- Server progress (`server/progress/progress-store.ts`) merges in SQL with the same rules as `mergeLevelProgress`; import only fills an empty draft (`COALESCE`). An account holds at most 100 level rows and 200 seen stories (413 `too_many_levels`).
+- Deploy steps: `docs/huong-dan-deploy.md`.
 
 ### UI, intro and audio
 

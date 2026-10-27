@@ -12,6 +12,9 @@ Thiết kế: `design/gdd.md`, mở đầu và chuyển cảnh: `design/gdd-mo-d
 
 ## Luồng chơi
 
+Phải đăng nhập mới chơi được: đăng ký bằng username, mật khẩu, email (`#/register`), bấm link kích hoạt
+trong thư, rồi đăng nhập (`#/login`). Tiến độ lưu theo tài khoản trên server.
+
 Màn tiêu đề (`#/`) → đoạn mở đầu (`#/story/prologue`) → level 1.1 (`#/level/1.1`, luôn qua màn
 "VÀO NHIỆM VỤ") → hộp kết quả **TIẾP TỤC** → chuyển cảnh (`#/story/after-1.1`) → level 1.2 →
 `#/story/after-1.2` → level 1.3 → `#/story/after-1.3` → level 1.4 → chuyển cảnh (`#/story/after-1.4`) → đoạn
@@ -28,6 +31,10 @@ npm install
 npm run dev                         # http://localhost:5173
 npm run build && npm run preview    # bản build tĩnh, http://localhost:4173
 ```
+
+Cả hai lệnh đều có sẵn API: tài khoản và tiến độ lưu trong SQLite ở `.data/dev.sqlite`, thư (kích
+hoạt, đặt lại mật khẩu) ghi thành file JSON trong `.data/outbox/`; mở file và chép `link` vào trình
+duyệt. Deploy lên Vercel + Cloudflare D1 + Gmail: `docs/huong-dan-deploy.md`.
 
 Lần mở đầu tiên cần mạng tới `cdn.jsdelivr.net` để tải Pyodide (~10 MB); các lần sau lấy từ
 cache trình duyệt. Âm thanh chỉ bật sau cú click hoặc phím đầu tiên; phím `M` tắt/bật tiếng ở mọi màn.
@@ -48,7 +55,8 @@ npm run test:safari    # Safari thật qua safaridriver (bật "Allow remote aut
 ## Trình duyệt hỗ trợ
 
 Chrome/Edge 80+, Firefox 114+, Safari 15+ (cần module Web Worker). Khi trình duyệt chặn
-`localStorage` (ẩn danh, chặn cookie) game vẫn chơi được ở "CHẾ ĐỘ KHÔNG LƯU".
+`localStorage`, cài đặt tắt tiếng chỉ giữ trong phiên, tiến độ vẫn lưu lên server. Khi không gửi được
+tiến độ lên server, game vẫn chơi được ở "CHẾ ĐỘ KHÔNG LƯU".
 
 ## Cấu trúc
 
@@ -57,5 +65,10 @@ Chrome/Edge 80+, Firefox 114+, Safari 15+ (cần module Web Worker). Khi trình 
 - `src/shell/` – định tuyến hash và ảnh chụp tiến độ cho vỏ game (`src/app.tsx`).
 - `src/engine/` – harness Python, worker Pyodide, `PyRunner` (timeout, dựng lại worker).
 - `src/game/` – chấm sao, phân loại kết quả, lời ECHO, vòng chơi.
-- `src/storage/` – nơi duy nhất đọc/ghi tiến độ (thay bằng Supabase sau này).
+- `src/storage/` – nơi duy nhất đọc/ghi tiến độ: `HttpProgressRepository` (server), gộp tiến độ cũ trên máy vào tài khoản.
+- `src/account/`, `src/ui/account/` – cổng đăng nhập (`AccountGate`), gọi API, các màn tài khoản.
+- `server/` – API (`router.ts`): tài khoản, phiên, gửi thư, tiến độ; driver CSDL (`node:sqlite` cục bộ, Worker cổng ở production).
+- `api/index.ts` – Vercel Function; `vercel.json` rewrite mọi `/api/*` vào đây, rồi chuyển cho `server/router.ts`.
+- `workers/d1-gateway/` – Cloudflare Worker gắn D1, chỉ nhận lô câu SQL có khóa bí mật.
+- `db/migrations/` – schema SQLite dùng chung cho D1 và SQLite cục bộ.
 - `src/ui/`, `src/audio/`, `src/styles/` – giao diện, mô phỏng máy quét, âm thanh Web Audio.

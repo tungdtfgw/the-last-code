@@ -289,10 +289,10 @@ Giảng viên có thể tự thêm level mới chỉ bằng cách soạn file JS
 | Đếm câu lệnh | `sys.settrace` trong Pyodide, kèm guard chèn vào AST để cắt vòng lặp vô hạn kể cả khi bị bọc trong `except:` |
 | Chặn vòng lặp / treo | Ngân sách câu lệnh + đồng hồ 5 giây cho mỗi lượt (cơ bản và phản công tách riêng); quá hạn thì khởi động lại worker |
 | Sandbox | Chặn import `js`, `os`, `sys`, `pyodide`… Người chơi vẫn có thể lách bằng kỹ thuật nâng cao, chấp nhận được vì chỉ tự gian lận chính mình; bảng xếp hạng sau này cần chấm điểm phía server |
-| Lưu tiến độ | `localStorage` qua một module lưu trữ duy nhất (có số phiên bản dữ liệu); bị chặn thì chơi được nhưng không lưu. Sau này thay bằng Supabase mà không sửa giao diện; lần đăng nhập đầu sẽ gộp tiến độ cũ, giữ số sao cao hơn |
+| Lưu tiến độ | Theo tài khoản trên server (Vercel + Cloudflare D1), qua một module lưu trữ duy nhất. Tiến độ cũ trong `localStorage` được gộp vào tài khoản ở lần vào game đầu, giữ số sao cao hơn, rồi xóa khỏi máy. Xem `docs/quyet-dinh-ky-thuat.md` |
 | Âm thanh | Web Audio API, tạo âm thanh bằng code (mục 4.6) |
 | Kiểm thử | Vitest, unittest Python, Playwright với Pyodide thật (Chromium, Firefox, Chromium giả lập điện thoại) |
-| Backend / CSDL (sau) | Supabase: tài khoản, tiến độ, sao, bảng xếp hạng |
+| Backend / CSDL | Vercel Functions + Cloudflare D1 (qua Worker cổng), thư qua Gmail SMTP: tài khoản kích hoạt qua email, tiến độ, sao. Bảng xếp hạng chưa làm. Xem `docs/quyet-dinh-ky-thuat.md` |
 | Dashboard giảng viên (sau) | Thống kê level sinh viên bị kẹt, khái niệm sai nhiều nhất |
 
 Trình duyệt mục tiêu của prototype: Chrome. Safari/iOS chưa được kiểm (xem nhật ký lỗi).
