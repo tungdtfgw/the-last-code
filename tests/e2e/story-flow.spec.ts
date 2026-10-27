@@ -2,7 +2,8 @@ import { expect, test, type Page } from "./fixtures";
 import { PYODIDE_MODULE_URL } from "../../src/engine/pyodide-config";
 import { SOLUTION_67, enterMission, replaceEditableCode, runAndWait, waitForPythonReady, continueFromResults } from "./helpers";
 
-// Game shell: title → prologue → level → transition → teaser → map, and direct links.
+// Game shell: title → prologue → level → transition → next level, and direct links.
+// The chapter's end (after-1.7 → teaser → map) is covered by level-1-7.spec.ts.
 
 type Probe = { event: string }[];
 const instrument = (page: Page) =>
@@ -27,7 +28,7 @@ test("new player: title → prologue → level gate → map, one AudioContext th
   await page.goto("/");
   await expect(page.getByRole("heading", { name: "MÃ CUỐI CÙNG" })).toBeVisible();
   await expect(page.getByRole("button", { name: "BẮT ĐẦU" })).toBeFocused();
-  await expect(page.getByText("Tiến độ lưu trên trình duyệt này.")).toBeVisible();
+  await expect(page.getByText("Đang chơi:")).toBeVisible();
   expect(await events(page)).toEqual([]);
 
   await page.getByRole("button", { name: "BẮT ĐẦU" }).click();
@@ -55,8 +56,12 @@ test("new player: title → prologue → level gate → map, one AudioContext th
   await expect(node(page, "1.2")).toContainText("Cần 1 sao ở 1.1");
   await expect(node(page, "1.3")).toContainText("Cần 1 sao ở 1.2");
   await expect(node(page, "1.4")).toContainText("Cần 1 sao ở 1.3");
-  await expect(node(page, "1.5")).toContainText("TÍN HIỆU ĐANG GIẢI MÃ");
-  await expect(node(page, "1.5")).toHaveAttribute("aria-disabled", "true");
+  await expect(node(page, "1.5")).toContainText("Cần 1 sao ở 1.4");
+  await expect(node(page, "1.6")).toContainText("Cần 1 sao ở 1.5");
+  await expect(node(page, "1.7")).toContainText("Cần 1 sao ở 1.6");
+  await expect(page.locator(".map-node")).toHaveCount(7);
+  await expect(page.getByText("TÍN HIỆU HỎNG")).toHaveCount(0);
+  await expect(page.getByTestId("chapter-stars")).toHaveText("0/21");
   await expect(page.getByRole("button", { name: "Mở đầu" })).toBeVisible();
 
   await page.goto("/");
@@ -75,7 +80,7 @@ test.describe("with Python", () => {
   });
   test.beforeEach(() => test.skip(!online, "SKIP: offline (không tải được Pyodide từ cdn.jsdelivr.net)"));
 
-  test("clearing 1.4 by link: results TIẾP TỤC → transition → teaser → map; title TIẾP TỤC then opens 1.1", async ({ page }) => {
+  test("clearing 1.4 by link: results TIẾP TỤC → transition → the 1.5 gate; map counts 3/21; title TIẾP TỤC then opens 1.1", async ({ page }) => {
     test.setTimeout(180_000);
     await startFromTitle(page);
     await page.keyboard.press("Escape");
@@ -96,18 +101,21 @@ test.describe("with Python", () => {
     await expect(page.locator(".story [aria-live]")).toHaveText("Cổng phía Bắc mở. Trong bộ nhớ chip còn sót một dòng log chưa bị xóa:");
     await page.keyboard.press("Escape");
 
-    await expect(page).toHaveURL(/#\/story\/teaser$/);
-    await expect(page.locator(".story [aria-live]")).toContainText("Cổng phía Bắc đóng lại sau lưng Kai.");
-    await page.keyboard.press("Escape");
-    const toMap = page.getByRole("button", { name: "VỀ BẢN ĐỒ" });
-    await expect(toMap).toBeFocused();
-    await page.keyboard.press("Enter");
+    // 1.4 is no longer the last level: its transition leads into 1.5.
+    await expect(page).toHaveURL(/#\/level\/1\.5$/);
+    await expect(page.getByRole("button", { name: "VÀO NHIỆM VỤ" })).toBeVisible();
 
+    await page.goto("/#/map");
     await expect(page).toHaveURL(/#\/map$/);
     await expect(node(page, "1.4").locator(".star-row")).toHaveAttribute("aria-label", "3 trên 3 sao");
     await expect(page.locator(".map-lore")).toContainText("KTS-03");
-    await expect(page.getByTestId("chapter-stars")).toHaveText("3/12");
-    for (const label of ["Mở đầu", "Sau 1.4", "Còn tiếp"]) await expect(page.getByRole("button", { name: label })).toBeVisible();
+    await expect(page.getByTestId("chapter-stars")).toHaveText("3/21");
+    // 1.5 opens with the star on 1.4; 1.1 (no star yet) stays the "TIẾP THEO" node.
+    await expect(node(page, "1.5")).not.toHaveAttribute("aria-disabled", "true");
+    await expect(node(page, "1.5")).not.toContainText("Cần 1 sao");
+    await expect(node(page, "1.6")).toContainText("Cần 1 sao ở 1.5");
+    for (const label of ["Mở đầu", "Sau 1.4"]) await expect(page.getByRole("button", { name: label })).toBeVisible();
+    await expect(page.getByRole("button", { name: "Hết chương 1" })).toHaveCount(0);
 
     // 1.1 still has no star: the title screen continues there (its lead-in, the prologue, was seen).
     await page.goto("/");
@@ -126,11 +134,16 @@ test("direct links: story gate before any gesture; unbuilt levels and unearned t
   await expect(page.getByRole("button", { name: /BỎ QUA/ })).toBeVisible();
   await expect.poll(() => events(page)).toContain("context");
 
-  await page.goto("/#/level/1.5");
+  // No level of the chapter is unbuilt any more: an id outside it stands in.
+  await page.goto("/#/level/2.1");
+  await expect(page).toHaveURL(/#\/map$/);
+  await page.goto("/#/story/teaser");
   await expect(page).toHaveURL(/#\/map$/);
   await page.goto("/#/story/after-1.4");
   await expect(page).toHaveURL(/#\/map$/);
   await page.goto("/#/level/1.4");
+  await expect(page.getByRole("button", { name: "VÀO NHIỆM VỤ" })).toBeVisible();
+  await page.goto("/#/level/1.7");
   await expect(page.getByRole("button", { name: "VÀO NHIỆM VỤ" })).toBeVisible();
   // A malformed escape is an unknown hash: title screen, not a crash.
   await page.goto("/#/story/%E0");

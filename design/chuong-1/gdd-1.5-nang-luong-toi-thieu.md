@@ -56,8 +56,8 @@ Dòng 2–5 khóa; bốn biến được engine nạp sẵn dưới dạng số 
 | Dòng | Lỗi | Python cho ra | Bài học |
 |---|---|---|---|
 | 8 | `^` thay cho lũy thừa | `-106` (`^` là phép XOR bit và có độ ưu tiên thấp nhất: Python tính `(6 * 12) ^ (2 - 36)`) | Ký hiệu toán quen tay không phải toán tử Python. Lũy thừa là `**`, và `**` tính trước `*` |
-| 10 | `/` thay cho chia lấy phần nguyên | `-1.06`, một số thực | `/` luôn trả số thực, kể cả khi chia hết |
-| 11 | Trừ sai thứ | `0.0` | Phần lẻ là số dư của phép chia, `%` |
+| 11 | `/` thay cho chia lấy phần nguyên | `-1.06`, một số thực | `/` luôn trả số thực, kể cả khi chia hết |
+| 12 | Trừ sai thứ: lấy năng lượng trừ số pin | `-104.94` (vẫn là số thực, vì `so_pin` đã là số thực) | Phần lẻ là số dư của phép chia, `%` |
 
 Lượt chạy 1 cho năng lượng âm: mô phỏng vẽ kim đồng hồ quay ngược, rất dễ thấy là sai mà chưa cần đọc code.
 
@@ -138,7 +138,7 @@ Câu chữ: `hints`, `reactions`, `reaction_variants` (D1, `level:1.5`).
 | Khóa | Ý đồ |
 |---|---|
 | `entry` | Đặt cảnh: Vành Đai Điện, rào chỉ tắt khi nhận đúng lượng năng lượng; bảo chạy một lần và nhìn đồng hồ |
-| `wrong_value` (thường gặp sau khi sửa dòng 10, năng lượng vẫn âm) | Đồng hồ đọc được một con số mà không rào nào cần; một ký hiệu trên dòng tính `{vars}` không phải phép tính người viết định làm |
+| `wrong_value` (thường gặp sau khi sửa dòng 11, năng lượng vẫn âm) | Đồng hồ đọc được một con số mà không rào nào cần; một ký hiệu trên dòng tính `{vars}` không phải phép tính người viết định làm |
 | `type_mismatch` (code gốc) | Pin ở dạng số lẻ thập phân; giá pin chỉ nhận pin nguyên |
 | `type_mismatch_value_match` | Con số đúng mà hình dạng sai (ví dụ `8.0`): giá pin vẫn từ chối |
 | `TypeError`, `ZeroDivisionError`, `NameError` | Nói lỗi bằng từ ngữ của đồng hồ và pin |
@@ -167,7 +167,7 @@ Không đổi `compute-stars.ts`.
 1. Vào màn, briefing gõ chữ, ba mục tiêu khóa vào, ECHO nói `entry`.
 2. **Lượt 1, code gốc:** kim quay ngược, `nang_luong: int -106`, hai pin tím bị cắt. Khóa `type_mismatch` (sai hình dạng đứng trước sai giá trị) cho `so_pin`, `phan_le`.
 3. **Rẽ sai thường gặp:**
-   - Sửa dòng 10 thành `round(...)` hoặc `int(...)`: giá nhận pin, nhưng năng lượng vẫn âm → `wrong_value`.
+   - Sửa dòng 11 thành `round(...)` hoặc `int(...)`: giá nhận pin, nhưng năng lượng vẫn âm → `wrong_value`.
    - Sửa `^` thành `* 2`: `108`, rào thiếu 720 đơn vị.
    - `(so_doan * dien_ap) ** 2 - du_tru`: `5148`, rào phóng điện vì thừa. Bài học thứ tự tính.
    - `phan_le = nang_luong / dung_luong`: số thực, sai hình dạng.

@@ -307,7 +307,7 @@ Trình duyệt mục tiêu của prototype: Chrome. Safari/iOS chưa được ki
 - [x] Đặc tả chi tiết Boss 1.7 – Cổng Kiểm Soát và đoạn hết Chương 1 (28/10/2026)
 - [x] Đặc tả mở đầu game, chuyển cảnh và level 1.1–1.3 (25/10/2026)
 - [x] Đặc tả các level 1.5–1.6 (28/10/2026)
-- [ ] Dựng level 1.5–1.7 theo `docs/hop-dong-engine-level-1-5-den-1-7.md`
+- [x] Dựng level 1.5–1.7 và đoạn hết Chương 1 theo `docs/hop-dong-engine-level-1-5-den-1-7.md` (28/10/2026)
 - [ ] Phác thảo chương 2–8 ở mức level
 - [ ] Thiết kế hồ sơ 8 Kiến Trúc Sư (tên, khu vực, nhật ký)
 - [ ] Thiết kế cơ chế ghép kill switch ở Boss cuối
