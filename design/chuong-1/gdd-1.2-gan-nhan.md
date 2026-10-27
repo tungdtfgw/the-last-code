@@ -1,11 +1,11 @@
 # Level 1.2 – "Gán nhãn"
 
 > Chương 1 – Vùng Tối · Độ khó: Easy · Khái niệm: biến, phép gán, gán lại
-> Dữ liệu chơi: `src/levels/level-1-2.json`. Mọi câu chữ người chơi đọc nằm trong file này; GDD chỉ ghi ý đồ (xem `design/quyet-dinh/nguon-duy-nhat-cho-cau-chu.md`). Thiết kế tổng: `design/gdd.md`. Trục truyện: `design/gdd-mo-dau.md` mục 6.2. Brainstorm: `design/quyet-dinh/level-1-2-gan-nhan.md`.
+> Câu đố: `src/levels/level-1-2.json`. Câu chữ người chơi đọc: tài liệu `level:1.2` ở D1 (câu ban đầu trong `db/migrations/0004_content_chapter_1.sql`, sửa trên `#/admin`); GDD chỉ ghi ý đồ (xem `design/quyet-dinh/nguon-duy-nhat-cho-cau-chu.md`). Thiết kế tổng: `design/gdd.md`. Trục truyện: `design/gdd-mo-dau.md` mục 6.2. Brainstorm: `design/quyet-dinh/level-1-2-gan-nhan.md`.
 
 ## 1. Briefing
 
-Câu chữ: `briefing` và `location` trong JSON.
+Câu chữ: `briefing` và `location` (D1, `level:1.2`).
 
 Briefing nối thẳng từ thẻ 0xA7 cuối 1.1 (muốn qua Cổng phía Bắc cần một danh tính, chuẩn bị bộ nhớ). Nó là nhật ký hệ thống của Trạm Phát Khẩu Phần số 4, không phải lời ECHO. Nó phải cho người chơi biết, theo thứ tự:
 
@@ -69,7 +69,7 @@ Bộ đệm được engine nạp sẵn; dòng 2–5 chỉ để hiển thị v�
 
 Tất cả kiểu `str`, so đúng từng ký tự sau khi chuẩn hóa NFC (xem `docs/hop-dong-engine-level-1-1-den-1-3.md` mục 3).
 
-Nhãn hiển thị: `objectives[].label` trong JSON. Nhãn nói ô nào giữ gì, không ghi giá trị. Nhãn `ma_khu` và hai thiết bị phải nói rõ là mã mới, sau khi đổi; nhãn `khu_cu` nói là mã cũ, trước khi đổi, để thứ tự gán lại hiện ngay trong ô Mục tiêu.
+Nhãn hiển thị: `objectives[].label` (D1, `level:1.2`). Nhãn nói ô nào giữ gì, không ghi giá trị. Nhãn `ma_khu` và hai thiết bị phải nói rõ là mã mới, sau khi đổi; nhãn `khu_cu` nói là mã cũ, trước khi đổi, để thứ tự gán lại hiện ngay trong ô Mục tiêu.
 
 | Biến | Ô giữ gì | Với dữ liệu trên |
 |---|---|---|
@@ -127,7 +127,7 @@ Cách viết khác cũng được 3 sao: `khu_cu = goi_2` rồi `ma_khu = goi_4`
 
 ## 7. OMNI phản công (sao thứ 3)
 
-Dòng cảnh báo là `counter_attack_banner` trong JSON: OMNI gửi hồ sơ kiểm tra vào bộ đệm. Ngay sau đó terminal hiện bộ đệm mới:
+Dòng cảnh báo là `counter_attack_banner` (D1, `level:1.2`): OMNI gửi hồ sơ kiểm tra vào bộ đệm. Ngay sau đó terminal hiện bộ đệm mới:
 
 ```
 > goi_1 = "LÊ VĂN TỊNH"   goi_2 = "K-31"   goi_3 = "LT-0093"   goi_4 = "K-02"
@@ -164,7 +164,7 @@ Thành phần mới `kiosk` (không phải biến thể máy quét: máy quét c
 
 ## 9. Gợi ý
 
-Câu chữ: `hints` trong JSON (mở dần, không bị kiểm từ cấm). Gợi ý 1 và 2 nói bằng từ ngữ của ki-ốt và bộ đệm; gợi ý 3 là "mảnh tài liệu Python còn đọc được".
+Câu chữ: `hints` (D1, `level:1.2`) (mở dần, không bị kiểm từ cấm). Gợi ý 1 và 2 nói bằng từ ngữ của ki-ốt và bộ đệm; gợi ý 3 là "mảnh tài liệu Python còn đọc được".
 
 | Mức | Ý đồ |
 |---|---|
@@ -174,7 +174,7 @@ Câu chữ: `hints` trong JSON (mở dần, không bị kiểm từ cấm). Gợ
 
 ## 10. Phản ứng của ECHO
 
-Câu chữ: `reactions` và `reaction_variants` trong JSON.
+Câu chữ: `reactions` và `reaction_variants` (D1, `level:1.2`).
 
 Giọng ECHO: cụt, dùng từ ngữ của ki-ốt (ô nhớ, nhãn, bộ đệm, hồ sơ, drone), chỉ chỗ nhìn, không bao giờ nói cách sửa hay giá trị đúng. Kiểu sai được gọi là "không phải chữ" (chưa dùng "hình dạng", bắt đầu từ 1.3).
 
@@ -210,7 +210,7 @@ Khóa `value_overwritten` thay `wrong_value` khi **mọi** biến sai giá trị
 
 ## 12. Đoạn truyện khi hoàn thành
 
-Câu chữ: `outro`, `lore_fragment`, `component`, `outro_beats` trong JSON.
+Câu chữ: `outro`, `lore_fragment`, `component`, `outro_beats` (D1, `level:1.2`).
 
 - **Đoạn kết (`outro`):** ki-ốt nhận hồ sơ (nêu tên ĐỖ MINH AN); trong nhật ký quản trị của nó có một dòng không thuộc về OMNI, dẫn vào mảnh nhật ký.
 - **Mảnh nhật ký (`lore_fragment`), KTS-05:** người viết là người thiết kế Neural-ID. Tái định hướng chỉ là một phép gán lại: cái tên giữ nguyên, giá trị bị thay. Họ chưa tìm ra cách lấy lại giá trị cũ, nhưng giá trị đó không bị xóa ngay.
@@ -275,13 +275,13 @@ Câu chữ: `outro`, `lore_fragment`, `component`, `outro_beats` trong JSON.
 
 ## 16. Dữ liệu level
 
-Dữ liệu chơi nằm ở `src/levels/level-1-2.json` và là nguồn đúng duy nhất, kể cả mọi câu chữ người chơi đọc. Bản nháp JSON và các câu chép nguyên văn từng nằm ở đây đã bỏ vì chúng lệch dần với file thật (27/10/2026). Văn bản người chơi đọc được rà lại ngày 25/10/2026.
+Câu đố nằm ở `src/levels/level-1-2.json`; câu chữ người chơi đọc nằm ở D1 (tài liệu `level:1.2`), không còn nằm trong file JSON (28/10/2026, QĐ-16). Hai chỗ đó là nguồn đúng duy nhất. Bản nháp JSON và các câu chép nguyên văn từng nằm ở đây đã bỏ vì chúng lệch dần với file thật (27/10/2026). Văn bản người chơi đọc được rà lại ngày 25/10/2026.
 
 Ghi chú về dữ liệu: `simulation` là `{"kind": "kiosk", "devices": ["the_quet", "the_cong"]}`; bốn biến đầu vào `goi_1`…`goi_4` nằm ở dòng khóa 2–5; `alert_limit_statements` là 11. Code khởi đầu và hai lời giải ở mục 6 đã chạy qua `harness.py` bằng `python3`, và lời ECHO đã qua kiểm chống lộ.
 
 ## 17. Việc cần làm (`task_steps`)
 
-Câu chữ: `task_steps` trong JSON (4 bước).
+Câu chữ: `task_steps` (D1, `level:1.2`) (4 bước).
 
 "Việc cần làm" nối vào tin nhắn "Vào nhiệm vụ" đầu tiên của ECHO trong chat. Giọng hướng dẫn, lời thường, chủ ngữ là người chơi; không chứa giá trị kỳ vọng nào (validator kiểm). Bốn bước lần lượt nói:
 
@@ -294,7 +294,7 @@ Bước 1 nói "tên gói" mà không nêu `goi_x` nào; bước 2 và 3 nói th
 
 ## 18. Tổng kết kiến thức (`knowledge_summary`)
 
-Câu chữ: `knowledge_summary` trong JSON.
+Câu chữ: `knowledge_summary` (D1, `level:1.2`).
 
 Mở sau khi qua level (≥ 1 sao), xem lại được từ Bản đồ. Giọng kỹ thuật, không có ECHO, không từ ngữ game. Mọi ví dụ khác đáp án của level; mọi `code` trong mục được chạy bằng `python3` trong `tests/integration/knowledge-summary.test.ts` và phải in đúng `output`.
 

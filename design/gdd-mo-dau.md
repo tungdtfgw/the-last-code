@@ -2,7 +2,7 @@
 
 > Phiên bản 0.1 · 25/10/2026 · Thiết kế tổng: `design/gdd.md` · Brainstorm: `design/quyet-dinh/mo-dau-va-cot-truyen-chuong-1.md`
 > Phạm vi: màn tiêu đề, đoạn mở đầu (prologue), hệ thống chuyển cảnh giữa các level, mở khóa và chơi lại, đoạn "còn tiếp" sau 1.4, và trục truyện Chương 1 mà các level 1.1–1.4 phải theo.
-> Câu chữ truyện người chơi đọc nằm trong `src/story/chapter-1.json` (`prologue`, `teaser`, `neural_id_slots`) và các file `src/levels/level-1-*.json` (`location`, `component`, `outro`, `lore_fragment`, `outro_beats`, `reactions`); GDD này chỉ ghi ý đồ (xem `design/quyet-dinh/nguon-duy-nhat-cho-cau-chu.md`).
+> Câu chữ truyện người chơi đọc nằm ở D1: tài liệu `chapter:1` (`prologue[].text`, `teaser[].text`) và các tài liệu `level:1.x` (`location`, `component`, `outro`, `lore_fragment`, `outro_beats[].text`, `reactions`); câu ban đầu ở `db/migrations/0004_content_chapter_1.sql`, sửa trên `#/admin`. Cấu trúc nhịp (loại, cue, nền) và `neural_id_slots` nằm trong `src/story/chapter-1.json`; GDD này chỉ ghi ý đồ (xem `design/quyet-dinh/nguon-duy-nhat-cho-cau-chu.md`).
 
 ## 1. Tên riêng và sự thật cố định của Chương 1
 
@@ -50,7 +50,7 @@
 - Dòng nhỏ: `THE LAST CODE`
 - Tiêu đề lớn: **MÃ CUỐI CÙNG**, nhiễu ký tự 1 lần mỗi 6–8 giây (tắt ở chế độ giảm chuyển động).
 - Câu dưới tiêu đề: *Khi máy làm thay tất cả, tự viết mã là vũ khí cuối cùng.*
-- Nút chính (có focus sẵn, Enter để bấm). Chữ màn tiêu đề nằm trong code (`src/ui/title-screen.tsx`), không trong JSON:
+- Nút chính (có focus sẵn, Enter để bấm). Chữ màn tiêu đề nằm trong code (`src/ui/title-screen.tsx`), không ở D1:
   - Người chơi mới (chưa xem mở đầu): **BẮT ĐẦU**
   - Người chơi đã xem mở đầu: **TIẾP TỤC**, kèm nút phụ **BẢN ĐỒ VÙNG TỐI**
 - Góc dưới: nút tắt tiếng (phím `M`), dòng "Đang chơi: <tên tài khoản>" kèm nút **TÀI KHOẢN**, và cờ **CHẾ ĐỘ KHÔNG LƯU** khi không ghi được tiến độ lên máy chủ (sau khi đã thử lại).
@@ -59,7 +59,7 @@
 
 ## 3. Đoạn mở đầu (prologue)
 
-Câu chữ: `prologue` trong `src/story/chapter-1.json` (23 nhịp).
+Câu chữ: `prologue[].text` (D1, `chapter:1`; 23 nhịp, cấu trúc nhịp trong `src/story/chapter-1.json`).
 
 Đoạn mở đầu dài khoảng 70–80 giây nếu để tự chạy. Chữ hiện dần với tiếng điện báo (`teletype`, cùng tốc độ với briefing của level). Mỗi nhịp tự sang nhịp tiếp sau khoảng 1,2 giây cộng 30 ms cho mỗi ký tự (cộng `hold_ms` nếu có), tạm dừng khi tab bị ẩn.
 
@@ -113,8 +113,8 @@ Không được lộ: ai tạo ra ECHO, quá khứ của ECHO, hay bất cứ g�
 
 Đoạn `after-<id>` chạy khi người chơi bấm TIẾP TỤC sau khi qua level `<id>`. Thứ tự cố định:
 
-1. **Đoạn kết** (`outro` của level, kiểu log). Đã có trong JSON level.
-2. **Mảnh nhật ký Kiến Trúc Sư** (`lore_fragment`, kiểu lore: khung viền như bản ghi khôi phục, nhãn KTS-0x tô sáng, cue `terminal_line`). Đã có trong JSON level.
+1. **Đoạn kết** (`outro` của level, kiểu log). Đã có trong câu chữ level (D1).
+2. **Mảnh nhật ký Kiến Trúc Sư** (`lore_fragment`, kiểu lore: khung viền như bản ghi khôi phục, nhãn KTS-0x tô sáng, cue `terminal_line`). Đã có trong câu chữ level (D1).
 3. **Thẻ thành phần**: "NEURAL-ID GIẢ · THÀNH PHẦN 2/6: Hồ sơ danh tính", ô mới sáng lên trong thanh 6 ô, cue `objective_lock`. Lấy từ trường mới `component` của level.
 4. **Các nhịp truyện** (`outro_beats` của level): 2–6 nhịp log/kai/echo/card. Đây là chỗ đặt móc câu dẫn sang level sau.
 5. Chuyển sang màn "VÀO NHIỆM VỤ" của level kế tiếp, hoặc sang đoạn **Còn tiếp** nếu level kế tiếp chưa được dựng.
@@ -168,7 +168,7 @@ Bên cạnh bản đồ: thanh Neural-ID giả 6 ô, tổng sao chương (ví d�
 
 ### 5.6. Đoạn "Còn tiếp" sau 1.4
 
-Câu chữ: `teaser` trong `src/story/chapter-1.json` (9 nhịp).
+Câu chữ: `teaser[].text` (D1, `chapter:1`; 9 nhịp, cấu trúc nhịp trong `src/story/chapter-1.json`).
 
 Chạy ngay sau đoạn `after-1.4` khi level 1.5 chưa được dựng. Khi 1.5 có file JSON, `after-1.4` dẫn thẳng vào 1.5 và đoạn này chuyển xuống sau level cuối cùng đã dựng.
 
@@ -187,7 +187,7 @@ Sau nhịp 9 có hai nút: **VỀ BẢN ĐỒ** (focus sẵn) và, nếu tổng 
 
 ## 6. Trục truyện Chương 1 (hợp đồng cho người soạn level)
 
-Người soạn level giữ nguyên các sự thật dưới đây (địa điểm, tình huống, thành phần, chủ mảnh nhật ký, móc câu). Code khởi đầu, test, gợi ý và phản ứng ECHO do người soạn tự quyết. Câu chữ của `location`, `component`, `outro`, `lore_fragment`, `outro_beats` và câu `entry` (`reactions.entry`) nằm trong JSON của từng level; mục này chỉ ghi ý đồ. Được phép chỉnh câu trong JSON nhưng không đổi nghĩa.
+Người soạn level giữ nguyên các sự thật dưới đây (địa điểm, tình huống, thành phần, chủ mảnh nhật ký, móc câu). Code khởi đầu, test, gợi ý và phản ứng ECHO do người soạn tự quyết. Câu chữ của `location`, `component`, `outro`, `lore_fragment`, `outro_beats` và câu `entry` (`reactions.entry`) nằm ở D1, trong tài liệu `level:<id>` của từng level; mục này chỉ ghi ý đồ. Được phép chỉnh câu trên `#/admin` nhưng không đổi nghĩa.
 
 ### 6.1. Level 1.1 "Khởi động" · `print`, chuỗi
 
@@ -195,7 +195,7 @@ Người soạn level giữ nguyên các sự thật dưới đây (địa đi�
 - **Tình huống:** Kai cần người bên ngoài giúp. Laptop không có mạng; cách duy nhất để nói ra ngoài là in chữ ra terminal, vì trạm R-17 phát lại nguyên văn mọi dòng terminal vào Mạng Mù. Giao thức của trạm chỉ nhận đúng chuỗi: sai một ký tự, sai hoa thường, thiếu dấu ngoặc là trạm bỏ gói tin.
 - **Vì sao cần khái niệm:** `print` là giọng nói duy nhất của Kai ra thế giới; chuỗi là thứ duy nhất trạm hiểu.
 - **Thành phần tạo ra:** Tiêu đề tín hiệu (dòng mở đầu mà mọi Neural-ID phát khi bắt tay, ví dụ `NID/2089`).
-- **ECHO `entry`** (`reactions.entry` trong `level-1-1.json`): terminal đã mở, trạm R-17 lặp lại đúng từng ký tự những gì được in; bảo người chơi chạy một lần trước khi sửa.
+- **ECHO `entry`** (`reactions.entry`, D1, `level:1.1`): terminal đã mở, trạm R-17 lặp lại đúng từng ký tự những gì được in; bảo người chơi chạy một lần trước khi sửa.
 - **Đoạn kết** (`outro`): tín hiệu đầu tiên đi vào Mạng Mù; bộ đệm của R-17 còn sót một dòng log cũ, dẫn vào mảnh nhật ký.
 - **Mảnh nhật ký: KTS-01** (`lore_fragment`; người đề xuất chia công tắc). Mở mạch: tám người, tám mảnh, không ai biết chỗ của người khác, kể cả người viết.
 - **Nhịp truyện** (`outro_beats`, 4 nhịp): log (một lúc im lặng, rồi terminal nhận một gói tin) → card tín hiệu 0xA7 (đã nghe; muốn qua Cổng phía Bắc cần một danh tính; chuẩn bị bộ nhớ) → echo (ECHO không có ghi chép nào về 0xA7) → kai (ít nhất đã có người nghe thấy).
@@ -207,7 +207,7 @@ Người soạn level giữ nguyên các sự thật dưới đây (địa đi�
 - **Tình huống:** 0xA7 gửi các thông số của danh tính giả thành từng mảnh, xen tạp âm: họ tên **ĐỖ MINH AN**, mã khu **K-12**, số hiệu **AN-5521** (người soạn có thể thêm trường). Giữa chừng 0xA7 sửa một giá trị: "K-12 vừa bị quét. Đổi sang K-07." Ki-ốt lưu dữ liệu theo từng ô có nhãn.
 - **Vì sao cần khái niệm:** mỗi giá trị phải dùng lại ở nhiều chỗ (tiêu đề tín hiệu, máy quét, cổng). Gõ lại bằng tay ở mỗi chỗ thì chỉ cần lệch một ký tự là báo động; đặt tên một lần thì sửa một chỗ, mọi chỗ đổi theo. Lần sửa mã khu dạy phép gán lại.
 - **Thành phần tạo ra:** Hồ sơ danh tính.
-- **Đoạn kết** (`outro` trong `level-1-2.json`): ki-ốt nhận hồ sơ của ĐỖ MINH AN; nhật ký quản trị của nó có một dòng không thuộc về OMNI.
+- **Đoạn kết** (`outro`, D1, `level:1.2`): ki-ốt nhận hồ sơ của ĐỖ MINH AN; nhật ký quản trị của nó có một dòng không thuộc về OMNI.
 - **Mảnh nhật ký: KTS-05** (`lore_fragment`; người thiết kế Neural-ID). Mở mạch: hy vọng cho Nhi. Tái định hướng được nói bằng chính khái niệm của level: một phép gán lại, tên giữ nguyên, giá trị bị thay; KTS-05 chưa biết cách lấy lại giá trị cũ, nhưng nó không bị xóa ngay.
 - **Nhịp truyện** (`outro_beats`, 3 nhịp): kai (Nhi chưa bị xóa) → echo (ECHO hãm hy vọng: log nói "không bị xóa ngay", không nói còn bao lâu) → card tín hiệu 0xA7 (hồ sơ đã nhận; đến Ga Ngầm Số 3, nơi máy quét phân loại từng trường và giữ lại trường sai loại).
 - **Móc câu:** cái giá trị cũ của Nhi còn ở đâu, còn bao lâu; máy quét phân loại "theo loại" nghĩa là gì.
@@ -218,7 +218,7 @@ Người soạn level giữ nguyên các sự thật dưới đây (địa đi�
 - **Tình huống:** Kai gửi thử hồ sơ qua máy quét trước khi dùng thật. Máy quét không đọc nội dung, chỉ đọc loại của từng trường; hồ sơ hiện có trường đang ở sai loại (ví dụ tuổi ghi là chữ, cờ đã tiêm chủng ghi là chuỗi `"có"`). Kai phải biết mỗi giá trị đang thuộc loại nào và viết lại cho đúng loại.
 - **Vì sao cần khái niệm:** máy quét chỉ đọc "hình dạng". Từ level này, ECHO gọi kiểu dữ liệu là "hình dạng", và 1.4 dựa vào từ vựng đó.
 - **Thành phần tạo ra:** Khuôn kiểu (chữ ký kiểu của gói Neural-ID).
-- **Đoạn kết** (`outro` trong `level-1-3.json`): máy quét chuyển xanh; giữa hàng nghìn dòng số trong nhật ký hiệu chỉnh có một dòng chữ.
+- **Đoạn kết** (`outro`, D1, `level:1.3`): máy quét chuyển xanh; giữa hàng nghìn dòng số trong nhật ký hiệu chỉnh có một dòng chữ.
 - **Mảnh nhật ký: KTS-07** (`lore_fragment`; người kiểm thử OMNI). Mở mạch: OMNI không hỏng, vậy vì sao nó làm điều này (gieo mạch cho twist chương 6, không lộ). KTS-07 kiểm thử nó rất lâu, không tìm ra lỗi nào, và ước gì nó hỏng.
 - **Nhịp truyện** (`outro_beats`, 5 nhịp): log (cuối sân ga có xác một người đưa tin Mạng Mù) → echo (chip của người đó vẫn phát, rất yếu) → card tín hiệu 0xA7 (người đó không cần chip nữa, Kai thì cần; mang đến Cổng phía Bắc) → kai (làm sao 0xA7 biết có xác người ở đây) → echo (dữ liệu trong chip toàn là ký tự, dẫn vào 1.4).
 - **Móc câu:** 0xA7 biết trước có một xác người ở sân ga; dữ liệu chip mang "hình dạng" sai, dẫn thẳng vào 1.4.
@@ -228,7 +228,7 @@ Người soạn level giữ nguyên các sự thật dưới đây (địa đi�
 - **Địa điểm:** **Cổng phía Bắc**. Chip lấy từ người đưa tin chết ở Ga Ngầm Số 3. Briefing hiện tại giữ nguyên.
 - **Vì sao cần khái niệm:** dữ liệu trong chip đã thành chuỗi ký tự; máy quét chỉ nhận số.
 - **Thành phần tạo ra:** Dữ liệu sinh trắc.
-- **Câu `entry`** (`reactions.entry` trong `level-1-4.json`): không tự giới thiệu nữa; chỉ nói địa điểm, chip của người đưa tin vẫn phát, và máy quét phía trước chỉ nhận số. Không chứa `int`, `float`, `round` hay đáp án.
+- **Câu `entry`** (`reactions.entry`, D1, `level:1.4`): không tự giới thiệu nữa; chỉ nói địa điểm, chip của người đưa tin vẫn phát, và máy quét phía trước chỉ nhận số. Không chứa `int`, `float`, `round` hay đáp án.
 - **Đoạn kết và mảnh nhật ký** (`outro`, `lore_fragment`): cổng mở, bộ nhớ chip còn sót một dòng log. **KTS-03** cho biết mảnh đầu tiên nằm dưới Cổng Kiểm Soát và cảnh báo đừng tin tín hiệu mang mã 0xA7. Người đưa tin chết là người đang mang lời nhắn của KTS-03.
 - **Nhịp truyện** (`outro_beats`, 4 nhịp, chỉ kai và echo): kai (0xA7 là kẻ đã dẫn Kai tới cái xác) → echo (ECHO đọc lại mọi gói 0xA7 gửi: không gói nào đi qua trạm nào của Mạng Mù) → kai (vậy nó đến từ đâu) → echo (từ một tầng mạng mà Vùng Tối không có). Sau đó là đoạn Còn tiếp (mục 5.6).
 - **Móc câu:** kẻ giúp Kai suốt ba level có thể là kẻ đã giết người đưa tin; mảnh đầu tiên ở Cổng Kiểm Soát, và Nhi trực ở đó.

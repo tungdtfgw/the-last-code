@@ -1,12 +1,12 @@
 # Level 1.1 – "Khởi động"
 
 > Chương 1 – Vùng Tối · Độ khó: Easy · Khái niệm: `print`, chuỗi
-> Dữ liệu chơi: `src/levels/level-1-1.json`. Mọi câu chữ người chơi đọc nằm trong file này; GDD chỉ ghi ý đồ (xem `design/quyet-dinh/nguon-duy-nhat-cho-cau-chu.md`). Thiết kế tổng: `design/gdd.md`. Hợp đồng truyện: `design/gdd-mo-dau.md` mục 6.1. Brainstorm: `design/quyet-dinh/level-1-1-khoi-dong.md`.
+> Câu đố: `src/levels/level-1-1.json`. Câu chữ người chơi đọc: tài liệu `level:1.1` ở D1 (câu ban đầu trong `db/migrations/0004_content_chapter_1.sql`, sửa trên `#/admin`); GDD chỉ ghi ý đồ (xem `design/quyet-dinh/nguon-duy-nhat-cho-cau-chu.md`). Thiết kế tổng: `design/gdd.md`. Hợp đồng truyện: `design/gdd-mo-dau.md` mục 6.1. Brainstorm: `design/quyet-dinh/level-1-1-khoi-dong.md`.
 > Với phần lớn người chơi, đây là dòng code đầu tiên họ viết.
 
 ## 1. Briefing
 
-Câu chữ: `briefing` và `location` trong JSON.
+Câu chữ: `briefing` và `location` (D1, `level:1.1`).
 
 Briefing là nhật ký hệ thống của tầng hầm Lô 17, không phải lời ECHO. Nó phải cho người chơi biết, theo thứ tự:
 
@@ -19,7 +19,7 @@ Briefing là nhật ký hệ thống của tầng hầm Lô 17, không phải l�
 
 ### 1.1. Việc cần làm (`task_steps`)
 
-Câu chữ: `task_steps` trong JSON (4 bước).
+Câu chữ: `task_steps` (D1, `level:1.1`) (4 bước).
 
 "Việc cần làm" được nối vào tin nhắn "Vào nhiệm vụ" đầu tiên của ECHO trong khung chat. Nó viết bằng lời thường, chủ ngữ là người chơi. Nó nói sửa gì và khi nào là xong, không nói cách sửa, không chứa dòng đầu ra mong đợi (validator kiểm). Bốn bước lần lượt nói:
 
@@ -59,7 +59,7 @@ Dòng 3 là dòng khóa; `ma_phien` được engine nạp sẵn. Ba lệnh in, m
 
 ## 4. Mục tiêu
 
-Nhãn hiển thị: `objectives[].label` trong JSON. Nhãn không có tiền tố "Dòng n ·", vì chip bên phải mỗi mục đã ghi "dòng n". Nhãn dòng 2 mô tả cách dựng dòng, không ghi mã phiên.
+Nhãn hiển thị: `objectives[].label` (D1, `level:1.1`). Nhãn không có tiền tố "Dòng n ·", vì chip bên phải mỗi mục đã ghi "dòng n". Nhãn dòng 2 mô tả cách dựng dòng, không ghi mã phiên.
 
 Đầu ra mong đợi (đặc tả, cũng nằm trong `tests[].expected_output`):
 
@@ -111,7 +111,7 @@ print("LO17 CAN LIEN LAC")
 
 ## 7. OMNI phản công (sao thứ 3)
 
-Dòng cảnh báo là `counter_attack_banner` trong JSON: OMNI quét lưới điện và trạm R-17 khởi động lại. Ngay sau đó terminal hiện giá trị mới `ma_phien = "M4X8"`.
+Dòng cảnh báo là `counter_attack_banner` (D1, `level:1.1`): OMNI quét lưới điện và trạm R-17 khởi động lại. Ngay sau đó terminal hiện giá trị mới `ma_phien = "M4X8"`.
 
 OMNI không biết R-17 còn sống; nó chỉ quét lưới điện của khu, làm trạm mất điện và cấp mã phiên mới. Đầu ra đúng: `NID/2089`, `PHIEN M4X8`, `LO17 CAN LIEN LAC`. Bắt được lỗi chép cứng mã phiên. Lời giải đạt 3 sao (3 câu lệnh, 30%):
 
@@ -134,7 +134,7 @@ Không có tour giao diện. Bốn thứ, đều trong bối cảnh:
 
 ## 9. Gợi ý và phản ứng của ECHO
 
-Câu chữ: `hints`, `reactions`, `reaction_variants` trong JSON.
+Câu chữ: `hints`, `reactions`, `reaction_variants` (D1, `level:1.1`).
 
 **Gợi ý** (mở dần, không bị kiểm từ cấm):
 
@@ -192,7 +192,7 @@ Không đổi `compute-stars.ts`.
 
 ## 12. Đoạn truyện khi hoàn thành
 
-Câu chữ: `outro`, `lore_fragment`, `component`, `outro_beats` trong JSON.
+Câu chữ: `outro`, `lore_fragment`, `component`, `outro_beats` (D1, `level:1.1`).
 
 - `outro`: tín hiệu đầu tiên đi vào Mạng Mù; trong bộ đệm của R-17 còn sót một dòng log cũ, dẫn vào mảnh nhật ký.
 - `lore_fragment` (KTS-01): Kiến Trúc Sư cho biết họ còn tám người, mỗi người giấu một mảnh và không ai biết chỗ của người khác, kể cả người viết.
@@ -202,7 +202,7 @@ Câu chữ: `outro`, `lore_fragment`, `component`, `outro_beats` trong JSON.
 
 ### 12.1. Tổng kết kiến thức (`knowledge_summary`)
 
-Câu chữ: `knowledge_summary` trong JSON.
+Câu chữ: `knowledge_summary` (D1, `level:1.1`).
 
 Màn hiện sau khi qua level, trước đoạn chuyển cảnh; xem lại được từ Bản đồ. Giọng kỹ thuật, không ECHO, không từ ngữ game. Ví dụ khác đáp án của level; mọi `code` trong mục được chạy bằng Python thật trong `tests/integration/knowledge-summary.test.ts` và phải in đúng `output`.
 
@@ -260,6 +260,6 @@ Cột "Test" chỉ đánh **Có** cho hàng kiểm việc chấm đúng, luật 
 
 ## 14. Dữ liệu level
 
-Dữ liệu chơi nằm ở `src/levels/level-1-1.json` và là nguồn đúng duy nhất, kể cả mọi câu chữ người chơi đọc. Bản nháp JSON và các câu chép nguyên văn từng nằm ở đây đã bỏ vì chúng lệch dần với file thật (27/10/2026). Văn bản người chơi đọc được rà lại ngày 25/10/2026 theo skill `van-viet-tu-nhien`.
+Câu đố nằm ở `src/levels/level-1-1.json`; câu chữ người chơi đọc nằm ở D1 (tài liệu `level:1.1`), không còn nằm trong file JSON (28/10/2026, QĐ-16). Hai chỗ đó là nguồn đúng duy nhất. Bản nháp JSON và các câu chép nguyên văn từng nằm ở đây đã bỏ vì chúng lệch dần với file thật (27/10/2026). Văn bản người chơi đọc được rà lại ngày 25/10/2026 theo skill `van-viet-tu-nhien`.
 
 Ghi chú về dữ liệu: `wrong_value_counter` được dùng lại cho phản công sai đầu ra. Các khóa về biến (`type_mismatch`, `type_mismatch_value_match`, `wrong_value`, `missing_var`, `counter_type_mismatch`) và `two_stars` không có vì không thể xảy ra ở level này; nếu có thì rơi về `generic`. Cue `glitch` là cue mới do `design/gdd-mo-dau.md` mục 5.2 thêm.

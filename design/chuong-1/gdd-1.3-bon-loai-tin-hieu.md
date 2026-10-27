@@ -1,15 +1,15 @@
 # Level 1.3 – "Bốn loại tín hiệu"
 
 > Chương 1 – Vùng Tối · Độ khó: Easy · Khái niệm: bốn kiểu cơ bản `str`, `int`, `float`, `bool` và `type()`
-> Dữ liệu chơi: `src/levels/level-1-3.json`. Mọi câu chữ người chơi đọc nằm trong file này; GDD chỉ ghi ý đồ (xem `design/quyet-dinh/nguon-duy-nhat-cho-cau-chu.md`). Thiết kế tổng: `design/gdd.md`. Trục truyện: `design/gdd-mo-dau.md` mục 6.3. Brainstorm: `design/quyet-dinh/level-1-3-bon-loai-tin-hieu.md`.
+> Câu đố: `src/levels/level-1-3.json`. Câu chữ người chơi đọc: tài liệu `level:1.3` ở D1 (câu ban đầu trong `db/migrations/0004_content_chapter_1.sql`, sửa trên `#/admin`); GDD chỉ ghi ý đồ (xem `design/quyet-dinh/nguon-duy-nhat-cho-cau-chu.md`). Thiết kế tổng: `design/gdd.md`. Trục truyện: `design/gdd-mo-dau.md` mục 6.3. Brainstorm: `design/quyet-dinh/level-1-3-bon-loai-tin-hieu.md`.
 
 Khác với 1.4: ở 1.4 dữ liệu đến dưới dạng chuỗi và người chơi **chuyển** nó sang hình dạng khác bằng hàm. Ở 1.3 không có hàm chuyển nào; người chơi **nhận ra** hình dạng của một giá trị và **viết lại** giá trị đó cho đúng hình dạng ngay từ cách viết, rồi dùng `type()` để hỏi hình dạng thay vì đoán.
 
 ## 1. Briefing
 
-Câu chữ: `briefing` và `location` trong JSON.
+Câu chữ: `briefing` và `location` (D1, `level:1.3`).
 
-Nối tiếp thẻ tín hiệu 0xA7 cuối 1.2 (`outro_beats` trong `level-1-2.json`): đến Ga Ngầm Số 3, máy quét ở đó phân loại từng trường, sai loại là bị giữ lại. Briefing nhặt lại đúng câu "sai loại là bị giữ lại" đó.
+Nối tiếp thẻ tín hiệu 0xA7 cuối 1.2 (`outro_beats`, D1, `level:1.2`): đến Ga Ngầm Số 3, máy quét ở đó phân loại từng trường, sai loại là bị giữ lại. Briefing nhặt lại đúng câu "sai loại là bị giữ lại" đó.
 
 Briefing là nhật ký hệ thống của Ga Ngầm Số 3, không phải lời ECHO. Nó phải cho người chơi biết, theo thứ tự:
 
@@ -62,7 +62,7 @@ Dòng 2 bị khóa; engine nạp `ma_phien` vào trước khi chạy. Mỗi lỗ
 
 ## 4. Mục tiêu
 
-Nhãn hiển thị: `objectives[].label` trong JSON. Nhãn gọi tên trường hồ sơ bằng lời thường; nhãn chiều cao ghi đơn vị mét, nhãn `da_tiem` nói rõ đây là câu hỏi có hay không, nhãn `khuon_phien` nói nó là hình dạng của mã phiên. Hình dạng cần đã hiện ở chip màu cạnh mỗi mục, nên nhãn không nhắc lại.
+Nhãn hiển thị: `objectives[].label` (D1, `level:1.3`). Nhãn gọi tên trường hồ sơ bằng lời thường; nhãn chiều cao ghi đơn vị mét, nhãn `da_tiem` nói rõ đây là câu hỏi có hay không, nhãn `khuon_phien` nói nó là hình dạng của mã phiên. Hình dạng cần đã hiện ở chip màu cạnh mỗi mục, nên nhãn không nhắc lại.
 
 | Biến | Hình dạng | Giá trị đúng |
 |---|---|---|
@@ -126,13 +126,13 @@ khuon_phien = int
 
 ## 8. OMNI phản công (sao thứ 3)
 
-Dòng cảnh báo là `counter_attack_banner` trong JSON: OMNI cấp lại mã phiên. Ngay sau đó terminal hiện giá trị mới `ma_phien = "7351"`.
+Dòng cảnh báo là `counter_attack_banner` (D1, `level:1.3`): OMNI cấp lại mã phiên. Ngay sau đó terminal hiện giá trị mới `ma_phien = "7351"`.
 
 Mã phiên mới trông vẫn như một con số nhưng là chuỗi. Kỳ vọng: `khuon_phien` là `str`; các trường hồ sơ không đổi. Bắt được lỗi **giả định hình dạng**: người chơi nhìn thấy `4096`, kết luận "là số nguyên" và chép tay `khuon_phien = int`. Người hỏi thẳng giá trị (`type(ma_phien)`) qua. Người viết `type(ma_phien + 0)` hay dùng `ma_phien` trong phép tính số thì vỡ ở phản công (`counter_error`), giữ 2 sao.
 
 ## 9. Gợi ý và phản ứng của ECHO
 
-Câu chữ: `hints`, `reactions`, `reaction_variants` trong JSON.
+Câu chữ: `hints`, `reactions`, `reaction_variants` (D1, `level:1.3`).
 
 **Từ cấm của 1.3** (`forbidden_terms` trong JSON, cộng danh sách chung `int|float|round` và mọi giá trị `expected` tự động, kể cả `"int"`/`"str"` của mục tiêu `type`; áp cho mọi phản ứng miễn phí, kể cả `entry`, và nhịp `echo` trong `outro_beats`; so theo ranh giới từ, không phân biệt hoa thường; không áp cho gợi ý). Danh sách gồm hai loại từ: tên các kiểu Python (bốn kiểu của level, `type`, `tuple`) cùng hai giá trị đúng/sai, và những từ gọi tên cách viết làm đổi hình dạng (dấu chấm, dấu phẩy, dấu nháy, chữ hoa…). Lý do: ô Mục tiêu đã cho biết hình dạng mỗi trường cần, nên thứ lộ cách sửa ở level này là **cách viết** (dấu câu, chữ hoa) và **tên kiểu gắn với một biến**. ECHO nói "hình dạng", "làn", "khuôn", "cách viết"; tên kiểu chỉ xuất hiện ở máy quét, terminal, ô Mục tiêu và gợi ý 3.
 
@@ -177,7 +177,7 @@ Khóa mới `type_mismatch_unknown_shape`: dùng khi **mọi** biến sai kiểu
 
 ## 11. Đoạn truyện khi hoàn thành
 
-Câu chữ: `outro`, `lore_fragment`, `component`, `outro_beats` trong JSON.
+Câu chữ: `outro`, `lore_fragment`, `component`, `outro_beats` (D1, `level:1.3`).
 
 - `component`: Khuôn kiểu (thành phần 3/6).
 - `outro`: máy quét chuyển xanh; trong nhật ký hiệu chỉnh của nó, giữa hàng nghìn dòng số, có một dòng chữ, dẫn vào mảnh nhật ký.
@@ -243,9 +243,9 @@ Nhẹ nhàng ôn 1.1–1.2: `ho_ten` dùng lại tên giả từ 1.2; `print(...
 | 30 | Giảm chuyển động, điện thoại 360 px | Khung cuối hiện ngay; không cuộn ngang | Không (kiểm tay) |
 | 31 | Treo chỉ ở phản công | Giữ 2 sao, `counter_timeout` | Chung |
 
-## 14. Dữ liệu chơi (`src/levels/level-1-3.json`)
+## 14. Dữ liệu chơi (`src/levels/level-1-3.json` và D1 `level:1.3`)
 
-Dữ liệu chơi nằm ở `src/levels/level-1-3.json` và là nguồn đúng duy nhất, kể cả mọi câu chữ người chơi đọc. Bản nháp JSON từng nằm ở đây đã lệch so với file thật (tên khóa `echo_forbidden_terms`, `simulation` dạng chuỗi), nên đã bỏ; các câu chép nguyên văn cũng đã bỏ vì cùng lý do (27/10/2026). File dùng mục tiêu loại `"type"`, input số/bool, các trường tùy chọn `location`, `component`, `outro_beats`, `simulation`, `forbidden_terms`, `reaction_variants`, `task_steps`, `knowledge_summary` và khóa `type_mismatch_unknown_shape`.
+Câu đố nằm ở `src/levels/level-1-3.json`; câu chữ người chơi đọc nằm ở D1 (tài liệu `level:1.3`), không còn nằm trong file JSON (28/10/2026, QĐ-16). Hai chỗ đó là nguồn đúng duy nhất. Bản nháp JSON từng nằm ở đây đã lệch so với file thật (tên khóa `echo_forbidden_terms`, `simulation` dạng chuỗi), nên đã bỏ; các câu chép nguyên văn cũng đã bỏ vì cùng lý do (27/10/2026). File dùng mục tiêu loại `"type"`, input số/bool, các trường tùy chọn `location`, `component`, `outro_beats`, `simulation`, `forbidden_terms`, `reaction_variants`, `task_steps`, `knowledge_summary` và khóa `type_mismatch_unknown_shape`.
 
 Văn bản người chơi đọc được rà lại ngày 25/10/2026 theo skill `van-viet-tu-nhien` (giọng truyện): briefing, nhãn `da_tiem` và `khuon_phien`, gợi ý 1 và 2, một số phản ứng và câu thay thế `type_mismatch`; đoạn kết, KTS-07 và nhịp truyện giữ nguyên.
 
@@ -253,7 +253,7 @@ Ghi chú cho người làm: giá trị kỳ vọng `"int"`/`"str"` của mục t
 
 ## 15. Việc cần làm (`task_steps`)
 
-Câu chữ: `task_steps` trong JSON (3 bước).
+Câu chữ: `task_steps` (D1, `level:1.3`) (3 bước).
 
 Giọng hướng dẫn, gọi người chơi là "bạn". Không chứa giá trị kỳ vọng (test so cả từ, không phân biệt hoa thường), nên hình dạng được tả bằng lời: "chuỗi", "số nguyên", "số thực", "đúng/sai". Được nhắc `type()` (từ cấm không áp cho `task_steps`). Ba bước lần lượt nói:
 
@@ -263,7 +263,7 @@ Giọng hướng dẫn, gọi người chơi là "bạn". Không chứa giá tr�
 
 ## 16. Tổng kết kiến thức (`knowledge_summary`)
 
-Câu chữ: `knowledge_summary` trong JSON.
+Câu chữ: `knowledge_summary` (D1, `level:1.3`).
 
 Hiện sau khi qua màn (≥ 1 sao), trước đoạn chuyển cảnh; xem lại được từ Bản đồ. Giọng kỹ thuật, không ECHO. Ví dụ khác đáp án (không dùng `27`, `1.72`, `True` như giá trị hồ sơ). Mọi `code` trong `sections` chạy bằng Python thật và in đúng `output` (`tests/integration/knowledge-summary.test.ts`).
 

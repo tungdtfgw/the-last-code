@@ -1,11 +1,11 @@
 # Level 1.4 – "Tín hiệu lệch pha"
 
 > Chương 1 – Vùng Tối · Độ khó: Medium · Khái niệm: ép kiểu
-> Dữ liệu chơi: `src/levels/level-1-4.json`. Mọi câu chữ người chơi đọc nằm trong file này; GDD chỉ ghi ý đồ (xem `design/quyet-dinh/nguon-duy-nhat-cho-cau-chu.md`). Thiết kế tổng: `design/gdd.md`. Hợp đồng truyện: `design/gdd-mo-dau.md` mục 6.4.
+> Câu đố: `src/levels/level-1-4.json`. Câu chữ người chơi đọc: tài liệu `level:1.4` ở D1 (câu ban đầu trong `db/migrations/0004_content_chapter_1.sql`, sửa trên `#/admin`); GDD chỉ ghi ý đồ (xem `design/quyet-dinh/nguon-duy-nhat-cho-cau-chu.md`). Thiết kế tổng: `design/gdd.md`. Hợp đồng truyện: `design/gdd-mo-dau.md` mục 6.4.
 
 ## 1. Briefing
 
-Câu chữ: `briefing` và `location` trong JSON.
+Câu chữ: `briefing` và `location` (D1, `level:1.4`).
 
 Briefing là nhật ký hệ thống của Cổng phía Bắc, không phải lời ECHO. Nó phải cho người chơi biết, theo thứ tự:
 
@@ -46,7 +46,7 @@ hop_le = "True"
 - `hop_le` kiểu `bool`
 - **Mức cảnh báo ≤ 40%** (≤ 8 câu lệnh thực thi, không tính 3 dòng khóa)
 
-Nhãn hiển thị: `objectives[].label` trong JSON. Hai nhãn đầu ghi công thức tính (tuổi × 100 + cấp độ; chiều cao × 2, làm tròn 2 chữ số thập phân), nhãn thứ ba nói cờ hợp lệ là giá trị đúng/sai chứ không phải chữ. Nhãn không ghi giá trị mong đợi.
+Nhãn hiển thị: `objectives[].label` (D1, `level:1.4`). Hai nhãn đầu ghi công thức tính (tuổi × 100 + cấp độ; chiều cao × 2, làm tròn 2 chữ số thập phân), nhãn thứ ba nói cờ hợp lệ là giá trị đúng/sai chứ không phải chữ. Nhãn không ghi giá trị mong đợi.
 
 ## 5. Diễn biến khi chạy
 
@@ -66,7 +66,7 @@ hop_le = True
 
 ## 7. OMNI phản công (sao thứ 3)
 
-Dòng cảnh báo là `counter_attack_banner` trong JSON: OMNI đã thay đổi định dạng chip. Ngay sau đó terminal hiện dữ liệu mới:
+Dòng cảnh báo là `counter_attack_banner` (D1, `level:1.4`): OMNI đã thay đổi định dạng chip. Ngay sau đó terminal hiện dữ liệu mới:
 
 ```
 > tuoi = "31.0"   cap_do = "7"   chieu_cao = "1.653"
@@ -89,7 +89,7 @@ hop_le = True
 
 ## 8. Gợi ý và phản ứng của ECHO
 
-Câu chữ: `hints`, `reactions`, `reaction_variants` trong JSON.
+Câu chữ: `hints`, `reactions`, `reaction_variants` (D1, `level:1.4`).
 
 **Gợi ý** (ECHO nói, mở dần, không bị kiểm từ cấm):
 
@@ -99,7 +99,7 @@ Câu chữ: `hints`, `reactions`, `reaction_variants` trong JSON.
 | 2 (`hints[1]`) | Hướng tiếp cận: Python có sẵn công cụ đổi hình dạng, mỗi công cụ mang tên hình dạng nó tạo ra (cũng là tên làn máy quét đòi); đổi dữ liệu chip trước rồi mới tính; chip có thể ghi số kèm phần thập phân nên thứ tự đổi quan trọng (gieo trước cho phản công). Không viết tên hàm |
 | 3 (`hints[2]`) | "Mảnh tài liệu Python": `int()`, `float()`, `round()` với ví dụ khác đáp án, có ví dụ `int()` cắt phần thập phân; mỗi hàm trả về giá trị mới, giá trị gốc không đổi |
 
-**Phản ứng miễn phí** của ECHO: giọng cụt, gọi kiểu dữ liệu là "hình dạng" (từ vựng có từ 1.3), chỉ chỗ nhìn, không bao giờ nói cách sửa. Các khóa chính (danh sách đầy đủ trong JSON):
+**Phản ứng miễn phí** của ECHO: giọng cụt, gọi kiểu dữ liệu là "hình dạng" (từ vựng có từ 1.3), chỉ chỗ nhìn, không bao giờ nói cách sửa. Các khóa chính (danh sách đầy đủ trong `reactions`, D1, `level:1.4`):
 
 | Khóa | Ý đồ |
 |---|---|
@@ -136,7 +136,7 @@ Màn hình kết quả hiển thị số lần chạy, số câu lệnh, mức c
 
 ## 10. Đoạn truyện khi hoàn thành
 
-Câu chữ: `outro`, `lore_fragment`, `component`, `outro_beats` trong JSON (`component` và `outro_beats` ở mục 11).
+Câu chữ: `outro`, `lore_fragment`, `component`, `outro_beats` (D1, `level:1.4`) (`component` và `outro_beats` ở mục 11).
 
 - `outro`: Cổng phía Bắc mở; trong bộ nhớ chip còn sót một dòng log chưa bị xóa, dẫn vào mảnh nhật ký.
 - `lore_fragment` (KTS-03): nói mảnh đầu tiên nằm dưới Cổng Kiểm Soát và cảnh báo đừng tin tín hiệu nào mang mã 0xA7.
@@ -155,7 +155,7 @@ Theo trục truyện `design/gdd-mo-dau.md` mục 6.4:
 
 ## 12. Việc cần làm
 
-Câu chữ: `task_steps` trong JSON (4 bước).
+Câu chữ: `task_steps` (D1, `level:1.4`) (4 bước).
 
 Ô "Việc cần làm" nằm dưới briefing, giọng hướng dẫn, chủ ngữ là người chơi. Nó nói sửa gì và khi nào là xong, không nói cách sửa, không chứa giá trị kỳ vọng nào, kể cả của lượt phản công. Bốn bước lần lượt nói:
 
@@ -166,7 +166,7 @@ Câu chữ: `task_steps` trong JSON (4 bước).
 
 ## 13. Tổng kết kiến thức
 
-Câu chữ: `knowledge_summary` trong JSON.
+Câu chữ: `knowledge_summary` (D1, `level:1.4`).
 
 Màn hiện sau khi qua level, trước đoạn chuyển cảnh; xem lại được từ Bản đồ. Giọng kỹ thuật, không ECHO, không từ ngữ game. Ví dụ khác đáp án của màn; mọi `code` trong mục được chạy bằng Python thật trong `tests/integration/knowledge-summary.test.ts` và phải in đúng `output`.
 
@@ -187,4 +187,4 @@ Lỗi đã gặp trong màn (`mistakes`, không chạy trong test): chuỗi lặ
 
 ## 14. Dữ liệu level
 
-Dữ liệu chơi nằm ở `src/levels/level-1-4.json` và là nguồn đúng duy nhất, kể cả mọi câu chữ người chơi đọc. Các câu chép nguyên văn từng nằm ở đây đã bỏ vì chúng lệch dần với file thật (27/10/2026).
+Câu đố nằm ở `src/levels/level-1-4.json`; câu chữ người chơi đọc nằm ở D1 (tài liệu `level:1.4`), không còn nằm trong file JSON (28/10/2026, QĐ-16). Hai chỗ đó là nguồn đúng duy nhất. Các câu chép nguyên văn từng nằm ở đây đã bỏ vì chúng lệch dần với file thật (27/10/2026).
