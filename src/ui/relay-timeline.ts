@@ -1,20 +1,12 @@
 import type { Cue } from "../audio/sound-recipes";
 import type { OutputReport, RunOutcome } from "../game/classify-run";
 import { outputObjectives, simulationOf, type LevelDefinition } from "../game/level-types";
-import { describeLine, type LineDiff } from "../game/output-diff";
 import { gateFor, type GateState } from "../game/terminal-lines";
+import { emittedSlot, extraSlot, fillUnsent, firstProblem, idleSlots, type OutputSlot } from "./output-slots-model";
 import { errorStatus, inputsLabel } from "./scanner-timeline";
 
-export type SlotState = "idle" | "sent" | "dropped" | "missing" | "unsent" | "error" | "extra";
-
-/** One row of the broadcast list: an expected line (or an extra one) and what became of it. */
-export interface RelaySlot {
-  line: number;
-  expected: string;
-  state: SlotState;
-  diff?: LineDiff;
-  label?: string;
-}
+/** One row of the broadcast list. */
+export type RelaySlot = OutputSlot;
 
 export interface RelayScene {
   wave: "base" | "counter";
@@ -48,8 +40,6 @@ export const stationOf = (level: LevelDefinition) => {
   const sim = simulationOf(level);
   return sim.kind === "relay" ? sim.station : "";
 };
-
-const idleSlots = (expected: string[]): RelaySlot[] => expected.map((e, i) => ({ line: i + 1, expected: e, state: "idle" }));
 
 function scene(over: Partial<RelayScene> & Pick<RelayScene, "slots">): RelayScene {
   return {
@@ -102,8 +92,7 @@ function playWave(
   output.lines.forEach((l, i) => {
     if (l.status === "missing") return;
     const ok = l.status === "ok";
-    const diff = ok ? undefined : describeLine(l);
-    slots[i] = { ...slots[i], expected: l.expected, state: ok ? "sent" : "dropped", diff, label: ok ? "ĐÃ PHÁT" : `BỎ GÓI · vị trí ${diff!.col}` };
+    slots[i] = emittedSlot(slots[i], l);
     if (ok) lit++;
     frames.push({
       scene: { ...base, slots: slots.map((s) => ({ ...s })), active: i, antenna: ok ? "flash" : "idle", wavesLit: lit, status: slotLabel(slots[i]) },
@@ -111,31 +100,16 @@ function playWave(
       cues: [ok ? "scan_pass" : "scan_reject"],
     });
   });
-  output.extraLines.forEach((text, k) => {
-    const more = k === output.extraLines.length - 1 ? output.extraCount - output.extraLines.length : 0;
-    extra.push({ line: output.lines.length + k + 1, expected: text, state: "extra", label: more > 0 ? `DÒNG THỪA · +${more}` : "DÒNG THỪA" });
+  output.extraLines.forEach((_text, k) => {
+    extra.push(extraSlot(output, k));
     frames.push({
       scene: { ...base, slots: slots.map((s) => ({ ...s })), extra: [...extra], active: slots.length + k, wavesLit: lit, status: "DÒNG THỪA" },
       hold: STEP,
       cues: ["scan_reject"],
     });
   });
-  // Lines that never went out.
-  let broke = false;
-  output.lines.forEach((l, i) => {
-    if (l.status !== "missing") return;
-    if (failed && !broke) {
-      slots[i] = { ...slots[i], expected: l.expected, state: "error", label: failed.label };
-      broke = true;
-    } else {
-      slots[i] = { ...slots[i], expected: l.expected, state: failed ? "unsent" : "missing", label: failed ? "CHƯA PHÁT" : "KHÔNG CÓ DÒNG" };
-    }
-  });
-  return { slots, extra, lit };
+  return { slots: fillUnsent(slots, output, failed), extra, lit };
 }
-
-const firstProblem = (slots: RelaySlot[], extra: RelaySlot[]) =>
-  slots.find((s) => s.state !== "sent" && s.state !== "idle") ?? extra[0];
 
 /** Pure description of the relay animation for an outcome; the component only plays it back. */
 export function buildRelayTimeline(outcome: RunOutcome, level: LevelDefinition): RelayFrame[] {

@@ -2,8 +2,8 @@ import { useMemo } from "react";
 import type { Cue } from "../audio/sound-recipes";
 import type { RunOutcome } from "../game/classify-run";
 import type { LevelDefinition } from "../game/level-types";
-import { visible, type DiffSegments } from "../game/output-diff";
-import { buildRelayTimeline, relayIdleScene, relayRunningScene, stationOf, summarizeRelay, type RelayScene, type RelaySlot } from "./relay-timeline";
+import { OutputSlots } from "./output-slots";
+import { buildRelayTimeline, relayIdleScene, relayRunningScene, stationOf, summarizeRelay, type RelayScene } from "./relay-timeline";
 import { useTimelinePlayback } from "./use-timeline-playback";
 
 interface Props {
@@ -33,38 +33,6 @@ const DOTS = (() => {
     for (let x = GRID.x0; x <= GRID.x1; x += GRID.step) if (rnd() > 0.35) dots.push({ x, y, r: rnd() > 0.85 ? 2 : 1.3 });
   return dots;
 })();
-
-function Segments({ s }: { s: DiffSegments }) {
-  return (
-    <>
-      {s.before}
-      <mark>{s.mark}</mark>
-      {s.after}
-    </>
-  );
-}
-
-function SlotRow({ slot }: { slot: RelaySlot }) {
-  return (
-    <li className={`relay-slot is-${slot.state}`}>
-      <span className="relay-slot-line">{slot.state === "extra" ? "+" : `dòng ${slot.line}`}</span>
-      <span className="relay-slot-text">{visible(slot.expected)}</span>
-      <span className="relay-slot-state">{slot.label ?? "CHỜ"}</span>
-      {slot.state === "dropped" && slot.diff && (
-        <span className="relay-diff">
-          <span>
-            cần:{"  "}
-            <Segments s={slot.diff.need} />
-          </span>
-          <span>
-            nhận: <Segments s={slot.diff.got} />
-            {slot.diff.codePoint && ` · ${slot.diff.codePoint}`}
-          </span>
-        </span>
-      )}
-    </li>
-  );
-}
 
 function Scene({ scene, station }: { scene: RelayScene; station: string }) {
   const activeSlot = scene.active === null ? null : [...scene.slots, ...scene.extra][scene.active];
@@ -157,11 +125,7 @@ export function RelaySimulation({ level, outcome, running, playing, onDone, onCu
       <div className="relay-stage">
         <Scene scene={scene} station={stationOf(level)} />
       </div>
-      <ol className="relay-list" aria-label="Danh sách phát">
-        {[...scene.slots, ...scene.extra].map((s) => (
-          <SlotRow key={`${scene.wave}-${s.state === "extra" ? "x" : ""}${s.line}`} slot={s} />
-        ))}
-      </ol>
+      <OutputSlots slots={scene.slots} extra={scene.extra} wave={scene.wave} label="Danh sách phát" />
       <div className="sim-foot">
         <p className="sim-chip">{scene.chip ? `> ${scene.chip}` : ""}</p>
         <p className={`sim-status ${scene.channel === "open" ? "scanner-pass" : alarm ? "scanner-alarm" : scene.status === "ĐANG XỬ LÝ" ? "scanner-scanning" : ""}`}>
