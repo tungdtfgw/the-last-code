@@ -17,3 +17,4 @@ __pycache__
 .env*
 .dev.vars
 .vercel
+.claude/agent-memory/
