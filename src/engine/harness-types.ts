@@ -78,6 +78,10 @@ export interface HarnessTestResult {
   vars: Record<string, HarnessVar>;
   /** null when the test has no `expected_output`. */
   output: HarnessOutput | null;
+  /** Only for a test with `stdin`: lines `input()` read. */
+  stdin_read?: number;
+  /** Only for a test with `stdin`: the non-empty prompts written to stdout (at most 20, clipped). */
+  prompts?: string[];
   /** Only with `trace_vars`: at most `var_history_max` (40) entries, in run order. */
   var_history?: VarHistoryEntry[];
   /** More changes happened than the history kept. */

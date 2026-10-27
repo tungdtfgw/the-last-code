@@ -7,7 +7,7 @@ Threat model
 This is a single-player game that runs on the player's own machine. The worker
 that hosts Pyodide has no DOM, no ``localStorage`` and no secrets. The real risks
 are (a) the player hanging their own tab and (b) the player cheating their own
-star rating. Blocking imports, removing ``exit``/``input`` and counting line
+star rating. Blocking imports, removing ``exit``, replacing ``input`` and counting line
 events are guard rails against accidental mistakes and easy cheating, not an
 absolute sandbox: a determined player can still escape through
 ``().__class__.__subclasses__()`` and similar tricks. They only fool themselves.
@@ -202,6 +202,32 @@ def _guarded_import(name, globals=None, locals=None, fromlist=(), level=0):
 
 def _no_input(*_args, **_kwargs):
     raise _InputUnsupported("Không có kênh nhập liệu")
+
+
+# The station's channel holds at most this many prompts per run (each clipped to preview_chars).
+MAX_PROMPTS = 20
+
+
+def _stdin_input(lines, out, state, preview_chars):
+    """`input()` of a level with a stdin channel: reads `lines` in order, like CPython with piped stdin.
+
+    The prompt goes to the (captured) stdout without a newline and is graded like any output;
+    the line read is returned exactly as given. Past the last line: EOFError, CPython's message.
+    """
+
+    def input(prompt=""):  # noqa: A001 - the player's builtin
+        text = str(prompt)  # errors (a player __str__) propagate as in CPython
+        if text:
+            out.write(text)
+            if _len(state["prompts"]) < MAX_PROMPTS:
+                state["prompts"].append(_clip(text, preview_chars))
+        if state["read"] >= _len(lines):
+            raise EOFError("EOF when reading a line")
+        line = lines[state["read"]]
+        state["read"] += 1
+        return line
+
+    return input
 
 
 def _make_builtins():
@@ -528,7 +554,9 @@ class _VarHistory:
             self.full = True
 
 
-def _run_one(code, lines, stmt_lines, inputs, objectives, expected, tol, limits, expected_output=None, trace_vars=False):
+def _run_one(
+    code, lines, stmt_lines, inputs, objectives, expected, tol, limits, expected_output=None, trace_vars=False, stdin=None
+):
     ns = {"__builtins__": _make_builtins(), "__name__": "__main__"}
     ns.update(inputs)
     hist = (
@@ -539,6 +567,13 @@ def _run_one(code, lines, stmt_lines, inputs, objectives, expected, tol, limits,
     out = _CappedWriter(limits["max_stdout_chars"], limits["max_stdout_lines"])
     # stderr has its own buffer: shown to the player, never graded.
     err = _CappedWriter(limits["max_stdout_chars"], limits["max_stdout_lines"])
+    channel = None
+    if stdin is not None:
+        # A fresh builtins dict per run, so the channel never leaks into another test.
+        channel = {"read": 0, "prompts": []}
+        ns["__builtins__"]["input"] = _stdin_input(
+            tuple(str(x) for x in stdin), out, channel, limits["preview_chars"]
+        )
     budget = limits["max_line_events"]
     # `events` (every line event) drives the loop budget; `count` (statement starts) drives the alert bar.
     state = {"events": 0, "count": 0, "budget_hit": False}
@@ -636,6 +671,9 @@ def _run_one(code, lines, stmt_lines, inputs, objectives, expected, tol, limits,
         if expected_output is None
         else _grade_output(out.getvalue(), out.truncated, expected_output, limits["preview_chars"]),
     }
+    if channel is not None:
+        result["stdin_read"] = channel["read"]
+        result["prompts"] = channel["prompts"]
     if hist is not None:
         result["var_history"] = hist.entries
         result["var_history_truncated"] = hist.full
@@ -715,6 +753,7 @@ def run_level(config_json, source, phase="all"):
                 limits,
                 test.get("expected_output"),
                 trace_vars,
+                test.get("stdin"),
             )
             result["kind"] = kind
             result["index"] = index

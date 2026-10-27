@@ -787,3 +787,57 @@ class TypeObjective(unittest.TestCase):
         v = self.k(body)
         self.assertLess(time.monotonic() - start, 5)
         self.assertEqual((v["preview"], v["value_ok"]), ("<class '__main__.int'>", False))
+
+
+# ---------------------------------------------------------------------------
+# Stdin channel (levels whose tests carry `stdin`)
+# ---------------------------------------------------------------------------
+
+
+def stdin_config(*stdins):
+    return json.dumps(
+        {
+            "inputs": [],
+            "objectives": [],
+            "tests": [{"inputs": {}, "stdin": s, "expected": {}, "expected_output": ["x"]} for s in stdins],
+            "counter_attack_tests": [],
+            "float_abs_tolerance": 1e-9,
+        }
+    )
+
+
+class StdinChannel(unittest.TestCase):
+    def test_reads_lines_in_order(self):
+        b = base(grade("a = input()\nb = input()\nprint(b, a)\n", stdin_config(["4172", "DEM"])))
+        self.assertEqual((b["status"], b["stdout"], b["stdin_read"], b["prompts"]), ("ok", "DEM 4172\n", 2, []))
+
+    def test_prompt_goes_to_stdout_without_newline(self):
+        b = base(grade('a = input("Ma hoi: ")\nb = input()\nprint(a)\n', stdin_config(["4172", "DEM"])))
+        self.assertEqual(b["stdout"], "Ma hoi: 4172\n")
+        self.assertEqual(b["prompts"], ["Ma hoi: "])
+
+    def test_reading_past_the_end_is_eoferror_on_player_line(self):
+        b = base(grade("a = input()\n\nb = input()\n", stdin_config(["4172"])))
+        self.assertEqual(b["status"], "runtime_error")
+        self.assertEqual(
+            (b["error"]["type"], b["error"]["message"], b["error"]["line"]),
+            ("EOFError", "EOF when reading a line", 3),
+        )
+        self.assertEqual(b["stdin_read"], 1)
+
+    def test_line_is_returned_verbatim(self):
+        b = base(grade("a = input()\nprint(len(a))\n", stdin_config([" 9035 "])))
+        self.assertEqual(b["stdout"], "6\n")
+
+    def test_each_test_reads_its_own_channel_from_the_start(self):
+        r = grade("print(input())\n", stdin_config(["A", "B"], ["C"]))
+        self.assertEqual([x["stdout"] for x in r["base_results"]], ["A\n", "C\n"])
+        self.assertEqual([x["stdin_read"] for x in r["base_results"]], [1, 1])
+
+    def test_input_call_counts_as_one_statement(self):
+        self.assertEqual(base(grade("x = input()\n", stdin_config(["1"])))["line_count"], 1)
+
+    def test_tests_without_stdin_report_no_channel_fields(self):
+        b = base(grade(GOOD))
+        self.assertNotIn("stdin_read", b)
+        self.assertNotIn("prompts", b)
