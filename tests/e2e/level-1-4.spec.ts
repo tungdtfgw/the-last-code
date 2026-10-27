@@ -1,4 +1,4 @@
-import { expect, test, type Page } from "@playwright/test";
+import { expect, newSignedInContext, test, type Page } from "./fixtures";
 import { PYODIDE_MODULE_URL } from "../../src/engine/pyodide-config";
 import {
   LEVEL_URL,
@@ -44,10 +44,10 @@ async function closeDialog(page: Page) {
 test.describe.serial("level 1.4 main flow (real Pyodide)", () => {
   let page: Page;
   test.beforeAll(async ({ browser }) => {
-    page = await browser.newPage();
+    page = await (await newSignedInContext(browser)).newPage();
   });
   test.afterAll(async () => {
-    await page.close();
+    await page.context().close();
   });
 
   test("boot: run button locked while Python loads, then ready (C1)", async () => {
@@ -224,8 +224,8 @@ test.describe.serial("level 1.4 main flow (real Pyodide)", () => {
   });
 });
 
-test("storage blocked: no-save mode, still playable to 3 stars (AC 10, D1)", async ({ browser }) => {
-  const context = await browser.newContext();
+test("storage blocked: settings fall back to memory, progress still saves to the account, no banner (AC 10, D1)", async ({ browser }) => {
+  const context = await newSignedInContext(browser);
   await context.addInitScript(() => {
     const deny = () => {
       throw new DOMException("blocked", "SecurityError");
@@ -236,16 +236,33 @@ test("storage blocked: no-save mode, still playable to 3 stars (AC 10, D1)", asy
   const page = await context.newPage();
   await page.goto(LEVEL_URL);
   await enterMission(page);
-  await expect(page.getByText("CHẾ ĐỘ KHÔNG LƯU")).toBeVisible();
   await waitForPythonReady(page);
   await replaceEditableCode(page, SOLUTION_67);
   await runAndWait(page);
   await expect(page.locator("dialog[open]")).toContainText("Cổng mở hoàn toàn");
+  await expect(page.getByText("CHẾ ĐỘ KHÔNG LƯU")).toHaveCount(0);
+  await expect
+    .poll(async () => page.evaluate(async () => (await (await fetch("/api/progress")).json()).levels["1.4"]?.bestStars))
+    .toBe(3);
+  await context.close();
+});
+
+test("progress API down: the no-save banner shows after the retries (D1)", async ({ browser }) => {
+  const context = await newSignedInContext(browser);
+  const page = await context.newPage();
+  await page.route("**/api/progress/levels/**", (route) => route.fulfill({ status: 503, body: "{}" }));
+  await page.goto(LEVEL_URL);
+  await enterMission(page);
+  await waitForPythonReady(page);
+  await replaceEditableCode(page, SOLUTION_67);
+  await runAndWait(page);
+  // Retries wait 1 + 3 + 9 s before giving up.
+  await expect(page.getByText("CHẾ ĐỘ KHÔNG LƯU")).toBeVisible({ timeout: 30_000 });
   await context.close();
 });
 
 test("375 px: no horizontal scroll, tabs work, run switches to the simulation (E1, E2)", async ({ browser }) => {
-  const context = await browser.newContext({ viewport: { width: 375, height: 812 } });
+  const context = await newSignedInContext(browser, { viewport: { width: 375, height: 812 } });
   const page = await context.newPage();
   await page.goto(LEVEL_URL);
   await enterMission(page);
@@ -265,7 +282,7 @@ test("375 px: no horizontal scroll, tabs work, run switches to the simulation (E
 });
 
 test("CDN blocked: in-world load error with retry that recovers (C3)", async ({ browser }) => {
-  const context = await browser.newContext();
+  const context = await newSignedInContext(browser);
   const page = await context.newPage();
   // Context-level routing also covers requests made by the module worker.
   await context.route("**/cdn.jsdelivr.net/**", (route) => route.abort());

@@ -1,4 +1,4 @@
-import { expect, test, type Page } from "@playwright/test";
+import { expect, test, type Page } from "./fixtures";
 import { PYODIDE_MODULE_URL } from "../../src/engine/pyodide-config";
 import {
   L11_FIX_LINE_7,

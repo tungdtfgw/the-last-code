@@ -1,4 +1,4 @@
-import { expect, test, type Page } from "@playwright/test";
+import { expect, test, type Page } from "./fixtures";
 import { PYODIDE_MODULE_URL } from "../../src/engine/pyodide-config";
 import { L13_FROM_LINE, L13_SOLUTION_3_STARS, enterMission, replaceEditableCode, runAndWait, waitForPythonReady, continueFromResults } from "./helpers";
 

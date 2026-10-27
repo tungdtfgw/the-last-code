@@ -1,4 +1,4 @@
-import { expect, test, type Page } from "@playwright/test";
+import { expect, newSignedInContext, test, type Page } from "./fixtures";
 import { LEVEL_URL, enterMission, showTab } from "./helpers";
 
 // Level intro and per-panel scrolling. No Python needed: these run before and around the Pyodide load.
@@ -72,7 +72,7 @@ test("intro: any key during the reveal shows everything at once", async ({ page 
 });
 
 test("intro with reduced motion: gate, then everything shown immediately", async ({ browser }) => {
-  const context = await browser.newContext({ reducedMotion: "reduce" });
+  const context = await newSignedInContext(browser, { reducedMotion: "reduce" });
   const page = await context.newPage();
   await page.goto(LEVEL_URL);
   await gate(page).click();

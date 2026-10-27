@@ -1,0 +1,9 @@
+# Local data, secrets and tool state never go to Vercel.
+.data/
+.wrangler/
+**/.wrangler/
+**/.dev.vars
+.env*
+workers/d1-gateway/node_modules/
+plans/
+.claude/

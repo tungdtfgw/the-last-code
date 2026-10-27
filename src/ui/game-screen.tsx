@@ -220,7 +220,7 @@ export function GameScreen({ level, repository, audio, entryGuardMs = 0, onMap, 
           </div>
         </dl>
         {!game.persistent && (
-          <p className="storage-flag" role="status" title="Trình duyệt chặn bộ nhớ: tiến độ chỉ giữ trong phiên này.">
+          <p className="storage-flag" role="status" title="Không gửi được tiến độ lên máy chủ: phần chơi mới chỉ giữ trong phiên này.">
             CHẾ ĐỘ KHÔNG LƯU
           </p>
         )}

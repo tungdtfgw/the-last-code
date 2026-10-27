@@ -1,4 +1,4 @@
-import { expect, test } from "@playwright/test";
+import { expect, test } from "./fixtures";
 import { LEVEL_URL, enterMission, openEchoChat } from "./helpers";
 
 // ECHO lives in a floating chat. No Python needed: the entry line and hints come before any run.

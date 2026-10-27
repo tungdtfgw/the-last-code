@@ -1,0 +1,13 @@
+name = "the-last-code-d1-gateway"
+main = "src/index.ts"
+compatibility_date = "2026-10-01"
+
+# GATEWAY_SECRET is set with `npx wrangler secret put GATEWAY_SECRET`, never in this file.
+# Local `wrangler dev` reads it from `.dev.vars` (git-ignored).
+
+[[d1_databases]]
+binding = "DB"
+database_name = "the-last-code"
+# Printed by `npx wrangler d1 create the-last-code --location=apac`.
+database_id = "1b8143d5-1f11-457f-8773-ef2168f6dede"
+migrations_dir = "../../db/migrations"

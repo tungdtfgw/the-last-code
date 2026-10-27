@@ -1,10 +1,10 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { AccountGate, type GameProps } from "./account/account-gate";
 import { useAudio } from "./audio/use-audio";
 import { getDefaultRegistry } from "./game/level-registry";
 import { routeHash, sameRoute } from "./shell/route";
 import { useHashRoute } from "./shell/use-hash-route";
 import { useProgressSnapshot } from "./shell/use-progress-snapshot";
-import { createRepository } from "./storage/create-repository";
 import { getChapter } from "./story/chapter";
 import {
   buildChapterContext,
@@ -33,12 +33,11 @@ import { isTyping } from "./ui/is-typing";
 const ENTRY_GUARD_AFTER_STORY_MS = 400;
 
 /**
- * Game shell: hash routes to the title, map, stories and levels. Audio and the
- * repository live here so one AudioContext lasts the whole session. Every
+ * Game shell: hash routes to the title, map, stories and levels, for one
+ * signed-in player. Audio lives here so one AudioContext lasts the session. Every
  * route passes `guardRoute`; all progression decisions come from `progression.ts`.
  */
-function Shell({ ctx }: { ctx: ChapterContext }) {
-  const repository = useMemo(() => createRepository(), []);
+function Shell({ ctx, repository, user, onAccount }: { ctx: ChapterContext } & GameProps) {
   const audio = useAudio(repository);
   const { route, navigate } = useHashRoute();
   const key = routeHash(route);
@@ -101,6 +100,8 @@ function Shell({ ctx }: { ctx: ChapterContext }) {
         <TitleScreen
           returning={isReturning(snapshot)}
           persistent={persistent}
+          username={user.username}
+          onAccount={onAccount}
           muted={audio.muted}
           onStart={() => {
             startAudio();
@@ -206,7 +207,7 @@ function Boot() {
       />
     );
   }
-  return <Shell ctx={ctx} />;
+  return <AccountGate renderGame={(game) => <Shell key={game.user.id} ctx={ctx} {...game} />} />;
 }
 
 export function App() {

@@ -1,6 +1,6 @@
 import { defineConfig, devices } from "@playwright/test";
 
-/** E2E against the production build (vite preview, port 4173) with real Pyodide from jsDelivr, on Chromium, Firefox, WebKit and iPhone WebKit. */
+/** E2E against the production build (vite preview with the local API, port 4173) with real Pyodide from jsDelivr, on Chromium, Firefox, WebKit and iPhone WebKit. */
 export default defineConfig({
   testDir: "tests/e2e",
   timeout: 180_000,
@@ -33,8 +33,17 @@ export default defineConfig({
         ]
       : []),
   ],
+  // The preview server also serves the API: a fresh SQLite file and mail outbox per run, mail limits off.
   webServer: {
-    command: "npm run build && npm run preview",
+    command: "rm -rf .data/e2e.sqlite .data/e2e-outbox && npm run build && npm run preview",
+    env: {
+      DB_DRIVER: "sqlite",
+      SQLITE_PATH: ".data/e2e.sqlite",
+      MAIL_TRANSPORT: "outbox",
+      OUTBOX_DIR: ".data/e2e-outbox",
+      AUTH_RATE_LIMIT: "off",
+      APP_ORIGIN: "http://localhost:4173",
+    },
     port: 4173,
     reuseExistingServer: false,
     timeout: 120_000,

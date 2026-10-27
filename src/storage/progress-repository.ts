@@ -17,9 +17,15 @@ export interface Settings {
   muted: boolean;
 }
 
+/** All of one player's progress, as `GET /api/progress` returns it and `POST /api/progress/import` takes it. */
+export interface ProgressSnapshotDto {
+  levels: Record<string, LevelProgress>;
+  story: StoryProgress;
+}
+
 /**
  * The only door to persisted progress. UI code never touches `localStorage`;
- * a future Supabase implementation only has to satisfy this interface.
+ * implementations: `localStorage`, in-memory, and the server (`HttpProgressRepository`).
  */
 export interface ProgressRepository {
   /** false = "không lưu" mode (storage blocked, full or broken). */
@@ -71,7 +77,7 @@ export function sanitizeSettings(raw: unknown): Settings {
 }
 
 /**
- * Merge rule shared by every implementation (and by a future account merge):
+ * Merge rule shared by every implementation and by the server (same rule in SQL):
  * best stars and hints never go down, runs never go down.
  */
 export function mergeLevelProgress(old: LevelProgress, patch: Partial<LevelProgress>, now = new Date()): LevelProgress {
@@ -98,8 +104,8 @@ export function sanitizeStory(raw: unknown): StoryProgress {
 }
 
 /**
- * Merge rule for seen stories, shared by every implementation and by a future
- * account merge: set union in first-seen order, never removes an entry.
+ * Merge rule for seen stories, shared by every implementation and by the server:
+ * set union in first-seen order, never removes an entry.
  */
 export function mergeStory(a: StoryProgress, b: StoryProgress): StoryProgress {
   return sanitizeStory({ seen: [...a.seen, ...b.seen] });

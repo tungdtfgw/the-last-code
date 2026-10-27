@@ -9,6 +9,7 @@ import {
   sanitizeStory,
   type LevelProgress,
   type ProgressRepository,
+  type ProgressSnapshotDto,
   type Settings,
   type StoryProgress,
 } from "./progress-repository";
@@ -136,6 +137,11 @@ export class LocalStorageRepository implements ProgressRepository {
     return this.getStory();
   }
 
+  /** Everything this browser holds, for folding into an account. */
+  exportProgress(): ProgressSnapshotDto {
+    return { levels: { ...this.progress.levels }, story: { seen: [...(this.progress.story?.seen ?? [])] } };
+  }
+
   async getSettings() {
     return { ...this.settings };
   }
@@ -144,5 +150,25 @@ export class LocalStorageRepository implements ProgressRepository {
     this.settings = sanitizeSettings({ ...this.settings, ...patch });
     this.write(SETTINGS_KEY, { schemaVersion: SCHEMA_VERSION, ...this.settings });
     return { ...this.settings };
+  }
+}
+
+/** Progress an older build left in this browser, or null when there is none (settings are not progress). */
+export function readLocalProgress(storage: Storage): ProgressSnapshotDto | null {
+  try {
+    if (storage.getItem(PROGRESS_KEY) === null) return null;
+  } catch {
+    return null;
+  }
+  const snap = new LocalStorageRepository(storage).exportProgress();
+  return Object.keys(snap.levels).length === 0 && snap.story.seen.length === 0 ? null : snap;
+}
+
+/** Removes the progress key only; the mute setting stays on the device. */
+export function clearLocalProgress(storage: Storage) {
+  try {
+    storage.removeItem(PROGRESS_KEY);
+  } catch {
+    // storage blocked: nothing we can clear
   }
 }

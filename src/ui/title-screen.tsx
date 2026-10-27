@@ -32,10 +32,12 @@ function useTitleGlitch(): boolean {
 export function TitleScreen(props: {
   returning: boolean;
   persistent: boolean;
+  username: string;
   muted: boolean;
   onStart(): void;
   onContinue(): void;
   onMap(): void;
+  onAccount(): void;
   onToggleMute(): void;
 }) {
   const glitch = useTitleGlitch();
@@ -67,10 +69,14 @@ export function TitleScreen(props: {
       </div>
       <footer className="title-foot">
         <MuteButton muted={props.muted} onToggle={props.onToggleMute} />
-        {props.persistent ? (
-          <p className="title-save">Tiến độ lưu trên trình duyệt này.</p>
-        ) : (
-          <p className="storage-flag" role="status" title="Trình duyệt chặn bộ nhớ: tiến độ chỉ giữ trong phiên này.">
+        <p className="title-save">
+          Đang chơi: <strong>{props.username}</strong>
+        </p>
+        <button type="button" className="btn btn-ghost btn-small" onClick={props.onAccount}>
+          TÀI KHOẢN
+        </button>
+        {!props.persistent && (
+          <p className="storage-flag" role="status" title="Không gửi được tiến độ lên máy chủ: phần chơi mới chỉ giữ trong phiên này.">
             CHẾ ĐỘ KHÔNG LƯU
           </p>
         )}

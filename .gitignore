@@ -9,3 +9,11 @@ __pycache__
 # Local agent runtime state and logs
 .claude/hooks/.logs/
 .claude/hooks/.agentkit-runtime.json
+
+# Local server data (SQLite files, mail outbox), deploy and Worker state, secrets
+.data/
+.vercel/
+.wrangler/
+.env*
+.dev.vars
+.vercel

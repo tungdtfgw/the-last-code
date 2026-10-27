@@ -1,4 +1,4 @@
-import { expect, test, type Page } from "@playwright/test";
+import { expect, newSignedInContext, test, type Page } from "./fixtures";
 import { PYODIDE_MODULE_URL } from "../../src/engine/pyodide-config";
 import { LEVEL_URL, SOLUTION_67, editorText, enterMission, replaceEditableCode, runAndWait, showTab, syntheticDrop, waitForPythonReady } from "./helpers";
 
@@ -21,12 +21,12 @@ async function lockedLinesIntact(page: Page) {
 test.describe.serial("edge cases in one session", () => {
   let page: Page;
   test.beforeAll(async ({ browser }) => {
-    page = await browser.newPage();
+    page = await (await newSignedInContext(browser)).newPage();
     await page.goto(LEVEL_URL);
     await enterMission(page);
     await waitForPythonReady(page);
   });
-  test.afterAll(async () => page.close());
+  test.afterAll(async () => page.context().close());
 
   test("drag and drop cannot change locked lines; dropping elsewhere still works (B5)", async () => {
     // (runs on every project; the mouse-drag part is skipped on touch-only devices, see below)
@@ -104,7 +104,7 @@ test.describe.serial("edge cases in one session", () => {
 });
 
 test("reduced motion: plays to 3 stars, no glitch/shake/typewriter, nothing hidden (E8)", async ({ browser }) => {
-  const context = await browser.newContext({ reducedMotion: "reduce" });
+  const context = await newSignedInContext(browser, { reducedMotion: "reduce" });
   const page = await context.newPage();
   await page.goto(LEVEL_URL);
   await enterMission(page);
@@ -236,20 +236,40 @@ test("keyboard only: reach the editor, type, leave with Esc+Tab, run, skip anima
   await expect(page.getByTestId("run-button")).toBeFocused();
 });
 
-test("two tabs on the same profile: last write wins, nothing corrupts (D7)", async ({ context }) => {
+test("two tabs on the same account: the last draft wins, stars never go down, nothing corrupts (D7)", async ({ context }) => {
   const a = await context.newPage();
   const b = await context.newPage();
   await a.goto(LEVEL_URL);
   await enterMission(a);
   await b.goto(LEVEL_URL);
   await enterMission(b);
+  // Tab A earns a star; tab B (loaded before it) still holds 0 stars in memory.
+  const put = (page: Page, body: object) =>
+    page.evaluate(async (data) => {
+      const res = await fetch("/api/progress/levels/1.4", { method: "PUT", headers: { "content-type": "application/json" }, body: JSON.stringify(data) });
+      return res.status;
+    }, body);
+  expect(await put(a, { bestStars: 2 })).toBe(200);
   await replaceEditableCode(a, "\n# từ tab A\n");
   await a.waitForTimeout(700);
+  // Leaving a page sends its held draft at once (drafts otherwise go out every 10 s).
+  await a.goto("about:blank");
   await replaceEditableCode(b, "\n# từ tab B\n");
   await b.waitForTimeout(700);
+  await b.goto("about:blank");
   const c = await context.newPage();
   await c.goto(LEVEL_URL);
+  // The page-hide send is fire-and-forget: wait until the server has tab B's draft.
+  await expect
+    .poll(() => c.evaluate(async () => (await (await fetch("/api/progress")).json()).levels["1.4"]?.draft ?? ""))
+    .toContain("# từ tab B");
+  await c.reload();
+  await enterMission(c);
   await expect(c.locator(".cm-content")).toContainText("# từ tab B");
   await expect(c.locator(".cm-content")).not.toContainText("# từ tab A");
   expect((await editorText(c)).split("\n").slice(1, 4)).toEqual(LOCKED);
+  // A lower score from a tab that never saw the star does not take it away.
+  expect(await put(c, { bestStars: 1 })).toBe(200);
+  const progress = await c.evaluate(async () => (await fetch("/api/progress")).json());
+  expect(progress.levels["1.4"].bestStars).toBe(2);
 });

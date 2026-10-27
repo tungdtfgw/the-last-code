@@ -1,5 +1,5 @@
 import { readFileSync } from "node:fs";
-import { expect, test } from "@playwright/test";
+import { expect, test } from "./fixtures";
 import type { LevelDefinition } from "../../src/game/level-types";
 import { enterMission } from "./helpers";
 

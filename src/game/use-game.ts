@@ -76,7 +76,7 @@ export function useGame(level: LevelDefinition, repository: ProgressRepository, 
     () =>
       repository.onPersistenceLost(() => {
         setPersistent(false);
-        dispatch({ type: "terminal_note", line: { tone: "alarm", text: "> KHÔNG LƯU ĐƯỢC TIẾN ĐỘ: bộ nhớ trình duyệt bị chặn hoặc đã đầy" } });
+        dispatch({ type: "terminal_note", line: { tone: "alarm", text: "> KHÔNG LƯU ĐƯỢC TIẾN ĐỘ: không gửi được lên máy chủ" } });
       }),
     [repository],
   );

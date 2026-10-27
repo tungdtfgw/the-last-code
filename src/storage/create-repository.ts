@@ -1,5 +1,6 @@
 import { LocalStorageRepository } from "./local-storage-repository";
 import { MemoryRepository } from "./memory-repository";
+import type { SettingsStore } from "./http-repository";
 import type { ProgressRepository } from "./progress-repository";
 
 const PROBE_KEY = "the-last-code:probe";
@@ -15,4 +16,9 @@ export function createRepository(getStorage: () => Storage | undefined = () => g
   } catch {
     return new MemoryRepository(false);
   }
+}
+
+/** Device settings (mute) stay in this browser: `localStorage` when it works, memory otherwise. */
+export function createSettingsStore(getStorage: () => Storage | undefined = () => globalThis.localStorage): SettingsStore {
+  return createRepository(getStorage);
 }

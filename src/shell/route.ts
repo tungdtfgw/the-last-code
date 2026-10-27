@@ -1,7 +1,7 @@
 import type { Route } from "../story/progression";
+import { ROUTE_ID } from "./route-id";
 
-/** Ids a route can carry; `validate-level.ts` enforces the same shape. */
-export const ROUTE_ID = /^[\w.-]{1,64}$/;
+export { ROUTE_ID };
 
 /** `#/`, empty or unknown → title; `#/map`; `#/story/<id>`; `#/level/<id>`; `#/learn/<id>`. */
 export function parseRoute(hash: string): Route {
