@@ -1,5 +1,6 @@
 import { afterEach, beforeEach, expect, test, vi } from "vitest";
-import { chapterFile, migratedTexts } from "../../tests/content-fixture";
+import { chapterFile, migratedTexts, realChapter } from "../../tests/content-fixture";
+import { validateChapterText } from "../content/validate-text";
 import { getChapter } from "./chapter";
 
 const file = chapterFile();
@@ -35,4 +36,22 @@ test("text with a beat the puzzle does not have breaks the chapter instead of pl
   text.teaser.push({ kind: "log", text: "Thừa." });
   const result = withText(text);
   expect(!result.ok && result.errors.join("\n")).toMatch(new RegExp(`teaser\\[${file.teaser.length}\\]`));
+});
+
+test("the teaser keeps its nine beat kinds, so a text patch fits the chapter file before and after it", () => {
+  expect(file.teaser.map((b: { kind: string }) => b.kind)).toEqual(["log", "echo", "log", "log", "card", "echo", "log", "kai", "card"]);
+});
+
+test("the migrated teaser is the end of chapter 1 and fits the chapter file", () => {
+  const chapter = realChapter();
+  expect(chapter.teaser).toHaveLength(9);
+  expect(chapter.teaser.at(-1)!.text).toMatch(/^HẾT CHƯƠNG 1/);
+  expect(migratedTexts()["chapter:1"].revision).toBe(2);
+});
+
+test("the patched teaser text also fits the chapter file as it was before the chapter ending", () => {
+  const before = chapterFile();
+  before.teaser[0].backdrop = "vung-toi";
+  delete before.teaser[2].fx;
+  expect(validateChapterText(before, migratedTexts()["chapter:1"].text).ok).toBe(true);
 });

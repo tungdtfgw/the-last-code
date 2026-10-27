@@ -104,7 +104,7 @@
   "teaser": [
     {
       "kind": "log",
-      "backdrop": "vung-toi",
+      "backdrop": "thanh-pho",
       "cue": "gate_close_far"
     },
     {
@@ -112,7 +112,8 @@
       "fx": "id_bar"
     },
     {
-      "kind": "log"
+      "kind": "log",
+      "fx": "eight_fragments"
     },
     {
       "kind": "log"
