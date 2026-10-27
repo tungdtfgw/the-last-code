@@ -23,6 +23,7 @@ const CUES = new Set([
   "alarm",
   "siren",
   "gate_open",
+  "gate_close_far",
   "star",
   "echo_voice",
   "teletype",

@@ -12,6 +12,7 @@ export const CUES = [
   "alarm",
   "siren",
   "gate_open",
+  "gate_close_far",
   "star",
   "echo_voice",
   "teletype",
@@ -183,6 +184,20 @@ export const RECIPES: Record<Cue, Recipe> = {
     src.stop(t + 0.8);
     tone(ctx, out, t, "sine", 60, 0.7, 0.18);
     return 0.8;
+  },
+  /** Story beat: a gate shutting some distance away; `gate_open` reversed, darker and about a third as loud. */
+  gate_close_far: (ctx, out, t) => {
+    const src = ctx.createBufferSource();
+    src.buffer = noiseBuffer(ctx);
+    const f = ctx.createBiquadFilter();
+    f.type = "lowpass";
+    f.frequency.setValueAtTime(900, t);
+    f.frequency.exponentialRampToValueAtTime(120, t + 0.9);
+    src.connect(f).connect(envGain(ctx, out, t, 0.04, 0.08, 0.9));
+    src.start(t);
+    src.stop(t + 1.05);
+    tone(ctx, out, t + 0.85, "sine", 48, 0.5, 0.07, 40);
+    return 1.4;
   },
   star: (ctx, out, t) => {
     [523.25, 659.25, 783.99].forEach((f, i) => tone(ctx, out, t + i * 0.09, "sine", f, 0.16, 0.1));

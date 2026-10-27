@@ -129,7 +129,7 @@
       "kind": "log",
       "text": "Cổng phía Bắc đóng lại sau lưng Kai.",
       "backdrop": "vung-toi",
-      "cue": "gate_open"
+      "cue": "gate_close_far"
     },
     {
       "kind": "echo",
