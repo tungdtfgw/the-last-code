@@ -67,6 +67,7 @@ const SIM_KEYS: Record<SimulationKind, readonly string[]> = {
   relay: ["kind", "station"],
   kiosk: ["kind", "devices"],
   sorter: ["kind"],
+  checkpoint: ["kind"],
 };
 
 /** Limits of a test's stdin channel: lines `input()` reads. */
@@ -294,6 +295,8 @@ export function validateLevel(raw: unknown): ValidationResult {
         errors.push("simulation.station phải là chuỗi không rỗng ≤ 12 ký tự");
       if (sim.kind === "kiosk") checkKiosk(sim.devices, objectives.map((o) => o.var), errors);
       if (sim.kind === "sorter") checkSorter(objectives, errors);
+      if (sim.kind === "checkpoint" && (outputCount === 0 || objectives.length > 0 || !Array.isArray(r.tests) || r.tests.length < 2))
+        errors.push("simulation: cổng kiểm soát cần chỉ mục tiêu output_line và ít nhất 2 test cơ bản (mỗi test là một vòng quét)");
     }
   }
 

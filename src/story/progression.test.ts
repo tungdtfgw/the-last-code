@@ -82,13 +82,18 @@ describe("1.1, 1.2 and 1.4 built (1.3 missing)", () => {
 });
 
 describe("the shipped chapter (src/levels)", () => {
-  const ctx = buildChapterContext(chapter, realRegistry());
-  const seen = (...ids: string[]) => snap({ "1.1": 3, "1.2": 3, "1.3": 3, "1.4": 3 }, ids);
+  const registry = realRegistry();
+  const ctx = buildChapterContext(chapter, registry);
+  // Whatever is built today, in chapter order (levels without a file are skipped).
+  const built = chapter.levels.filter((id) => registry.getLevel(id));
+  const seen = (...ids: string[]) => snap(Object.fromEntries(built.map((id) => [id, 3 as StarCount])), ids);
 
-  test("plays through: prologue → 1.1 → 1.2 → 1.3 → 1.4 → teaser → map, each level behind the one before", () => {
+  test("plays through every built level in chapter order, then the chapter ending, then the map", () => {
+    expect(built.slice(0, 4)).toEqual(["1.1", "1.2", "1.3", "1.4"]);
+    expect(built.at(-1)).toBe("1.7");
     expect(storyEnd("prologue", ctx, seen("prologue"))).toEqual(level("1.1"));
-    expect(["1.1", "1.2", "1.3"].map((id) => storyEnd(`after-${id}`, ctx, seen()))).toEqual([level("1.2"), level("1.3"), level("1.4")]);
-    expect(storyEnd("after-1.4", ctx, seen())).toEqual(story("teaser"));
+    expect(built.slice(0, -1).map((id) => storyEnd(`after-${id}`, ctx, seen()))).toEqual(built.slice(1).map(level));
+    expect(storyEnd("after-1.7", ctx, seen())).toEqual(story("teaser"));
     expect(storyEnd("teaser", ctx, seen("teaser"))).toEqual(MAP);
     expect(nodeStates(ctx, snap({ "1.1": 1, "1.2": 1 })).slice(2, 4)).toMatchObject([
       { id: "1.3", status: "open", next: true },
@@ -96,12 +101,37 @@ describe("the shipped chapter (src/levels)", () => {
     ]);
   });
 
-  test("after 1.4 the Neural-ID holds four of six components, as the teaser says", () => {
+  test("the boss builds no component; every other built level fills its own slot", () => {
     const totals = chapterTotals(ctx, seen());
-    expect(totals).toMatchObject({ stars: 12, maxStars: 12, slots: 6 });
-    expect(totals.components.map((c) => c.slot)).toEqual([0, 1, 2, 3]);
-    const teaserLine = chapter.teaser.find((b) => b.text.includes("thành phần"))!.text;
-    expect(teaserLine).toMatch(/^Bốn thành phần\. Còn hai\./);
+    expect(totals).toMatchObject({ stars: 3 * built.length, maxStars: 3 * built.length, slots: 6 });
+    expect(registry.getLevel("1.7")?.component).toBeUndefined();
+    expect(totals.components.map((c) => c.levelId)).toEqual(built.filter((id) => id !== "1.7"));
+  });
+});
+
+describe("the full chapter: seven levels, the boss last", () => {
+  const ids = ["1.1", "1.2", "1.3", "1.4", "1.5", "1.6"];
+  const { component: _component, ...boss } = asLevel("1.7");
+  const ctx = ctxWith(ids, { "./level-1-7.json": boss });
+  const stars = (...levels: string[]) => Object.fromEntries(levels.map((id) => [id, 3 as StarCount]));
+
+  test("after-1.6 leads into the boss, after-1.7 into the chapter ending, which ends on the map", () => {
+    const s = snap(stars(...ids, "1.7"));
+    expect(storyEnd("after-1.6", ctx, s)).toEqual(level("1.7"));
+    expect(storyEnd("after-1.7", ctx, s)).toEqual(story("teaser"));
+    expect(storyEnd("teaser", ctx, snap(stars(...ids, "1.7"), ["teaser"]))).toEqual(MAP);
+  });
+
+  test("the boss opens once 1.6 has a star", () => {
+    expect(nodeStates(ctx, snap(stars("1.1", "1.2", "1.3", "1.4", "1.5")))[6]).toMatchObject({ status: "locked", requires: "1.6" });
+    expect(nodeStates(ctx, snap(stars(...ids)))[6]).toMatchObject({ id: "1.7", status: "open", next: true });
+  });
+
+  test("21 stars at most; the Neural-ID is full (6/6) after 1.6, the boss takes no slot", () => {
+    const totals = chapterTotals(ctx, snap(stars(...ids)));
+    expect(totals).toMatchObject({ stars: 18, maxStars: 21, slots: 6 });
+    expect(totals.components.map((c) => c.slot)).toEqual([0, 1, 2, 3, 4, 5]);
+    expect(chapterTotals(ctx, snap(stars(...ids, "1.7"))).components).toHaveLength(6);
   });
 });
 
