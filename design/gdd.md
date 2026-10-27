@@ -206,6 +206,11 @@ Mỗi level có một GDD riêng trong `design/chuong-<n>/gdd-<chương>.<level>
 | 1.2 Gán nhãn | `design/chuong-1/gdd-1.2-gan-nhan.md` |
 | 1.3 Bốn loại tín hiệu | `design/chuong-1/gdd-1.3-bon-loai-tin-hieu.md` |
 | 1.4 Tín hiệu lệch pha | `design/chuong-1/gdd-1.4-tin-hieu-lech-pha.md` |
+| 1.5 Năng lượng tối thiểu | `design/chuong-1/gdd-1.5-nang-luong-toi-thieu.md` |
+| 1.6 Đối thoại với Cổng | `design/chuong-1/gdd-1.6-doi-thoai-voi-cong.md` |
+| 1.7 BOSS Cổng Kiểm Soát (kèm đoạn hết chương) | `design/chuong-1/gdd-1.7-boss-cong-kiem-soat.md` |
+
+Thay đổi engine dùng chung cho 1.5–1.7 (kênh nhập cho `input()`, nhiều vòng quét, kết chương, thứ tự làm và số migration): `docs/hop-dong-engine-level-1-5-den-1-7.md`.
 
 ---
 
@@ -299,9 +304,10 @@ Trình duyệt mục tiêu của prototype: Chrome. Safari/iOS chưa được ki
 
 ## 9. Việc cần làm tiếp
 
-- [ ] Đặc tả chi tiết Boss 1.7 – Cổng Kiểm Soát
+- [x] Đặc tả chi tiết Boss 1.7 – Cổng Kiểm Soát và đoạn hết Chương 1 (28/10/2026)
 - [x] Đặc tả mở đầu game, chuyển cảnh và level 1.1–1.3 (25/10/2026)
-- [ ] Đặc tả các level 1.5–1.6
+- [x] Đặc tả các level 1.5–1.6 (28/10/2026)
+- [ ] Dựng level 1.5–1.7 theo `docs/hop-dong-engine-level-1-5-den-1-7.md`
 - [ ] Phác thảo chương 2–8 ở mức level
 - [ ] Thiết kế hồ sơ 8 Kiến Trúc Sư (tên, khu vực, nhật ký)
 - [ ] Thiết kế cơ chế ghép kill switch ở Boss cuối

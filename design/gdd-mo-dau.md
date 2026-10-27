@@ -172,6 +172,8 @@ Câu chữ: `teaser[].text` (D1, `chapter:1`; 9 nhịp, cấu trúc nhịp trong
 
 Chạy ngay sau đoạn `after-1.4` khi level 1.5 chưa được dựng. Khi 1.5 có file JSON, `after-1.4` dẫn thẳng vào 1.5 và đoạn này chuyển xuống sau level cuối cùng đã dựng.
 
+**Khi đủ 1.5–1.7 (28/10/2026):** đoạn này đổi ý đồ thành **hết Chương 1**, chạy sau `after-1.7`. Khung 9 nhịp và `kind` giữ nguyên, câu mới đi bằng migration vá; ý đồ từng nhịp ở `design/chuong-1/gdd-1.7-boss-cong-kiem-soat.md` mục 13. Bảng dưới là ý đồ của bản "Còn tiếp" sau 1.4, giữ làm lịch sử.
+
 | Nhịp | Kiểu | Ý đồ | Âm thanh, hiệu ứng bắt buộc |
 |---|---|---|---|
 | 1 | log, `vung-toi` | Cổng phía Bắc đóng lại sau lưng Kai | `gate_close_far`: tiếng cổng đóng ở xa, trầm và nhỏ hơn `gate_open` |
@@ -234,6 +236,8 @@ Người soạn level giữ nguyên các sự thật dưới đây (địa đi�
 - **Móc câu:** kẻ giúp Kai suốt ba level có thể là kẻ đã giết người đưa tin; mảnh đầu tiên ở Cổng Kiểm Soát, và Nhi trực ở đó.
 
 ### 6.5. Các level chưa dựng (chỉ một dòng, để giữ hướng)
+
+Đặc tả đầy đủ (28/10/2026): `design/chuong-1/gdd-1.5-nang-luong-toi-thieu.md`, `design/chuong-1/gdd-1.6-doi-thoai-voi-cong.md`, `design/chuong-1/gdd-1.7-boss-cong-kiem-soat.md`. Mảnh nhật ký: 1.5 là mảnh thứ hai của KTS-07, 1.6 của KTS-01, 1.7 của KTS-05 (người giấu mảnh "Định danh"); Chương 1 vẫn chỉ lộ bốn KTS.
 
 - **1.5 Năng lượng tối thiểu (Vành Đai Điện):** tính đúng lượng pin để tắt hàng rào; thành phần Năng lượng tín hiệu.
 - **1.6 Đối thoại với Cổng (Trạm Thẩm Vấn):** trả lời câu hỏi xác thực bằng `input()` và f-string; thành phần Lời đáp xác thực.
