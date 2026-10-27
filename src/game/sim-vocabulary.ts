@@ -82,6 +82,18 @@ export function vocabularyFor(level: Pick<LevelDefinition, "simulation">): SimVo
         round: "VÒNG",
         headlines: ["Rào tắt, bị ghi nhận", "Rào tắt một nửa", "Rào tắt hoàn toàn"],
       };
+    case "interrogation":
+      return {
+        runTarget: "trả lời Trạm Thẩm Vấn",
+        gate: "TRẠM",
+        counterSurvived: "BỘ CÂU HỎI MỚI ĐI QUA TRẠM: mã vẫn đứng vững",
+        sent: "TRẠM NHẬN",
+        dropped: "TRẠM BÁC",
+        objectivesNote: "trạm chỉ nhận đúng từng ký tự",
+        terminalNote: "nhật ký Trạm Thẩm Vấn",
+        round: "VÒNG",
+        headlines: ["Trạm duyệt, bị ghi nhận", "Trạm duyệt một nửa", "Trạm duyệt hoàn toàn"],
+      };
     case "scanner":
       return SCANNER;
   }

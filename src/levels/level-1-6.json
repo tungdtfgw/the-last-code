@@ -1,0 +1,165 @@
+{
+  "schema_version": 1,
+  "id": "1.6",
+  "chapter": 1,
+  "title": "Đối thoại với Cổng",
+  "difficulty": "medium",
+  "concepts": [
+    "input",
+    "f-string"
+  ],
+  "simulation": {
+    "kind": "interrogation"
+  },
+  "knowledge_summary": {
+    "sections": [
+      {
+        "code": "x = input()\nprint(type(x))\nprint(x)",
+        "stdin": "25\n",
+        "output": "<class 'str'>\n25"
+      },
+      {
+        "code": "ten = input()\nlop = input()\nprint(lop, ten)",
+        "stdin": "Lan\n10A\n",
+        "output": "10A Lan"
+      },
+      {
+        "code": "tuoi = int(input())\nprint(tuoi + 1)",
+        "stdin": "15\n",
+        "output": "16"
+      },
+      {
+        "code": "ten = \"Lan\"\nso_qua = 3\nprint(f\"{ten} co {so_qua + 2} qua cam\")",
+        "output": "Lan co 5 qua cam"
+      },
+      {
+        "code": "ten = \"Lan\"\nprint(\"Chao {ten}\")\nprint(f\"Chao {ten}\")",
+        "output": "Chao {ten}\nChao Lan"
+      },
+      {
+        "code": "ten = input(\"Ten: \")\nprint(\"Chao\", ten)",
+        "stdin": "Lan\n",
+        "output": "Ten: Chao Lan"
+      }
+    ],
+    "mistakes": [
+      {
+        "code": "ma = \"8210\"\nprint(ma + 7)",
+        "error": "TypeError: can only concatenate str (not \"int\") to str"
+      },
+      {
+        "code": "ten = \"Lan\"\nprint(\"Chao {ten}\")",
+        "error": "Không báo lỗi, nhưng in ra: Chao {ten}"
+      },
+      {
+        "code": "a = input()\nb = input()",
+        "error": "EOFError: EOF when reading a line"
+      },
+      {
+        "code": "so = int(input())",
+        "error": "ValueError: invalid literal for int() with base 10: 'DEM'"
+      },
+      {
+        "code": "ma = input(\"Ma: \")\nprint(\"MA\", ma)",
+        "error": "Không báo lỗi, nhưng in ra: Ma: MA 8210"
+      }
+    ]
+  },
+  "starter_code": "# Hồ sơ ĐỖ MINH AN (KHÔNG được sửa 2 dòng này)\nho_ten = \"ĐỖ MINH AN\"\nso_khu = 7\n\n# Trạm Thẩm Vấn gửi câu hỏi qua kênh nhập. Mỗi input() đọc một dòng.\nma_hoi = input()\nprint(\"DANH TINH: {ho_ten}\")\nprint(f\"MA DAP: {ma_hoi + so_khu}\")\nprint(\"CA DEM DA DUYET\")\n",
+  "locked_lines": [
+    2,
+    3
+  ],
+  "inputs": [
+    "ho_ten",
+    "so_khu"
+  ],
+  "objectives": [
+    {
+      "kind": "output_line",
+      "line": 1
+    },
+    {
+      "kind": "output_line",
+      "line": 2
+    },
+    {
+      "kind": "output_line",
+      "line": 3
+    }
+  ],
+  "alert_limit_statements": 5,
+  "float_abs_tolerance": 1e-9,
+  "tests": [
+    {
+      "inputs": {
+        "ho_ten": "ĐỖ MINH AN",
+        "so_khu": 7
+      },
+      "stdin": [
+        "4172",
+        "DEM"
+      ],
+      "expected": {},
+      "expected_output": [
+        "DANH TINH: ĐỖ MINH AN",
+        "MA DAP: 4179",
+        "CA DEM DA DUYET"
+      ]
+    }
+  ],
+  "counter_attack_tests": [
+    {
+      "inputs": {
+        "ho_ten": "ĐỖ MINH AN",
+        "so_khu": 7
+      },
+      "stdin": [
+        "9035",
+        "SANG"
+      ],
+      "expected": {},
+      "expected_output": [
+        "DANH TINH: ĐỖ MINH AN",
+        "MA DAP: 9042",
+        "CA SANG DA DUYET"
+      ]
+    }
+  ],
+  "forbidden_terms": [
+    "input",
+    "f-string",
+    "fstring",
+    "chuỗi định dạng",
+    "ngoặc nhọn",
+    "chữ f",
+    "\"",
+    "'",
+    "dấu nháy",
+    "đổi kiểu",
+    "ép kiểu",
+    "chuyển kiểu",
+    "ho_ten",
+    "so_khu",
+    "ma_hoi",
+    "4172",
+    "9035",
+    "DEM",
+    "SANG"
+  ],
+  "outro_beats": [
+    {
+      "kind": "echo"
+    },
+    {
+      "kind": "kai"
+    },
+    {
+      "kind": "card",
+      "cue": "glitch"
+    },
+    {
+      "kind": "echo"
+    }
+  ]
+}

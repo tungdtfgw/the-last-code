@@ -81,6 +81,7 @@ const SIM_KEYS: Record<SimulationKind, readonly string[]> = {
   kiosk: ["kind", "devices"],
   sorter: ["kind"],
   fence: ["kind", "energy", "cells", "remainder", "capacity"],
+  interrogation: ["kind"],
 };
 
 /** Limits of a test's stdin channel: lines `input()` reads. */

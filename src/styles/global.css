@@ -4799,3 +4799,286 @@ body:has(.learn-screen)::before {
     animation: none;
   }
 }
+
+/* ---------- Interrogation station (simulation kind "interrogation") ---------- */
+
+.interrogation-stage {
+  position: relative;
+  flex: 0 0 auto;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 84px minmax(0, 0.7fr);
+  gap: var(--s-3);
+  align-items: center;
+  padding: var(--s-6) var(--s-3) var(--s-3);
+}
+
+.sim.interrogation.is-shaking .interrogation-stage {
+  animation: shake 0.42s steps(6) 2;
+}
+
+.interrogation-screen {
+  border: 1px solid var(--line-strong);
+  background: var(--surface);
+  padding: var(--s-2);
+  min-width: 0;
+}
+
+.interrogation-caption,
+.interrogation-slot-label,
+.interrogation-card-state,
+.interrogation-stamp,
+.interrogation-sentinel {
+  font-family: var(--font-display);
+  font-size: var(--text-2xs);
+  font-weight: 700;
+  letter-spacing: var(--tracking-label);
+}
+
+.interrogation-caption {
+  color: var(--text-faint);
+  margin: 0 0 var(--s-2);
+}
+
+.interrogation-cards {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--s-1);
+}
+
+.interrogation-card {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: var(--s-2);
+  padding: var(--s-1) var(--s-2);
+  border: 1px solid var(--line);
+  border-left-width: 3px;
+  background: var(--bg-deep);
+  font-family: var(--font-mono);
+  font-size: var(--text-sm);
+}
+
+.interrogation-card-text {
+  color: var(--type-str);
+  overflow-wrap: anywhere;
+}
+
+.interrogation-card.is-unread {
+  opacity: 0.55;
+}
+
+.interrogation-card.is-unread .interrogation-card-state {
+  color: var(--text-faint);
+}
+
+.interrogation-card.is-read {
+  border-left-color: var(--signal);
+}
+
+.interrogation-card.is-read .interrogation-card-state {
+  color: var(--signal);
+}
+
+.interrogation-card.is-missing {
+  border-style: dashed;
+  border-left-color: var(--alarm);
+}
+
+.interrogation-card.is-missing .interrogation-card-text,
+.interrogation-card.is-missing .interrogation-card-state {
+  color: var(--alarm);
+}
+
+.interrogation-card.is-none {
+  color: var(--text-faint);
+  font-size: var(--text-xs);
+}
+
+.interrogation-card.is-feeding {
+  outline: 1px solid var(--signal);
+}
+
+.interrogation-slot {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--s-2);
+  min-height: 96px;
+  justify-content: center;
+}
+
+.interrogation-slot-mouth {
+  width: 56px;
+  height: 10px;
+  border: 1px solid var(--line-strong);
+  background: var(--bg);
+}
+
+.interrogation-slot.is-feeding .interrogation-slot-mouth {
+  border-color: var(--signal);
+}
+
+.interrogation-slot-card {
+  position: absolute;
+  top: 6px;
+  max-width: 80px;
+  padding: 2px var(--s-1);
+  font-family: var(--font-mono);
+  font-size: var(--text-2xs);
+  color: var(--signal-ink);
+  background: var(--signal);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  animation: interrogation-feed 0.35s var(--ease-out) both;
+}
+
+@keyframes interrogation-feed {
+  from {
+    transform: translateX(-60px);
+    opacity: 0;
+  }
+  to {
+    transform: translateX(60px);
+    opacity: 0;
+  }
+  40% {
+    opacity: 1;
+  }
+}
+
+.interrogation-slot-lamp {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  border: 1px solid var(--line-strong);
+  background: var(--surface-raised);
+}
+
+.interrogation-slot.is-feeding .interrogation-slot-lamp {
+  background: var(--signal);
+  border-color: var(--signal);
+}
+
+.interrogation-slot.is-empty .interrogation-slot-lamp {
+  background: var(--alarm);
+  border-color: var(--alarm);
+  animation: alarm-lamp 0.8s steps(1) infinite;
+}
+
+.interrogation-slot-label {
+  text-align: center;
+  color: var(--text-faint);
+}
+
+.interrogation-slot.is-empty .interrogation-slot-label {
+  color: var(--alarm);
+}
+
+.interrogation-laptop {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--s-2);
+  min-width: 0;
+}
+
+.interrogation-laptop-screen {
+  width: 100%;
+  max-width: 104px;
+  padding: var(--s-3) var(--s-2);
+  border: 1px solid var(--line-strong);
+  background: var(--surface);
+  font-family: var(--font-mono);
+  font-size: var(--text-sm);
+  color: var(--signal);
+}
+
+.interrogation-laptop.is-compile_error .interrogation-laptop-screen {
+  color: var(--alarm);
+  border-color: var(--alarm);
+}
+
+.interrogation-stamp {
+  padding: 2px var(--s-2);
+  border: 2px solid var(--line-strong);
+  color: var(--text-faint);
+  transform: rotate(-6deg);
+}
+
+.interrogation-stamp.is-half {
+  border-color: var(--signal);
+  color: var(--signal);
+}
+
+.interrogation-stamp.is-open {
+  border-color: var(--ok);
+  color: var(--ok);
+}
+
+.interrogation-sentinel {
+  position: absolute;
+  top: var(--s-2);
+  right: var(--s-3);
+  display: flex;
+  align-items: center;
+  gap: var(--s-1);
+  color: var(--text-faint);
+}
+
+.interrogation-sentinel::before {
+  content: "";
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  border: 1px solid var(--line-strong);
+  background: var(--surface-raised);
+}
+
+.interrogation-sentinel.is-on {
+  color: var(--alarm);
+}
+
+.interrogation-sentinel.is-on::before {
+  background: var(--alarm);
+  border-color: var(--alarm);
+  animation: alarm-lamp 0.8s steps(1) infinite;
+}
+
+.interrogation-prompt {
+  text-decoration: underline wavy var(--alarm);
+  text-underline-offset: 3px;
+}
+
+.interrogation-prompt-note {
+  grid-column: 1 / -1;
+  font-size: var(--text-xs);
+  color: var(--alarm);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .interrogation-slot-card {
+    display: none;
+  }
+
+  .interrogation-slot.is-empty .interrogation-slot-lamp,
+  .interrogation-sentinel.is-on::before {
+    animation: none !important;
+  }
+}
+
+@media (max-width: 767px) {
+  .interrogation-stage {
+    grid-template-columns: minmax(0, 1fr) 64px minmax(0, 0.6fr);
+    gap: var(--s-2);
+    padding-inline: var(--s-2);
+  }
+
+  .interrogation-slot-mouth {
+    width: 40px;
+  }
+}

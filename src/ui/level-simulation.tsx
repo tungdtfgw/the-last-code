@@ -2,6 +2,7 @@ import type { ComponentProps } from "react";
 import { BASE_TYPES, simulationOf, type LevelDefinition } from "../game/level-types";
 import { typeTitle } from "../game/type-gloss";
 import { FenceSimulation } from "./fence-simulation";
+import { InterrogationSimulation } from "./interrogation-simulation";
 import { KioskSimulation } from "./kiosk-simulation";
 import { RelaySimulation } from "./relay-simulation";
 import { ScannerSimulation } from "./scanner-simulation";
@@ -38,6 +39,8 @@ export function LevelSimulation(props: SimulationProps) {
       return <SorterSimulation {...props} />;
     case "fence":
       return <FenceSimulation {...props} />;
+    case "interrogation":
+      return <InterrogationSimulation {...props} />;
     case "scanner":
       return <ScannerSimulation {...props} />;
   }
