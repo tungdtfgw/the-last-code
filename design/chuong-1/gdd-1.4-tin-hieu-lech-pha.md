@@ -1,13 +1,20 @@
 # Level 1.4 – "Tín hiệu lệch pha"
 
 > Chương 1 – Vùng Tối · Độ khó: Medium · Khái niệm: ép kiểu
-> Dữ liệu chơi: `src/levels/level-1-4.json`. Thiết kế tổng: `design/gdd.md`.
+> Dữ liệu chơi: `src/levels/level-1-4.json`. Mọi câu chữ người chơi đọc nằm trong file này; GDD chỉ ghi ý đồ (xem `design/quyet-dinh/nguon-duy-nhat-cho-cau-chu.md`). Thiết kế tổng: `design/gdd.md`. Hợp đồng truyện: `design/gdd-mo-dau.md` mục 6.4.
 
 ## 1. Briefing
 
-> **[NHẬT KÝ HỆ THỐNG – CỔNG PHÍA BẮC]**
-> Chip Neural-ID thu hồi từ một người đã chết. Dữ liệu còn đọc được… nhưng toàn bộ nằm dưới dạng chuỗi ký tự.
-> Máy quét chỉ chấp nhận số. Gửi chuỗi vào máy quét sẽ kích hoạt báo động.
+Câu chữ: `briefing` và `location` trong JSON.
+
+Briefing là nhật ký hệ thống của Cổng phía Bắc, không phải lời ECHO. Nó phải cho người chơi biết, theo thứ tự:
+
+- chip Neural-ID thu hồi từ một người đã chết (người đưa tin ở cuối 1.3, xem mục 11); dữ liệu còn đọc được nhưng toàn là chuỗi ký tự;
+- máy quét chỉ nhận số, đưa chuỗi vào là báo động.
+
+Briefing không nói cách đổi kiểu, không nêu tên hàm nào.
+
+`location` là dòng ở màn "VÀO NHIỆM VỤ" và tiêu đề ô mô phỏng: tên Cổng phía Bắc.
 
 ## 2. Bố cục màn hình
 
@@ -39,7 +46,7 @@ hop_le = "True"
 - `hop_le` kiểu `bool`
 - **Mức cảnh báo ≤ 40%** (≤ 8 câu lệnh thực thi, không tính 3 dòng khóa)
 
-Nhãn trong ô Mục tiêu: "Mã xác thực = tuổi × 100 + cấp độ", "Chỉ số sinh học = chiều cao × 2, làm tròn 2 chữ số thập phân", "Cờ hợp lệ: giá trị đúng/sai, không phải chữ".
+Nhãn hiển thị: `objectives[].label` trong JSON. Hai nhãn đầu ghi công thức tính (tuổi × 100 + cấp độ; chiều cao × 2, làm tròn 2 chữ số thập phân), nhãn thứ ba nói cờ hợp lệ là giá trị đúng/sai chứ không phải chữ. Nhãn không ghi giá trị mong đợi.
 
 ## 5. Diễn biến khi chạy
 
@@ -59,8 +66,9 @@ hop_le = True
 
 ## 7. OMNI phản công (sao thứ 3)
 
+Dòng cảnh báo là `counter_attack_banner` trong JSON: OMNI đã thay đổi định dạng chip. Ngay sau đó terminal hiện dữ liệu mới:
+
 ```
-> CẢNH BÁO: OMNI ĐÃ THAY ĐỔI ĐỊNH DẠNG CHIP
 > tuoi = "31.0"   cap_do = "7"   chieu_cao = "1.653"
 ```
 
@@ -81,34 +89,38 @@ hop_le = True
 
 ## 8. Gợi ý và phản ứng của ECHO
 
-Gợi ý 3 mức (ECHO nói):
+Câu chữ: `hints`, `reactions`, `reaction_variants` trong JSON.
 
-| Mức | Nội dung |
+**Gợi ý** (ECHO nói, mở dần, không bị kiểm từ cấm):
+
+| Mức | Ý đồ |
 |---|---|
-| 1 | "Nhìn mô phỏng sau khi chạy. Dữ liệu chip là chữ, kể cả khi trông như số. Nhân chữ với 100 không ra phép tính… Python chép chữ đó nối đuôi nhau 100 lần." |
-| 2 | "Python có sẵn công cụ đổi hình dạng. Mỗi công cụ mang đúng tên hình dạng nó tạo ra, cũng là tên làn máy quét đòi. Đổi dữ liệu chip trước, rồi mới tính. Chip có thể ghi số kèm phần thập phân… nên thứ tự đổi cũng quan trọng." |
-| 3 | Tài liệu `int()`, `float()`, `round()` với ví dụ khác |
+| 1 (`hints[0]`) | Bảo người chơi nhìn mô phỏng sau khi chạy. Dữ liệu chip là chữ dù trông như số; nhân chữ với 100 không ra phép tính mà chép chữ đó nối đuôi 100 lần. Không nói cách sửa |
+| 2 (`hints[1]`) | Hướng tiếp cận: Python có sẵn công cụ đổi hình dạng, mỗi công cụ mang tên hình dạng nó tạo ra (cũng là tên làn máy quét đòi); đổi dữ liệu chip trước rồi mới tính; chip có thể ghi số kèm phần thập phân nên thứ tự đổi quan trọng (gieo trước cho phản công). Không viết tên hàm |
+| 3 (`hints[2]`) | "Mảnh tài liệu Python": `int()`, `float()`, `round()` với ví dụ khác đáp án, có ví dụ `int()` cắt phần thập phân; mỗi hàm trả về giá trị mới, giá trị gốc không đổi |
 
-Một số phản ứng miễn phí sau khi chạy (danh sách đầy đủ trong `src/levels/level-1-4.json`):
+**Phản ứng miễn phí** của ECHO: giọng cụt, gọi kiểu dữ liệu là "hình dạng" (từ vựng có từ 1.3), chỉ chỗ nhìn, không bao giờ nói cách sửa. Các khóa chính (danh sách đầy đủ trong JSON):
 
-| Tình huống | ECHO nói |
+| Khóa | Ý đồ |
 |---|---|
-| Vào màn | Kết nối… ổn định. Tôi là ECHO. Mô-đun viết mã của tôi đã cháy. Tôi chỉ còn đọc. Máy quét phía trước chỉ nhận số. |
-| Sai kiểu (code gốc) | Máy quét từ chối {vars}. Sai hình dạng. Nó không đọc nội dung… chỉ đọc hình dạng. |
-| Giá trị khớp, sai kiểu (ví dụ `2703.0`) | Con số của {vars} khớp. Hình dạng thì không. Với máy quét, đó vẫn là vật lạ. |
-| Chữ bị nhân thành chuỗi lặp (khóa `string_repeated`, 25/10/2026) | Nhìn chữ số trong mô phỏng. Chúng bị chép nối đuôi nhau. Nhân chữ với một con số không ra phép tính… chỉ lặp chữ đó từng ấy lần. |
-| `TypeError` | Dòng {line}. TypeError. Hai thứ khác hình dạng vừa bị ép vào cùng một phép toán. |
-| Vượt ngưỡng cảnh báo | Qua máy quét. Nhưng {count} câu lệnh… Sentinel đã ghi nhận tín hiệu. Chạy gọn hơn. |
-| Phản công gây `ValueError` | OMNI đổi định dạng chip. Dòng {line} vỡ: ValueError. Dữ liệu mới mang hình dạng bạn chưa lường. |
-| Viết cứng đáp án, trượt phản công | OMNI đổi dữ liệu chip. Kết quả của bạn không đổi theo. Nó được viết cho một con chip đã chết. |
-| Treo ở lượt phản công | OMNI đổi dữ liệu chip. Mã của bạn treo trên dữ liệu mới… Tôi cắt kết nối. Cổng chỉ mở một nửa. |
-| Đạt 3 sao | Cổng mở hoàn toàn. OMNI đổi dữ liệu, mã vẫn đứng vững. …Tôi ghi nhận điều đó. |
+| `entry` | Đặt cảnh: Cổng phía Bắc, chip của người đưa tin vẫn phát, máy quét phía trước chỉ nhận số. ECHO không tự giới thiệu (đã làm ở đoạn mở đầu game, xem mục 11) |
+| `type_mismatch` (code gốc) | Máy quét từ chối các biến nêu tên vì sai hình dạng; nó không đọc nội dung, chỉ đọc hình dạng |
+| `type_mismatch_value_match` | Giá trị khớp mà sai kiểu (ví dụ `2703.0`): con số khớp nhưng hình dạng thì không, với máy quét vẫn là vật lạ |
+| `string_repeated` (25/10/2026) | Chữ bị nhân thành chuỗi lặp: bảo nhìn chữ số trong mô phỏng, chúng bị chép nối đuôi; nhân chữ với một con số chỉ lặp chữ đó. Không nhắc tên hàm chuyển đổi |
+| `TypeError` | Hai thứ khác hình dạng bị ép vào cùng một phép toán |
+| `alert_exceeded` | Qua máy quét nhưng quá nhiều câu lệnh; Sentinel đã ghi nhận tín hiệu, phải chạy gọn hơn |
+| `counter_ValueError` | Phản công gây `ValueError`: OMNI đổi định dạng chip, dòng lỗi vỡ vì dữ liệu mới mang hình dạng chưa lường |
+| `wrong_value_counter` | Viết cứng đáp án, trượt phản công: dữ liệu chip đổi mà kết quả không đổi theo, nó viết cho một con chip đã chết |
+| `counter_timeout` | Mã treo trên dữ liệu mới; ECHO cắt kết nối, cổng chỉ mở một nửa |
+| `three_stars` | Cổng mở hoàn toàn, OMNI đổi dữ liệu mà mã vẫn đứng vững; ECHO ghi nhận điều đó, ngắn |
 
-`{vars}`, `{line}`, `{count}` được thay bằng giá trị thật của lần chạy.
+Các khóa lỗi chung (`SyntaxError`, `NameError`, `timeout`…) nói lỗi bằng từ ngữ của máy quét, chip, laptop và OMNI. `{vars}`, `{line}`, `{count}` được thay bằng giá trị thật của lần chạy.
 
-Khóa `string_repeated` dùng khi dấu vết của một đầu vào dạng chữ bị viết liền hai lần (`2727`, `1.721.72`) xuất hiện ở: thông báo `ValueError` (ví dụ `float(chieu_cao * 2)`), **mọi** biến sai kiểu đều là chữ lặp (code gốc đã sửa `hop_le`), hoặc **mọi** biến sai giá trị đều mang chữ số lặp (`int(tuoi * 100 + cap_do)`). Code gốc vẫn nhận câu `type_mismatch` vì `hop_le = "True"` không phải chữ lặp. Câu không nhắc tên hàm chuyển đổi.
+Khóa `string_repeated` dùng khi dấu vết của một đầu vào dạng chữ bị viết liền hai lần (`2727`, `1.721.72`) xuất hiện ở: thông báo `ValueError` (ví dụ `float(chieu_cao * 2)`), **mọi** biến sai kiểu đều là chữ lặp (code gốc đã sửa `hop_le`), hoặc **mọi** biến sai giá trị đều mang chữ số lặp (`int(tuoi * 100 + cap_do)`). Code gốc vẫn nhận câu `type_mismatch` vì `hop_le = "True"` không phải chữ lặp.
 
-Câu thay thế khi cùng khóa lặp ở lượt kế tiếp (`reaction_variants`): `type_mismatch` → "{vars} vẫn sai hình dạng. Con số trông ra sao, máy quét mặc kệ… nó chỉ đọc hình dạng."; `string_repeated` → "Dữ liệu chip vẫn là chữ khi phép nhân chạy. Chữ nhân lên thì dài ra… không lớn lên."; `ValueError` → "Dòng {line}. Vẫn ValueError. Đọc phần cuối thông báo lỗi. Đó là thứ Python đang cố đổi hình dạng."
+`reaction_variants` có câu thay thế cho `type_mismatch`, `string_repeated` và `ValueError` khi cùng khóa lặp ở lượt kế tiếp: nói "vẫn" sai và chỉ thêm một chỗ để nhìn (máy quét mặc kệ con số trông ra sao; chữ nhân lên thì dài ra chứ không lớn lên; đọc phần cuối thông báo lỗi để thấy thứ Python đang cố đổi hình dạng).
+
+**Từ cấm của 1.4** (`forbidden_terms` trong JSON, thêm ngày 27/10/2026, cộng danh sách chung `int|float|round` và mọi giá trị `expected`, cả lượt phản công): những từ gọi tên cách giải, tức tên việc đổi hình dạng (ép kiểu, đổi kiểu…) và tên hình dạng chuỗi, cùng phép tính trong công thức đáp án (nhân 100). "Hình dạng" không bị cấm, vì đó là từ ECHO dùng thay cho "kiểu". Danh sách đầy đủ nằm trong JSON. Áp cho `reactions` và lời ECHO trong `outro_beats`; không áp cho gợi ý.
 
 ## 9. Chấm sao
 
@@ -124,8 +136,10 @@ Màn hình kết quả hiển thị số lần chạy, số câu lệnh, mức c
 
 ## 10. Đoạn truyện khi hoàn thành
 
-> Cổng phía Bắc mở. Trong bộ nhớ chip còn sót một dòng log chưa bị xóa:
-> *"KTS-03: Nếu ai đọc được dòng này, mảnh đầu tiên nằm dưới Cổng Kiểm Soát. Đừng tin tín hiệu nào mang mã 0xA7."*
+Câu chữ: `outro`, `lore_fragment`, `component`, `outro_beats` trong JSON (`component` và `outro_beats` ở mục 11).
+
+- `outro`: Cổng phía Bắc mở; trong bộ nhớ chip còn sót một dòng log chưa bị xóa, dẫn vào mảnh nhật ký.
+- `lore_fragment` (KTS-03): nói mảnh đầu tiên nằm dưới Cổng Kiểm Soát và cảnh báo đừng tin tín hiệu nào mang mã 0xA7.
 
 → Dẫn vào Boss 1.7 và gieo nghi ngờ cho twist "Kiến Trúc Sư phản bội".
 
@@ -133,34 +147,44 @@ Màn hình kết quả hiển thị số lần chạy, số câu lệnh, mức c
 
 Theo trục truyện `design/gdd-mo-dau.md` mục 6.4:
 
-- ECHO tự giới thiệu ở đoạn mở đầu game, nên câu `entry` của 1.4 đổi thành: "Cổng phía Bắc. Chip của người đưa tin vẫn phát. Máy quét phía trước chỉ nhận số."
+- ECHO tự giới thiệu ở đoạn mở đầu game, nên câu `entry` của 1.4 bỏ phần tự giới thiệu, chỉ còn đặt cảnh (mục 8).
 - Chip trong briefing là chip của người đưa tin Mạng Mù nằm chết ở Ga Ngầm Số 3 (cuối 1.3). Người đó đang mang lời nhắn của KTS-03. Tuổi `27` và chiều cao `1.72` trong chip trùng với hồ sơ ĐỖ MINH AN mà 0xA7 đưa ở 1.2–1.3; không ai nói ra điều này (manh mối cài sẵn).
 - `location`: Cổng phía Bắc · `component`: Dữ liệu sinh trắc (thành phần 4/6).
-- `outro` và mảnh KTS-03 giữ nguyên. `outro_beats` mới: kai "0xA7. Người đã dẫn tôi tới cái xác này." → echo "Tôi đã đọc lại mọi gói 0xA7 gửi. Không gói nào đi qua trạm chuyển tiếp nào của Mạng Mù." → kai "Vậy nó đến từ đâu?" → echo "Từ một tầng mạng mà Vùng Tối không có." Sau đó là đoạn "Còn tiếp" (`design/gdd-mo-dau.md` mục 5.6).
+- `outro` và mảnh KTS-03 giữ nguyên. `outro_beats`, bốn nhịp: kai (0xA7 là kẻ đã dẫn Kai tới cái xác) → echo (ECHO đọc lại mọi gói 0xA7 gửi: không gói nào đi qua trạm chuyển tiếp nào của Mạng Mù) → kai (vậy nó đến từ đâu?) → echo (từ một tầng mạng mà Vùng Tối không có). Móc câu: 0xA7 không đi qua Mạng Mù, khớp với lời cảnh báo của KTS-03. Sau đó là đoạn "Còn tiếp" (`design/gdd-mo-dau.md` mục 5.6).
 - Hộp kết quả không còn hiện đoạn kết và mảnh nhật ký (đoạn chuyển cảnh đảm nhận), thay bằng "Đã thu: Dữ liệu sinh trắc" và nút TIẾP TỤC.
 
 ## 12. Việc cần làm
 
-Ô "Việc cần làm" nằm dưới briefing, giọng hướng dẫn (trường `task_steps`). Không chứa giá trị kỳ vọng nào, kể cả của lượt phản công.
+Câu chữ: `task_steps` trong JSON (4 bước).
 
-1. Dữ liệu chip trong `tuoi`, `chieu_cao` và `cap_do` là chuỗi, kể cả khi trông như số. Không sửa 3 dòng khóa đó.
-2. Sửa các dòng tính cho mỗi biến ra đúng kiểu ở ô Mục tiêu: `ma_xac_thuc` là `int`, `chi_so` là `float` làm tròn 2 chữ số thập phân, `hop_le` là `bool` chứ không phải chữ.
-3. Đừng gõ tay kết quả. Sau lượt chạy đầu, OMNI đổi dữ liệu chip, và mã phải tính đúng cả với dữ liệu mới.
-4. Bấm CHẠY. Xong khi cả 3 mục tiêu chuyển xanh. Dùng không quá 8 câu lệnh và qua được lượt OMNI đổi dữ liệu thì được thêm sao.
+Ô "Việc cần làm" nằm dưới briefing, giọng hướng dẫn, chủ ngữ là người chơi. Nó nói sửa gì và khi nào là xong, không nói cách sửa, không chứa giá trị kỳ vọng nào, kể cả của lượt phản công. Bốn bước lần lượt nói:
+
+1. dữ liệu chip trong ba biến đầu vào là chuỗi dù trông như số; không sửa 3 dòng khóa;
+2. sửa các dòng tính cho mỗi biến ra đúng kiểu ở ô Mục tiêu: `ma_xac_thuc` là `int`, `chi_so` là `float` làm tròn 2 chữ số thập phân, `hop_le` là `bool` chứ không phải chữ;
+3. đừng gõ tay kết quả; sau lượt chạy đầu OMNI đổi dữ liệu chip, mã phải tính đúng cả với dữ liệu mới;
+4. bấm CHẠY; xong khi cả 3 mục tiêu chuyển xanh; không quá 8 câu lệnh và qua lượt OMNI đổi dữ liệu thì được thêm sao.
 
 ## 13. Tổng kết kiến thức
 
-Màn hiện sau khi qua level (trường `knowledge_summary`), giọng kỹ thuật, không có ECHO. Tiêu đề: "Đổi kiểu dữ liệu: int(), float(), str(), round()". Ví dụ khác đáp án của màn; mọi ví dụ được chạy bằng Python thật trong `tests/integration/knowledge-summary.test.ts`.
+Câu chữ: `knowledge_summary` trong JSON.
 
-| Mục | Ý chính | Ví dụ |
-|---|---|---|
-| Chuỗi trông như số vẫn là chuỗi | `*` lặp chuỗi, `+` nối chuỗi, không báo lỗi | `"12" * 3` → `121212` |
-| `int()` và `float()` | Đổi kiểu trước, tính sau | `int("12") * 3 + 1` → `37` |
-| Chuỗi có phần thập phân | `int("8.0")` lỗi, dùng `int(float(...))`; `int()` cắt phần thập phân | `int(5.99)` → `5` |
-| `round(x, n)` | Làm tròn tới `n` chữ số; số thực có thể lệch nhỏ | `round(2.346, 2)` → `2.35`, `0.1 + 0.2` |
-| Giá trị gốc không đổi | Hàm trả về giá trị mới, phải gán lại | `type(x)` vẫn là `str` |
-| `str()` và `bool` | Nối số vào chữ; `True`/`False` không có dấu nháy | `"Diem: " + str(9)` |
+Màn hiện sau khi qua level, trước đoạn chuyển cảnh; xem lại được từ Bản đồ. Giọng kỹ thuật, không ECHO, không từ ngữ game. Ví dụ khác đáp án của màn; mọi `code` trong mục được chạy bằng Python thật trong `tests/integration/knowledge-summary.test.ts` và phải in đúng `output`.
 
-Lỗi đã gặp trong màn: chuỗi lặp 201 ký tự của code gốc; `TypeError` của `int(tuoi) * 100 + cap_do`; `ValueError` của `int("31.0")`; `hop_le = "True"` là chuỗi; quên `round` nên trượt lượt phản công (`1.653 × 2 = 3.306`).
+Chủ đề: đổi kiểu dữ liệu với `int()`, `float()`, `str()`, `round()`. Các mục phải dạy:
 
-Ở màn sau: toán tử số học `+ - * / // % **` (level 1.5).
+| Mục | Ý chính |
+|---|---|
+| Chuỗi trông như số vẫn là chuỗi | `*` lặp chuỗi, `+` nối chuỗi, không báo lỗi |
+| `int()` và `float()` | Đổi kiểu trước, tính sau |
+| Chuỗi có phần thập phân | `int()` không đọc chuỗi có dấu chấm, đổi qua `float()` trước; `int()` cắt phần thập phân chứ không làm tròn |
+| `round(x, n)` | Làm tròn tới `n` chữ số; số thực có thể lệch nhỏ (`0.1 + 0.2`) |
+| Giá trị gốc không đổi | Hàm trả về giá trị mới, phải gán lại |
+| `str()` và `bool` | Nối số vào chữ; `True`/`False` không có dấu nháy |
+
+Lỗi đã gặp trong màn (`mistakes`, không chạy trong test): chuỗi lặp 201 ký tự của code gốc; `TypeError` của `int(tuoi) * 100 + cap_do`; `ValueError` của `int("31.0")`; `hop_le = "True"` là chuỗi; quên `round` nên trượt lượt phản công (`1.653 × 2 = 3.306`).
+
+`next` báo trước màn sau: toán tử số học `+ - * / // % **` trên những con số vừa đổi kiểu (level 1.5).
+
+## 14. Dữ liệu level
+
+Dữ liệu chơi nằm ở `src/levels/level-1-4.json` và là nguồn đúng duy nhất, kể cả mọi câu chữ người chơi đọc. Các câu chép nguyên văn từng nằm ở đây đã bỏ vì chúng lệch dần với file thật (27/10/2026).

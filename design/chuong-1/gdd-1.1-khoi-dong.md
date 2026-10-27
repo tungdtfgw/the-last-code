@@ -1,33 +1,38 @@
 # Level 1.1 – "Khởi động"
 
 > Chương 1 – Vùng Tối · Độ khó: Easy · Khái niệm: `print`, chuỗi
-> Dữ liệu chơi (sẽ tạo): `src/levels/level-1-1.json`. Thiết kế tổng: `design/gdd.md`. Hợp đồng truyện: `design/gdd-mo-dau.md` mục 6.1. Brainstorm: `design/quyet-dinh/level-1-1-khoi-dong.md`.
+> Dữ liệu chơi: `src/levels/level-1-1.json`. Mọi câu chữ người chơi đọc nằm trong file này; GDD chỉ ghi ý đồ (xem `design/quyet-dinh/nguon-duy-nhat-cho-cau-chu.md`). Thiết kế tổng: `design/gdd.md`. Hợp đồng truyện: `design/gdd-mo-dau.md` mục 6.1. Brainstorm: `design/quyet-dinh/level-1-1-khoi-dong.md`.
 > Với phần lớn người chơi, đây là dòng code đầu tiên họ viết.
 
 ## 1. Briefing
 
-> **[NHẬT KÝ HỆ THỐNG – TẦNG HẦM LÔ 17]**
-> Laptop nối dây lên Trạm chuyển tiếp R-17 trên mái. Dòng nào in ra terminal, trạm phát nguyên văn dòng đó vào Mạng Mù.
-> Giao thức bắt tay: 3 dòng, đúng thứ tự, đúng từng ký tự, chữ không dấu. Sai một ký tự, sai hoa thường: trạm bỏ gói.
-> Mã phiên do trạm cấp. Trạm khởi động lại thì mã đổi.
-> Sửa mã trong neural_id.py. Bấm CHẠY (Ctrl+Enter, ⌘+Enter trên Mac) để phát. Kết quả hiện ở terminal.
+Câu chữ: `briefing` và `location` trong JSON.
 
-Màn "VÀO NHIỆM VỤ" dùng `location`: "Tầng hầm Lô 17 · Trạm chuyển tiếp R-17".
+Briefing là nhật ký hệ thống của tầng hầm Lô 17, không phải lời ECHO. Nó phải cho người chơi biết, theo thứ tự:
+
+- laptop nối dây lên Trạm chuyển tiếp R-17, và trạm phát nguyên văn mọi dòng in ra terminal vào Mạng Mù;
+- giao thức bắt tay: 3 dòng, đúng thứ tự, đúng từng ký tự, chữ không dấu; sai một ký tự hay sai hoa thường là trạm bỏ gói;
+- mã phiên do trạm cấp và đổi khi trạm khởi động lại (gieo trước cho phản công);
+- gõ ở đâu (`neural_id.py`), bấm gì (CHẠY, Ctrl+Enter, ⌘+Enter trên Mac), xem kết quả ở đâu (terminal).
+
+`location` là dòng ở màn "VÀO NHIỆM VỤ" và tiêu đề ô mô phỏng: tên tầng hầm Lô 17 và tên trạm R-17.
 
 ### 1.1. Việc cần làm (`task_steps`)
 
-Ô "Việc cần làm" nằm dưới briefing, viết bằng lời thường. Nó nói sửa gì và khi nào là xong, không nói cách sửa, không chứa dòng đầu ra mong đợi (validator kiểm).
+Câu chữ: `task_steps` trong JSON (4 bước).
 
-1. Bấm CHẠY (Ctrl+Enter, ⌘+Enter trên Mac) với code có sẵn. Đọc terminal để biết dòng nào hỏng.
-2. Sửa 3 lệnh `print` để terminal in ra 3 dòng ở ô Mục tiêu: đúng thứ tự, khớp từng ký tự, đúng chữ hoa chữ thường.
-3. Không sửa dòng khóa ở đầu file. Mã phiên đổi mỗi khi trạm khởi động lại, và dòng 2 phải vẫn đúng sau lần đổi đó.
-4. Xong khi cả 3 mục tiêu chuyển xanh. Dùng tối đa 4 câu lệnh (mức cảnh báo không quá 40%) để được thêm sao.
+"Việc cần làm" được nối vào tin nhắn "Vào nhiệm vụ" đầu tiên của ECHO trong khung chat. Nó viết bằng lời thường, chủ ngữ là người chơi. Nó nói sửa gì và khi nào là xong, không nói cách sửa, không chứa dòng đầu ra mong đợi (validator kiểm). Bốn bước lần lượt nói:
+
+1. chạy code có sẵn trước, rồi đọc terminal để biết dòng nào hỏng;
+2. sửa 3 lệnh `print` cho terminal in ra 3 dòng ở ô Mục tiêu: đúng thứ tự, khớp từng ký tự, đúng hoa thường;
+3. không sửa dòng khóa; mã phiên đổi khi trạm khởi động lại và dòng 2 vẫn phải đúng sau lần đổi đó;
+4. xong khi cả 3 mục tiêu chuyển xanh; tối đa 4 câu lệnh (cảnh báo ≤ 40%) để được thêm sao.
 
 ## 2. Bố cục màn hình
 
 | Trái | Giữa | Phải |
 |---|---|---|
-| Nhiệm vụ, Việc cần làm (mục 1.1), Mục tiêu (3 dòng đầu ra), ECHO, Gợi ý | Editor `neural_id.py`, nút CHẠY, terminal | Mô phỏng trạm R-17 (mục 5) |
+| Nhiệm vụ, Mục tiêu (3 dòng đầu ra); ECHO, Việc cần làm (mục 1.1) và Gợi ý nằm trong khung chat nổi | Editor `neural_id.py`, nút CHẠY, terminal | Mô phỏng trạm R-17 (mục 5) |
 
 Trên điện thoại vẫn là 3 tab. Ô Mục tiêu có dòng phụ "trạm chỉ nhận đúng từng ký tự" thay cho "máy quét chỉ đọc hình dạng".
 
@@ -54,11 +59,13 @@ Dòng 3 là dòng khóa; `ma_phien` được engine nạp sẵn. Ba lệnh in, m
 
 ## 4. Mục tiêu
 
-Nhãn trong JSON không còn tiền tố "Dòng n ·", vì chip bên phải mỗi mục đã ghi "dòng n".
+Nhãn hiển thị: `objectives[].label` trong JSON. Nhãn không có tiền tố "Dòng n ·", vì chip bên phải mỗi mục đã ghi "dòng n". Nhãn dòng 2 mô tả cách dựng dòng, không ghi mã phiên.
 
-- dòng 1 · Tiêu đề tín hiệu: `NID/2089`
+Đầu ra mong đợi (đặc tả, cũng nằm trong `tests[].expected_output`):
+
+- dòng 1 · tiêu đề tín hiệu `NID/2089`
 - dòng 2 · `PHIEN`, một dấu cách, rồi mã phiên mà trạm đang cấp (với dữ liệu trên: `PHIEN K7Q2`)
-- dòng 3 · Lời gọi, đúng cỡ chữ: `LO17 CAN LIEN LAC`
+- dòng 3 · lời gọi, đúng cỡ chữ: `LO17 CAN LIEN LAC`
 - Không phát thêm dòng nào. Chương trình chạy hết, không lỗi.
 - **Mức cảnh báo ≤ 40%** (≤ 4 câu lệnh; dòng khóa không tính). Mỗi lệnh chạy là một xung điện trên dây lên mái; lưới điện của OMNI đo được xung, không đọc được chữ.
 
@@ -104,10 +111,7 @@ print("LO17 CAN LIEN LAC")
 
 ## 7. OMNI phản công (sao thứ 3)
 
-```
-> CẢNH BÁO: OMNI QUÉT LƯỚI ĐIỆN · TRẠM R-17 KHỞI ĐỘNG LẠI
-> ma_phien = "M4X8"
-```
+Dòng cảnh báo là `counter_attack_banner` trong JSON: OMNI quét lưới điện và trạm R-17 khởi động lại. Ngay sau đó terminal hiện giá trị mới `ma_phien = "M4X8"`.
 
 OMNI không biết R-17 còn sống; nó chỉ quét lưới điện của khu, làm trạm mất điện và cấp mã phiên mới. Đầu ra đúng: `NID/2089`, `PHIEN M4X8`, `LO17 CAN LIEN LAC`. Bắt được lỗi chép cứng mã phiên. Lời giải đạt 3 sao (3 câu lệnh, 30%):
 
@@ -130,29 +134,35 @@ Không có tour giao diện. Bốn thứ, đều trong bối cảnh:
 
 ## 9. Gợi ý và phản ứng của ECHO
 
-| Mức | Nội dung |
-|---|---|
-| 1 | "Hai dòng đầu của bản nháp cùng mở bằng một lệnh. Một dòng phát được, một dòng vỡ. Đặt chúng cạnh nhau. Chúng khác nhau ở đâu… đến từng ký tự?" |
-| 2 | Hướng tiếp cận: chữ nằm trọn trong dấu nháy thì phát nguyên văn; một cái tên trần thì Python tra trong bộ nhớ và phát thứ đang cất dưới tên đó. Chữ cố định của giao thức thuộc loại thứ nhất; thứ trạm có thể đổi thuộc loại thứ hai. Kèm pseudocode 3 dòng |
-| 3 | Tài liệu `print` và chuỗi với ví dụ khác đáp án: nháy đơn và kép, `NameError`, dấu phẩy chèn dấu cách, `+` không chèn, tên nằm trong dấu nháy chỉ là chữ, `"abc" == "ABC"` là `False` |
+Câu chữ: `hints`, `reactions`, `reaction_variants` trong JSON.
 
-Phản ứng miễn phí (đầy đủ trong JSON ở mục 13). Khóa mới: `output_missing`, `output_mismatch`, `output_case_only`, `output_extra`. Chỗ giữ mới: `{out_line}` (số thứ tự dòng đầu ra), `{col}` (vị trí ký tự).
+**Gợi ý** (mở dần, không bị kiểm từ cấm):
 
-| Tình huống | ECHO nói |
+| Mức | Ý đồ |
 |---|---|
-| Vào màn | Terminal đã mở. Trạm R-17 lặp lại mọi thứ bạn in ra… đúng từng ký tự. Chưa cần sửa gì. Chạy một lần. Rồi đọc terminal. |
-| `NameError` (code gốc) | Dòng {line}. NameError. Python đi tìm một thứ mang tên đó trong bộ nhớ… không thấy. Đặt dòng này cạnh một dòng đã phát được. |
-| Sai ký tự | Dòng phát thứ {out_line} lệch ở ký tự thứ {col}. Trạm R-17 không đoán ý. Nó bỏ cả gói. |
-| Chỉ khác hoa thường | Dòng phát thứ {out_line}: từng chữ cái đều đúng… nếu bỏ qua cỡ chữ. Trạm R-17 không bỏ qua. |
-| Tên của mã phiên nằm trong dấu nháy, ví dụ `print("PHIEN ma_phien")` (khóa `output_is_label`, 25/10/2026) | Dòng phát thứ {out_line} mang chữ của một cái tên… không phải thứ đang cất dưới tên đó. Trạm phát nguyên văn. |
-| Viết cứng mã phiên, trượt phản công | Trạm R-17 khởi động lại, phiên mới. Dòng phát thứ {out_line} của bạn vẫn như cũ. Nó viết cho một phiên đã chết. |
-| Đạt 3 sao | Phiên đổi. Tín hiệu vẫn đi. …Tôi ghi nhận điều đó. |
+| 1 (`hints[0]`) | Chỉ ra rằng hai dòng đầu cùng mở bằng một lệnh, một dòng phát được và một dòng vỡ; bảo người chơi đặt chúng cạnh nhau và so từng ký tự. Không nói khác ở đâu |
+| 2 (`hints[1]`) | Hướng tiếp cận: chữ nằm trọn trong dấu nháy thì phát nguyên văn; một cái tên trần thì Python tra trong bộ nhớ và phát thứ đang cất dưới tên đó. Chữ cố định của giao thức thuộc loại thứ nhất, thứ trạm có thể đổi thuộc loại thứ hai. Kèm pseudocode 3 dòng, không phải code Python |
+| 3 (`hints[2]`) | "Mảnh tài liệu Python": `print` và chuỗi với ví dụ khác đáp án: nháy đơn và kép, `NameError`, dấu phẩy chèn dấu cách, `+` không chèn, tên nằm trong dấu nháy chỉ là chữ, `"abc" == "ABC"` là `False` |
+
+**Phản ứng miễn phí** của ECHO: giọng cụt, hỏi và chỉ chỗ nhìn, không bao giờ nói cách sửa. Khóa mới của level này: `output_missing`, `output_mismatch`, `output_case_only`, `output_extra`. Chỗ giữ mới: `{out_line}` (số thứ tự dòng đầu ra), `{col}` (vị trí ký tự).
+
+| Khóa | Ý đồ |
+|---|---|
+| `entry` | Terminal đã mở; trạm lặp lại đúng từng ký tự những gì được in. Bảo người chơi chạy một lần trước khi sửa, rồi đọc terminal. Chỉ cách thao tác, không chỉ cách sửa |
+| `NameError` (code gốc) | Python đi tìm một thứ mang tên đó trong bộ nhớ và không thấy. Bảo đặt dòng lỗi cạnh một dòng đã phát được |
+| `output_mismatch` | Dòng nào lệch, từ ký tự thứ mấy; trạm không đoán ý mà bỏ cả gói |
+| `output_case_only` | Mọi chữ cái đều đúng nếu bỏ qua cỡ chữ, nhưng trạm không bỏ qua |
+| `output_is_label` (25/10/2026) | Tên của mã phiên nằm trong dấu nháy, ví dụ `print("PHIEN ma_phien")`: dòng phát mang chữ của một cái tên, không phải thứ đang cất dưới tên đó |
+| `wrong_value_counter` | Viết cứng mã phiên, trượt phản công: trạm đã sang phiên mới mà dòng phát vẫn như cũ, viết cho một phiên đã chết |
+| `three_stars` | Phiên đổi mà tín hiệu vẫn đi; ECHO ghi nhận điều đó, ngắn |
+
+Các khóa lỗi chung (`SyntaxError`, `IndentationError`, `timeout`…) nói lỗi bằng từ ngữ của trạm R-17 và laptop chưa từng nối mạng.
 
 Khóa `output_is_label` thay `output_mismatch` khi dòng sai đầu tiên chứa nguyên chữ tên một biến đầu vào hoặc biến mục tiêu (so nguyên từ) mà dòng cần không chứa. Level không có câu cho khóa này giữ `output_mismatch`.
 
-Câu thay thế khi cùng khóa lặp ở lượt kế tiếp (`reaction_variants`): `output_mismatch` → "Dòng phát thứ {out_line} vẫn lệch, từ ký tự thứ {col}. Đặt dòng cần và dòng nhận trong terminal cạnh nhau."; `output_is_label` → "Dòng phát thứ {out_line} vẫn chở nguyên chữ của một cái tên. Trạm không tra bộ nhớ cho thứ nó phát nguyên văn."
+`reaction_variants` có câu thay thế cho `output_mismatch` và `output_is_label` khi cùng khóa lặp ở lượt kế tiếp: nói "vẫn" lệch và chỉ thêm một chỗ để nhìn (đặt dòng cần và dòng nhận cạnh nhau; trạm không tra bộ nhớ cho thứ nó phát nguyên văn).
 
-**Từ cấm của 1.1** (`forbidden_terms`, cộng danh sách chung `int|float|round` và mọi dòng `expected_output` tự động): `ma_phien`, `"`, `'`, `ngoặc kép`, `dấu nháy`, `dấu phẩy`, `nối chuỗi`, `cộng chuỗi`, `viết hoa`, `in hoa`, `K7Q2`, `M4X8`. Khớp không phân biệt hoa thường, nguyên từ theo ranh giới chữ Unicode; từ chỉ gồm dấu câu khớp chuỗi con. Áp cho `reactions` và lời ECHO trong `outro_beats`; không áp cho gợi ý.
+**Từ cấm của 1.1** (`forbidden_terms`, cộng danh sách chung `int|float|round` và mọi dòng `expected_output` tự động): tên biến mã phiên, các dấu nháy, những từ gọi tên cách sửa (dấu nháy, dấu phẩy, nối chuỗi, viết hoa…) và cả hai mã phiên. Danh sách đầy đủ nằm trong JSON. Khớp không phân biệt hoa thường, nguyên từ theo ranh giới chữ Unicode; từ chỉ gồm dấu câu khớp chuỗi con. Áp cho `reactions` và lời ECHO trong `outro_beats`; không áp cho gợi ý.
 
 ## 10. Chấm sao
 
@@ -182,30 +192,34 @@ Không đổi `compute-stars.ts`.
 
 ## 12. Đoạn truyện khi hoàn thành
 
-- `outro`: "Tín hiệu đầu tiên đi vào Mạng Mù. Trong bộ đệm của trạm R-17 còn sót một dòng log cũ:"
-- `lore_fragment` (KTS-01): "KTS-01: Chúng tôi còn tám người. OMNI sẽ tìm đến từng người. Mỗi người giấu một mảnh, và không ai được biết chỗ của người khác. Kể cả tôi."
+Câu chữ: `outro`, `lore_fragment`, `component`, `outro_beats` trong JSON.
+
+- `outro`: tín hiệu đầu tiên đi vào Mạng Mù; trong bộ đệm của R-17 còn sót một dòng log cũ, dẫn vào mảnh nhật ký.
+- `lore_fragment` (KTS-01): Kiến Trúc Sư cho biết họ còn tám người, mỗi người giấu một mảnh và không ai biết chỗ của người khác, kể cả người viết.
 - `component`: Tiêu đề tín hiệu (ô 1/6 sáng lên).
-- `outro_beats`: log "Ba phút im lặng. Rồi terminal nhận một gói tin." → card 0xA7 "Đã nghe. Muốn qua Cổng phía Bắc, cần một danh tính. Chuẩn bị bộ nhớ." (cue `glitch`) → echo "Mã 0xA7. Tôi không có ghi chép nào về nó." → kai "Ít nhất đã có người nghe thấy."
+- `outro_beats`, bốn nhịp: log (một lúc im lặng, rồi terminal nhận một gói tin) → card tín hiệu 0xA7, cue `glitch` (đã nghe; muốn qua Cổng phía Bắc cần một danh tính; chuẩn bị bộ nhớ, gieo cho 1.2) → echo (ECHO không có ghi chép nào về mã 0xA7) → kai (ít nhất đã có người nghe thấy).
 - Móc câu: 0xA7 là ai, và vì sao nó nghe được một trạm mà OMNI coi là đã chết.
 
 ### 12.1. Tổng kết kiến thức (`knowledge_summary`)
 
+Câu chữ: `knowledge_summary` trong JSON.
+
 Màn hiện sau khi qua level, trước đoạn chuyển cảnh; xem lại được từ Bản đồ. Giọng kỹ thuật, không ECHO, không từ ngữ game. Ví dụ khác đáp án của level; mọi `code` trong mục được chạy bằng Python thật trong `tests/integration/knowledge-summary.test.ts` và phải in đúng `output`.
 
-Tiêu đề: "print, chuỗi và tên biến".
+Chủ đề: `print`, chuỗi và tên biến. Các mục phải dạy:
 
-| Mục | Ý chính | Ví dụ |
-|---|---|---|
-| `print` in ra một dòng | Mỗi lần gọi là một dòng, theo thứ tự trong code | `print("Xin chao")`, `print("Hen gap lai")` |
-| Chuỗi nằm trong dấu nháy | Nháy đơn và kép như nhau; dấu nháy không được in | `'Lop 10A'`, `"Phong 2.05, tang 2"` |
-| Tên biến và chữ trong dấu nháy | Tên trần thì in giá trị; trong dấu nháy thì in chữ | `ten = "Mai"`, `print(ten)`, `print("ten")` |
-| Dấu phẩy trong `print` | Chèn đúng một dấu cách giữa hai giá trị | `print("Lop", lop)` → `Lop 10A` |
-| Dấu `+` nối chuỗi | Ghép sát, không chèn dấu cách | `ho + "Mai"` → `TranMai` |
-| Từng ký tự đều có nghĩa | Hoa thường và dấu cách làm chuỗi khác đi; `==` | `"abc" == "ABC"` → `False` |
+| Mục | Ý chính |
+|---|---|
+| `print` in ra một dòng | Mỗi lần gọi là một dòng, theo thứ tự trong code |
+| Chuỗi nằm trong dấu nháy | Nháy đơn và kép như nhau; dấu nháy không được in |
+| Tên biến và chữ trong dấu nháy | Tên trần thì in giá trị; trong dấu nháy thì in chữ |
+| Dấu phẩy trong `print` | Chèn đúng một dấu cách giữa hai giá trị |
+| Dấu `+` nối chuỗi | Ghép sát, không chèn dấu cách |
+| Từng ký tự đều có nghĩa | Hoa thường và dấu cách làm chuỗi khác đi; `==` |
 
-Lỗi thường gặp (`mistakes`, không chạy trong test): `print(Hello)` → `NameError`; `Print(...)` → `NameError` vì sai hoa thường; dấu nháy cong → `SyntaxError: invalid character '“' (U+201C)`; dấu cách đầu dòng → `IndentationError: unexpected indent`; tên biến nằm trong dấu nháy (`print("Chao, ten")`) và `"Chao" + ten` không có dấu cách, hai trường hợp không báo lỗi nhưng in sai.
+Lỗi thường gặp (`mistakes`, không chạy trong test): thiếu dấu nháy → `NameError`; `Print` sai hoa thường → `NameError`; dấu nháy cong → `SyntaxError`; dấu cách đầu dòng → `IndentationError`; tên biến nằm trong dấu nháy và `+` không có dấu cách, hai trường hợp không báo lỗi nhưng in sai.
 
-Ở màn sau (`next`): "Bạn sẽ tự tạo biến: đặt tên cho một giá trị, dùng tên đó ở nhiều chỗ, rồi gán lại khi giá trị đổi."
+`next` báo trước màn sau: tự tạo biến, dùng tên ở nhiều chỗ, gán lại khi giá trị đổi.
 
 ## 13. Trường hợp biên
 
@@ -246,6 +260,6 @@ Cột "Test" chỉ đánh **Có** cho hàng kiểm việc chấm đúng, luật 
 
 ## 14. Dữ liệu level
 
-Dữ liệu chơi nằm ở `src/levels/level-1-1.json` và là nguồn đúng duy nhất; bản nháp JSON từng chép ở đây đã bỏ vì nó lệch dần với file thật. Văn bản người chơi đọc được rà lại ngày 25/10/2026 theo skill `van-viet-tu-nhien`.
+Dữ liệu chơi nằm ở `src/levels/level-1-1.json` và là nguồn đúng duy nhất, kể cả mọi câu chữ người chơi đọc. Bản nháp JSON và các câu chép nguyên văn từng nằm ở đây đã bỏ vì chúng lệch dần với file thật (27/10/2026). Văn bản người chơi đọc được rà lại ngày 25/10/2026 theo skill `van-viet-tu-nhien`.
 
 Ghi chú về dữ liệu: `wrong_value_counter` được dùng lại cho phản công sai đầu ra. Các khóa về biến (`type_mismatch`, `type_mismatch_value_match`, `wrong_value`, `missing_var`, `counter_type_mismatch`) và `two_stars` không có vì không thể xảy ra ở level này; nếu có thì rơi về `generic`. Cue `glitch` là cue mới do `design/gdd-mo-dau.md` mục 5.2 thêm.
