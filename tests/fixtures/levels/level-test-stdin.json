@@ -1,0 +1,129 @@
+{
+  "schema_version": 1,
+  "id": "9.7",
+  "chapter": 9,
+  "title": "Level thử nghiệm có kênh nhập",
+  "difficulty": "easy",
+  "concepts": [
+    "input"
+  ],
+  "briefing": "Level giả chỉ dùng trong test: trạm gửi mã rồi ca trực qua kênh nhập, ba vòng liền.",
+  "starter_code": "# Hồ sơ (KHÔNG được sửa hai dòng này):\nho_ten = \"AN\"\nso_khu = 7\n\n# Trạm gửi mã rồi ca trực; in hai dòng trả lời.\nprint(ho_ten)\n",
+  "locked_lines": [
+    2,
+    3
+  ],
+  "inputs": [
+    "ho_ten",
+    "so_khu"
+  ],
+  "objectives": [
+    {
+      "kind": "output_line",
+      "line": 1,
+      "label": "Tên và mã"
+    },
+    {
+      "kind": "output_line",
+      "line": 2,
+      "label": "Khu và ca"
+    }
+  ],
+  "alert_limit_statements": 4,
+  "float_abs_tolerance": 1e-09,
+  "tests": [
+    {
+      "inputs": {
+        "ho_ten": "AN",
+        "so_khu": 7
+      },
+      "stdin": [
+        "4172",
+        "DEM"
+      ],
+      "expected": {},
+      "expected_output": [
+        "AN 4172",
+        "KHU 7 DEM"
+      ]
+    },
+    {
+      "inputs": {
+        "ho_ten": "AN",
+        "so_khu": 9
+      },
+      "stdin": [
+        "9035",
+        "NGAY"
+      ],
+      "expected": {},
+      "expected_output": [
+        "AN 9035",
+        "KHU 9 NGAY"
+      ]
+    },
+    {
+      "inputs": {
+        "ho_ten": "AN",
+        "so_khu": 3
+      },
+      "stdin": [
+        "1500",
+        "SANG"
+      ],
+      "expected": {},
+      "expected_output": [
+        "AN 1500",
+        "KHU 3 SANG"
+      ]
+    }
+  ],
+  "counter_attack_tests": [
+    {
+      "inputs": {
+        "ho_ten": "BINH",
+        "so_khu": 4
+      },
+      "stdin": [
+        "7777",
+        "DEM"
+      ],
+      "expected": {},
+      "expected_output": [
+        "BINH 7777",
+        "KHU 4 DEM"
+      ]
+    }
+  ],
+  "hints": [
+    "một",
+    "hai",
+    "ba"
+  ],
+  "reactions": {
+    "generic": "Có gì đó không khớp.",
+    "output_mismatch": "Vòng {round} bị bác ở dòng {out_line}.",
+    "EOFError": "Trạm không gửi thêm dòng nào nữa.",
+    "output_has_prompt": "Lời nhắc cũng đi ra trạm."
+  },
+  "simulation": {
+    "kind": "relay",
+    "station": "T-1"
+  },
+  "outro": "Xong.",
+  "lore_fragment": "",
+  "knowledge_summary": {
+    "title": "Đọc kênh nhập",
+    "sections": [
+      {
+        "heading": "Mỗi lần gọi đọc một dòng",
+        "body": "Gọi hai lần thì đọc hai dòng, theo thứ tự.",
+        "code": "ten = input()\nma = input()\nprint(ten, ma)",
+        "stdin": "AN\n4172\n",
+        "output": "AN 4172"
+      }
+    ],
+    "mistakes": [],
+    "next": "Hết."
+  }
+}

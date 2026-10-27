@@ -13,6 +13,8 @@ export interface SimVocabulary {
   dropped: string;
   objectivesNote: string;
   terminalNote: string;
+  /** Opening word of each scan round in the terminal: `> {round} 2/3 · …` (levels with several base tests). */
+  round: string;
   /** Results dialog title for 1, 2 and 3 stars. */
   headlines: [string, string, string];
 }
@@ -25,6 +27,7 @@ const SCANNER: SimVocabulary = {
   dropped: "BỎ GÓI",
   objectivesNote: "máy quét chỉ đọc hình dạng",
   terminalNote: "nhật ký máy quét",
+  round: "VÒNG",
   headlines: ["Qua cổng, bị ghi nhận", "Cổng mở một nửa", "Cổng mở hoàn toàn"],
 };
 
@@ -40,6 +43,7 @@ export function vocabularyFor(level: Pick<LevelDefinition, "simulation">): SimVo
         dropped: `${sim.station} BỎ GÓI`,
         objectivesNote: "trạm chỉ nhận đúng từng ký tự",
         terminalNote: `nhật ký trạm ${sim.station}`,
+        round: "VÒNG",
         headlines: ["Kênh mở, bị ghi nhận", "Kênh mở một nửa", "Kênh mở hoàn toàn"],
       };
     case "kiosk":
@@ -51,6 +55,7 @@ export function vocabularyFor(level: Pick<LevelDefinition, "simulation">): SimVo
         dropped: "BỎ GÓI",
         objectivesNote: "ki-ốt chỉ đọc ô nhớ có nhãn",
         terminalNote: "nhật ký ki-ốt",
+        round: "VÒNG",
         headlines: ["Hồ sơ qua, bị ghi nhận", "Cổng khu mở một nửa", "Cổng khu mở hoàn toàn"],
       };
     case "sorter":
@@ -62,6 +67,7 @@ export function vocabularyFor(level: Pick<LevelDefinition, "simulation">): SimVo
         dropped: "BỎ GÓI",
         objectivesNote: "máy quét chỉ đọc hình dạng",
         terminalNote: "nhật ký máy phân loại",
+        round: "VÒNG",
         headlines: ["Rào mở, bị ghi nhận", "Rào mở một nửa", "Rào mở hoàn toàn"],
       };
     case "scanner":

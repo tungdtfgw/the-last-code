@@ -20,8 +20,8 @@ const levels = [
 ];
 const examples = levels.flatMap(({ file, level }) =>
   (level.knowledge_summary?.sections ?? [])
-    .map((s, i) => ({ name: `${file} sections[${i}] "${s.heading}"`, code: s.code, output: s.output }))
-    .filter((e): e is { name: string; code: string; output: string | undefined } => e.code !== undefined),
+    .map((s, i) => ({ name: `${file} sections[${i}] "${s.heading}"`, code: s.code, output: s.output, stdin: s.stdin }))
+    .filter((e): e is { name: string; code: string; output: string | undefined; stdin: string | undefined } => e.code !== undefined),
 );
 
 const trimLines = (text: string) =>
@@ -32,9 +32,10 @@ const trimLines = (text: string) =>
     .join("\n")
     .replace(/\n+$/, "");
 
-function runPython(code: string) {
+function runPython(code: string, stdin: string) {
   // -I: isolated mode, so nothing from the working directory or the environment is imported.
-  const proc = spawnSync("python3", ["-I", "-"], { input: code, encoding: "utf8", timeout: 10_000 });
+  // The code goes in as an argument: standard input carries the section's `stdin` (empty without one).
+  const proc = spawnSync("python3", ["-I", "-c", code], { input: stdin, encoding: "utf8", timeout: 10_000 });
   if (proc.error) throw new Error(`python3 không chạy được (cần python3 trong PATH): ${proc.error.message}`);
   return proc;
 }
@@ -42,10 +43,11 @@ function runPython(code: string) {
 describe("knowledge summary examples run as written", () => {
   test("the fixture contributes at least one example", () => {
     expect(examples.some((e) => e.name.startsWith("level-test-knowledge.json"))).toBe(true);
+    expect(examples.some((e) => e.name.startsWith("level-test-stdin.json") && e.stdin !== undefined)).toBe(true);
   });
 
-  test.each(examples)("$name", ({ code, output }) => {
-    const proc = runPython(code);
+  test.each(examples)("$name", ({ code, output, stdin }) => {
+    const proc = runPython(code, stdin ?? "");
     // Section examples run cleanly; code that fails belongs in `mistakes`.
     expect(proc.stderr, "example raised an error").toBe("");
     expect(proc.status).toBe(0);

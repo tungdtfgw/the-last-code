@@ -11,7 +11,7 @@ export function renderTemplate(template: string, details: object): string {
 }
 
 /** Typical run details, so a template is checked the way the player would read it. */
-const SAMPLE = { line: 7, vars: "ma_xac_thuc, chi_so", error_type: "ValueError", count: 12, out_line: 2, col: 6 };
+const SAMPLE = { line: 7, vars: "ma_xac_thuc, chi_so", error_type: "ValueError", count: 12, out_line: 2, col: 6, round: 2 };
 
 /**
  * Free ECHO lines (reactions, their variants, ECHO beats of `outro_beats`) that

@@ -58,6 +58,14 @@ export function KnowledgeScreen({ level, onContinue }: KnowledgeScreenProps) {
                   <code>{s.code}</code>
                 </pre>
               )}
+              {s.stdin !== undefined && (
+                <>
+                  <p className="learn-label">Dữ liệu nhập:</p>
+                  <pre className="learn-output">
+                    <kbd>{s.stdin.replace(/\n$/, "")}</kbd>
+                  </pre>
+                </>
+              )}
               {s.output !== undefined && (
                 <>
                   <p className="learn-label">Kết quả:</p>

@@ -1,6 +1,7 @@
 import { describe, expect, test } from "vitest";
 import sample from "../../tests/fixtures/levels/level-test-sample.json";
 import knowledgeSample from "../../tests/fixtures/levels/level-test-knowledge.json";
+import stdinSample from "../../tests/fixtures/levels/level-test-stdin.json";
 import { realLevelJson } from "../../tests/content-fixture";
 import { validateLevel } from "./validate-level";
 
@@ -154,6 +155,23 @@ describe("validateLevel", () => {
     ];
     test.each(cases)("rejects %s", (_name, mutate, message) => {
       const l = withContent();
+      mutate(l);
+      const r = validateLevel(l);
+      expect(r.ok).toBe(false);
+      if (!r.ok) expect(r.errors.join("\n")).toMatch(message);
+    });
+  });
+
+  describe("stdin channel", () => {
+    const withStdin = () => JSON.parse(JSON.stringify(stdinSample));
+    const cases: [string, (l: any) => void, RegExp][] = [
+      ["a counter test without stdin", (l) => delete l.counter_attack_tests[0].stdin, /cùng có hoặc cùng không có kênh nhập \(thiếu ở counter_attack_tests\[0\]\)/],
+      ["a stdin line with a newline", (l) => (l.tests[1].stdin[0] = "41\n72"), /tests\[1\]\.stdin\[0\] không được chứa xuống dòng/],
+      ["21 stdin lines", (l) => (l.tests[0].stdin = Array(21).fill("x")), /tests\[0\]\.stdin có tối đa 20 dòng/],
+      ["a summary stdin without code", (l) => delete l.knowledge_summary.sections[0].code, /sections\[0\]\.stdin cần code/],
+    ];
+    test.each(cases)("rejects %s", (_name, mutate, message) => {
+      const l = withStdin();
       mutate(l);
       const r = validateLevel(l);
       expect(r.ok).toBe(false);

@@ -102,6 +102,33 @@ function traceLines(outcome: RunOutcome): TerminalLine[] {
   return [head, ...chain];
 }
 
+/** Stdin lines as Python literals: `"4172", "DEM"`; an empty channel says so. */
+const channelText = (stdin: string[]) => (stdin.length ? stdin.map((x) => formatPyLiteral(x)).join(", ") : "(trống)");
+
+const channelLine = (stdin: string[] | undefined, read: number | undefined, tone: TerminalTone): TerminalLine[] =>
+  stdin === undefined
+    ? []
+    : [{ tone, text: `> KÊNH NHẬP: ${channelText(stdin)}${read === undefined ? "" : ` (đã đọc ${read}/${stdin.length})`}` }];
+
+/**
+ * One opening line per scan round reached: rounds run one after another, so the log stops
+ * at the first failing round. Each names the inputs that change between rounds and the
+ * round's stdin channel.
+ */
+function roundLines(outcome: RunOutcome, level: LevelDefinition, vocab: SimVocabulary): TerminalLine[] {
+  const rounds = outcome.rounds;
+  if (!rounds) return [];
+  const changing = level.inputs.filter((name) => new Set(level.tests.map((t) => JSON.stringify(t.inputs[name]))).size > 1);
+  const failed = rounds.findIndex((r) => !r.passed);
+  const reached = failed === -1 ? rounds : rounds.slice(0, failed + 1);
+  return reached.map((r, i) => {
+    const parts = [`${vocab.round} ${i + 1}/${rounds.length}`];
+    if (changing.length) parts.push(changing.map((name) => `${name} = ${formatPyLiteral(r.inputs[name] ?? "")}`).join(", "));
+    if (r.stdin) parts.push(`kênh nhập: ${channelText(r.stdin)}`);
+    return { tone: "info", text: `> ${parts.join(" · ")}` };
+  });
+}
+
 const alertLine = (outcome: RunOutcome, level: LevelDefinition): TerminalLine[] =>
   outcome.alertPercent === null
     ? []
@@ -117,6 +144,8 @@ export function buildTerminalLines(outcome: RunOutcome, level: LevelDefinition, 
   const vocab = vocabularyFor(level);
   const out: TerminalLine[] = [{ tone: "muted", text: `> LƯỢT CHẠY #${runNumber}: ${vocab.runTarget}` }];
   const closed: TerminalLine = { tone: "reject", text: `> ${vocab.gate}: ĐÓNG` };
+  // Round lines carry each round's channel; a single test gets its own channel line.
+  out.push(...(outcome.rounds ? roundLines(outcome, level, vocab) : channelLine(outcome.stdin, outcome.stdinRead, "info")));
 
   if (outcome.key === "engine_error") {
     out.push({ tone: "alarm", text: "> LÕI PYTHON KHÔNG PHẢN HỒI. ĐANG KHỞI ĐỘNG LẠI" });
@@ -161,6 +190,7 @@ export function buildTerminalLines(outcome: RunOutcome, level: LevelDefinition, 
       tone: "omni",
       text: "> " + level.inputs.map((name) => `${name} = ${formatPyLiteral(inputs[name] ?? "")}`).join("   "),
     });
+    out.push(...channelLine(outcome.counterStdin, outcome.counterStdinRead, "omni"));
     if (outcome.counterAborted) {
       out.push({
         tone: "alarm",

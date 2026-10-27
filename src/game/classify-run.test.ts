@@ -253,3 +253,59 @@ describe("type_mismatch_unknown_shape (level 1.3)", () => {
     expect(tuple.key).toBe("type_mismatch");
   });
 });
+
+describe("stdin channel and scan rounds", () => {
+  const level11 = realLevel("1.1");
+  const WANT = ["NID/2089", "PHIEN K7Q2", "LO17 CAN LIEN LAC"];
+  const lines = (got: (string | null)[]): HarnessOutput => ({
+    ok: got.every((g, i) => g === WANT[i]),
+    truncated: false,
+    lines: WANT.map((e, i) => {
+      const a = got[i] ?? null;
+      const ok = a === e;
+      return { line: i + 1, expected: e, actual: a, status: a === null ? "missing" : ok ? "ok" : "wrong", col: ok || a === null ? null : 1, case_only: false };
+    }),
+    extra_lines: [],
+    extra_count: 0,
+  });
+  const stdinTest = { inputs: { ma_phien: "K7Q2" }, stdin: ["4172", "DEM"], expected: {}, expected_output: WANT };
+  const withLines = (extra: Record<string, string>, tests = 1): LevelDefinition => ({
+    ...level11,
+    tests: Array.from({ length: tests }, () => stdinTest),
+    counter_attack_tests: [{ ...stdinTest, stdin: ["9035"] }],
+    reactions: { ...level11.reactions, ...extra },
+  });
+  const run = (lvl: LevelDefinition, base: HarnessTestResult[]) =>
+    classifyRun({ kind: "ok", data: { python_version: "3.14", compile_error: null, base_results: base, counter_results: null } }, lvl);
+  const res = (index: number, over: Partial<HarnessTestResult> = {}) => test_("base", { index, inputs: { ma_phien: "K7Q2" }, vars: {}, output: lines(WANT), ...over });
+
+  test("EOFError has its own key only when the level writes a line for it", () => {
+    const eof = res(0, { status: "runtime_error", error: err("EOFError", 4), stdin_read: 2 });
+    expect(run(withLines({ EOFError: "Trạm không gửi thêm." }), [eof])).toMatchObject({ key: "EOFError", details: { line: 4, error_type: "EOFError" } });
+    expect(run(withLines({}), [eof]).key).toBe("runtime_error");
+  });
+
+  test("a prompt carried into a wrong line is output_has_prompt, ahead of output_is_label; without a line it is the output key", () => {
+    const prompted = res(0, { output: lines(["NID/2089", "Ma hoi: PHIEN ma_phien", WANT[2]]), prompts: ["Ma hoi: "], stdin_read: 1 });
+    const both = withLines({ output_has_prompt: "Lời nhắc cũng đi ra trạm." });
+    expect(run(both, [prompted])).toMatchObject({ key: "output_has_prompt", details: { out_line: 2 }, stdin: ["4172", "DEM"], stdinRead: 1, prompts: ["Ma hoi: "] });
+    const plain = { ...level11, tests: [stdinTest], counter_attack_tests: [] } as LevelDefinition;
+    expect(run(plain, [prompted]).key).toBe("output_is_label");
+    // The prompt is part of the expected line: nothing to explain.
+    const expectedPrompt = res(0, { output: lines(["NID/2089", "PHIEN K7Q1", WANT[2]]), prompts: ["PHIEN"] });
+    expect(run(both, [expectedPrompt]).key).toBe("output_mismatch");
+  });
+
+  test("rounds exist with several base tests, not with one; details.round names the first failing round", () => {
+    const three = withLines({}, 3);
+    const r = run(three, [res(0, { stdin_read: 2 }), res(1, { output: lines([WANT[0], "PHIEN K7Q3", WANT[2]]) }), res(2, { output: lines([WANT[0], "x", WANT[2]]) })]);
+    expect(r).toMatchObject({ key: "output_mismatch", details: { out_line: 2, round: 2 } });
+    expect(r.rounds?.map((x) => [x.index, x.passed])).toEqual([[0, true], [1, false], [2, false]]);
+    expect(r.rounds?.[0]).toMatchObject({ stdin: ["4172", "DEM"], stdinRead: 2 });
+    expect(r.output?.lines[1].actual).toBe("PHIEN K7Q3");
+
+    const single = run(withLines({}), [res(0, { output: lines([WANT[0], "x", WANT[2]]) })]);
+    expect(single.rounds).toBeUndefined();
+    expect(single.details.round).toBeUndefined();
+  });
+});

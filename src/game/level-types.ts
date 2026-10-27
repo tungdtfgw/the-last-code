@@ -49,6 +49,8 @@ export const REACTION_KEYS = [
   "output_mismatch",
   "output_case_only",
   "output_extra",
+  "EOFError",
+  "output_has_prompt",
 ] as const;
 export type ReactionKey = (typeof REACTION_KEYS)[number];
 
@@ -83,6 +85,8 @@ export interface TestCase {
   expected: Record<string, ExpectedValue>;
   /** Expected stdout lines; required when the level has `output_line` objectives. */
   expected_output?: string[];
+  /** Lines `input()` reads in order (no newlines). All tests of a level have it, or none. */
+  stdin?: string[];
 }
 
 /**
@@ -151,6 +155,8 @@ export interface KnowledgeSection {
   code?: string;
   /** Exact stdout of `code` (shown as "Kết quả:"); requires `code`. */
   output?: string;
+  /** Standard input of `code` (shown as "Dữ liệu nhập:"); requires `code`. */
+  stdin?: string;
 }
 
 export interface KnowledgeMistake {

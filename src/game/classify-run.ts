@@ -50,6 +50,19 @@ export interface OutcomeDetails {
   out_line?: number;
   /** First wrong character on that line (1-based). */
   col?: number;
+  /** First failing scan round (1-based); only on levels with several base tests. */
+  round?: number;
+}
+
+/** One base test as a scan round (levels with two or more base tests), in order. */
+export interface RoundVerdict {
+  index: number;
+  passed: boolean;
+  inputs: Record<string, InputValue>;
+  stdin?: string[];
+  stdinRead?: number;
+  output?: OutputReport;
+  vars: VarVerdict[];
 }
 
 export interface RunOutcome {
@@ -83,6 +96,16 @@ export interface RunOutcome {
   /** Same for the shown counter-attack test. */
   counterHistory?: VarHistoryEntry[];
   counterHistoryTruncated?: boolean;
+  /** Stdin channel of the shown base test (levels with `stdin`): its lines, lines read, prompts written. */
+  stdin?: string[];
+  stdinRead?: number;
+  prompts?: string[];
+  /** Same for the shown counter-attack test (`counterStdin` also when the counter phase was aborted). */
+  counterStdin?: string[];
+  counterStdinRead?: number;
+  counterPrompts?: string[];
+  /** Every base test as a scan round, when the level has two or more and they ran. */
+  rounds?: RoundVerdict[];
   details: OutcomeDetails;
 }
 
@@ -136,7 +159,8 @@ const names = (vs: VarVerdict[]) => vs.map((v) => v.name).join(", ");
  * Optional reaction keys refine a general one (`value_is_label` refines `wrong_value`,
  * `type_mismatch_unknown_shape` refines `type_mismatch`, `output_is_label` refines
  * `output_mismatch`, `string_repeated` refines `ValueError`, `type_mismatch` and `wrong_value`,
- * `value_overwritten` refines `wrong_value`).
+ * `value_overwritten` refines `wrong_value`, `EOFError` refines `runtime_error`,
+ * `output_has_prompt` refines every output key whose line was printed).
  * One is returned only when the level writes a line for it; otherwise the general key
  * applies. Every optional key is gated here and nowhere else.
  */
@@ -173,6 +197,23 @@ function overwrittenCopies(wrongValue: VarVerdict[], all: VarVerdict[], h: VarHi
 function hasRepeatedInput(text: string | null | undefined, inputs: HarnessTestResult["inputs"]): boolean {
   if (!text) return false;
   return Object.values(inputs ?? {}).some((v) => typeof v === "string" && v.length >= 2 && text.includes(v + v));
+}
+
+/**
+ * A wrong output line that carries a prompt the program wrote with `input("…")` and the
+ * expected line does not: the prompt went out to the station with the answer.
+ */
+function outputHasPrompt(o: OutputReport, out_line: number | undefined, prompts: string[] | undefined): boolean {
+  if (out_line === undefined || !prompts?.length) return false;
+  const bad = o.lines.find((l) => l.line === out_line);
+  const actual = bad ? bad.actual : o.extraLines[out_line - o.lines.length - 1];
+  if (!actual) return false;
+  const expected = bad?.expected ?? "";
+  return prompts.some((p) => {
+    // Graded lines are NFC with trailing spaces dropped; compare the prompt the same way.
+    const text = p.normalize("NFC").trimEnd();
+    return text !== "" && actual.includes(text) && !expected.includes(text);
+  });
 }
 
 const history = (r: HarnessTestResult | undefined) => r?.var_history;
@@ -222,6 +263,10 @@ function failureKey(
     if (type === "ValueError" && levelHasLine(level, "string_repeated") && hasRepeatedInput(r.error?.message, r.inputs)) {
       return { key: "string_repeated", details: { line: r.error?.line ?? undefined, error_type: type } };
     }
+    // Read more lines than the station sent; a level without a line for it says runtime_error.
+    if (type === "EOFError" && levelHasLine(level, "EOFError")) {
+      return { key: "EOFError", details: { line: r.error?.line ?? undefined, error_type: type } };
+    }
     return {
       key: NAMED_ERRORS.has(type) ? (type as ReactionKey) : "runtime_error",
       details: { line: r.error?.line ?? undefined, error_type: type },
@@ -255,6 +300,9 @@ function failureKey(
   // Only failing results reach this point: a failed output report that names no line still fails.
   if (!output) return null;
   const f = outputFailure(output) ?? { key: "generic", details: {} };
+  if (levelHasLine(level, "output_has_prompt") && outputHasPrompt(output, f.details.out_line, r.prompts)) {
+    return { key: "output_has_prompt", details: f.details };
+  }
   if (f.key === "output_mismatch" && levelHasLine(level, "output_is_label") && outputHasLabel(output, f.details.out_line, level)) {
     return { key: "output_is_label", details: f.details };
   }
@@ -287,6 +335,19 @@ export function classifyRun(result: Exclude<RunnerResult, { kind: "not_ready" }>
   const failing = base.find((r) => !passed(r));
   const shown = failing ?? first;
   const vars = verdicts(shown, level);
+  const stdinOf = (tests: LevelDefinition["tests"], r: HarnessTestResult | undefined) => (r ? tests[r.index]?.stdin : undefined);
+  const rounds: RoundVerdict[] | undefined =
+    level.tests.length >= 2 && base.length > 0
+      ? base.map((r) => ({
+          index: r.index,
+          passed: passed(r),
+          inputs: r.inputs,
+          stdin: stdinOf(level.tests, r),
+          stdinRead: r.stdin_read,
+          output: toOutput(r.output),
+          vars: verdicts(r, level),
+        }))
+      : undefined;
   const common = {
     vars,
     stdout: shown?.stdout ?? "",
@@ -295,6 +356,10 @@ export function classifyRun(result: Exclude<RunnerResult, { kind: "not_ready" }>
     output: toOutput(shown?.output),
     history: history(shown),
     historyTruncated: shown?.var_history_truncated,
+    stdin: stdinOf(level.tests, shown),
+    stdinRead: shown?.stdin_read,
+    prompts: shown?.prompts,
+    rounds,
   };
 
   if (failing) {
@@ -307,7 +372,7 @@ export function classifyRun(result: Exclude<RunnerResult, { kind: "not_ready" }>
       error: toError(failing, "base"),
       baseLineCount: lineCount,
       alertPercent: lineCount === null ? null : alertPercent(lineCount, limit),
-      details: f.details,
+      details: rounds ? { ...f.details, round: failing.index + 1 } : f.details,
     };
   }
 
@@ -336,6 +401,9 @@ export function classifyRun(result: Exclude<RunnerResult, { kind: "not_ready" }>
     counterOutput: toOutput(counterShown?.output),
     counterHistory: history(counterShown),
     counterHistoryTruncated: counterShown?.var_history_truncated,
+    counterStdin: stdinOf(level.counter_attack_tests, counterShown) ?? (aborted ? level.counter_attack_tests[0]?.stdin : undefined),
+    counterStdinRead: counterShown?.stdin_read,
+    counterPrompts: counterShown?.prompts,
     counterAborted: aborted,
     counterSurvived,
     details: { count },

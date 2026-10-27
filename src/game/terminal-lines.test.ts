@@ -3,6 +3,8 @@ import { gradeFixture, runHarness } from "../../tests/integration/run-harness";
 import { classifyRun } from "./classify-run";
 import { buildTerminalLines, gateFor } from "./terminal-lines";
 import { realLevel } from "../../tests/content-fixture";
+import stdinFixture from "../../tests/fixtures/levels/level-test-stdin.json";
+import type { LevelDefinition } from "./level-types";
 
 const level = realLevel("1.4");
 const lines = (fixture: string) => buildTerminalLines(gradeFixture(level, fixture), level, 1).map((l) => l.text);
@@ -146,5 +148,16 @@ describe("terminal lines, level 1.3 (sorter, inputs that are not strings)", () =
     expect(counterLine("7351")).toBe('> ma_phien = "7351"');
     expect(counterLine(4096)).toBe("> ma_phien = 4096");
     expect(counterLine(true)).toBe("> ma_phien = True");
+  });
+});
+
+describe("stdin channel line", () => {
+  test("a single test with stdin: one channel line with the lines read, no round lines", () => {
+    const fixture = stdinFixture as unknown as LevelDefinition;
+    const single = { ...fixture, tests: fixture.tests.slice(0, 1) };
+    const editor = fixture.starter_code.split("\n").slice(0, 5).join("\n") + '\nma = input()\nprint(ho_ten, ma)\n';
+    const t = buildTerminalLines(classifyRun({ kind: "ok", data: runHarness(single, editor) }, single), single, 1).map((l) => l.text);
+    expect(t[1]).toBe('> KÊNH NHẬP: "4172", "DEM" (đã đọc 1/2)');
+    expect(t.some((x) => x.startsWith("> VÒNG"))).toBe(false);
   });
 });

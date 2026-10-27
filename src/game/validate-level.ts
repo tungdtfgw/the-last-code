@@ -3,6 +3,7 @@ import {
   REACTION_KEYS,
   SIMULATION_KINDS,
   VALUE_TYPES,
+  type SimulationKind,
   type ExpectedValue,
   type LevelDefinition,
   type ValueType,
@@ -60,6 +61,30 @@ function checkSorter(objectives: { var: string; type: ValueType }[], errors: str
   }
 }
 
+/** Keys each simulation kind accepts; a new kind adds its entry here. */
+const SIM_KEYS: Record<SimulationKind, readonly string[]> = {
+  scanner: ["kind"],
+  relay: ["kind", "station"],
+  kiosk: ["kind", "devices"],
+  sorter: ["kind"],
+};
+
+/** Limits of a test's stdin channel: lines `input()` reads. */
+const STDIN_MAX_LINES = 20;
+const STDIN_MAX_CHARS = 200;
+
+function checkStdin(stdin: unknown, path: string, errors: string[]) {
+  if (!isStringArray(stdin)) {
+    errors.push(`${path} phải là mảng chuỗi`);
+    return;
+  }
+  if (stdin.length > STDIN_MAX_LINES) errors.push(`${path} có tối đa ${STDIN_MAX_LINES} dòng, đang có ${stdin.length}`);
+  stdin.forEach((line, j) => {
+    if (/[\r\n]/.test(line)) errors.push(`${path}[${j}] không được chứa xuống dòng`);
+    else if (line.length > STDIN_MAX_CHARS) errors.push(`${path}[${j}] dài quá ${STDIN_MAX_CHARS} ký tự`);
+  });
+}
+
 const nonEmpty = (v: unknown): v is string => isString(v) && v.trim() !== "";
 
 /** Every listed key must be a non-empty string (optional ones only when present); unlisted keys are typos. */
@@ -87,8 +112,12 @@ function checkKnowledgeSummary(ks: unknown, errors: string[]) {
   else
     ks.sections.forEach((s, i) => {
       const path = `knowledge_summary.sections[${i}]`;
-      if (checkTextObject(s, path, { required: ["heading", "body"], optional: ["code", "output"] }, errors) && s.output !== undefined && s.code === undefined)
-        errors.push(`${path}.output cần code đi kèm`);
+      if (!checkTextObject(s, path, { required: ["heading", "body"], optional: ["code", "output"], other: ["stdin"] }, errors)) return;
+      if (s.output !== undefined && s.code === undefined) errors.push(`${path}.output cần code đi kèm`);
+      if (s.stdin !== undefined) {
+        if (!isString(s.stdin)) errors.push(`${path}.stdin phải là chuỗi`);
+        else if (s.code === undefined) errors.push(`${path}.stdin cần code đi kèm`);
+      }
     });
   if (!Array.isArray(ks.mistakes)) errors.push("knowledge_summary.mistakes phải là mảng");
   else ks.mistakes.forEach((m, i) => checkTextObject(m, `knowledge_summary.mistakes[${i}]`, { required: ["code", "error", "explain"] }, errors));
@@ -174,6 +203,9 @@ export function validateLevel(raw: unknown): ValidationResult {
   if (typeof r.float_abs_tolerance !== "number" || !(r.float_abs_tolerance >= 0))
     errors.push("float_abs_tolerance phải là số ≥ 0");
 
+  // The stdin channel is all or nothing: every base and counter test has `stdin`, or none does.
+  const withStdin: string[] = [];
+  const withoutStdin: string[] = [];
   const checkTests = (field: "tests" | "counter_attack_tests", allowEmpty: boolean) => {
     const tests = r[field];
     if (!Array.isArray(tests) || (!allowEmpty && tests.length === 0)) {
@@ -184,6 +216,11 @@ export function validateLevel(raw: unknown): ValidationResult {
       if (!isObject(t) || !isObject(t.inputs)) {
         errors.push(`${field}[${i}].inputs thiếu`);
         return;
+      }
+      if (t.stdin === undefined) withoutStdin.push(`${field}[${i}]`);
+      else {
+        withStdin.push(`${field}[${i}]`);
+        checkStdin(t.stdin, `${field}[${i}].stdin`, errors);
       }
       // Note: a round float (2.0) arrives as an int through JSON; do not use one as a float input.
       for (const name of inputs) {
@@ -219,6 +256,8 @@ export function validateLevel(raw: unknown): ValidationResult {
   };
   checkTests("tests", false);
   checkTests("counter_attack_tests", true);
+  if (withStdin.length > 0 && withoutStdin.length > 0)
+    errors.push(`stdin: mọi test và test phản công phải cùng có hoặc cùng không có kênh nhập (thiếu ở ${withoutStdin.join(", ")})`);
 
   if (!isStringArray(r.hints) || r.hints.length !== 3) errors.push("hints phải có đúng 3 mức (chuỗi)");
 
@@ -249,7 +288,7 @@ export function validateLevel(raw: unknown): ValidationResult {
     if (!isObject(sim) || !SIMULATION_KINDS.includes(sim.kind as never)) {
       errors.push(`simulation.kind phải là một trong ${SIMULATION_KINDS.join("|")}`);
     } else {
-      const allowed = sim.kind === "relay" ? ["kind", "station"] : sim.kind === "kiosk" ? ["kind", "devices"] : ["kind"];
+      const allowed = SIM_KEYS[sim.kind as SimulationKind];
       for (const k of Object.keys(sim)) if (!allowed.includes(k)) errors.push(`simulation: khóa lạ "${k}" cho kind "${sim.kind}"`);
       if (sim.kind === "relay" && (!isString(sim.station) || sim.station.trim() === "" || sim.station.length > 12))
         errors.push("simulation.station phải là chuỗi không rỗng ≤ 12 ký tự");

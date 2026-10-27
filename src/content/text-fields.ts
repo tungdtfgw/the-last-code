@@ -42,7 +42,7 @@ export interface TextError {
   message: string;
 }
 
-const PLACEHOLDERS = "Lúc chạy, game thay chỗ giữ chỗ bằng dữ liệu thật: {line} dòng lỗi, {vars} tên biến, {error_type} loại lỗi, {count} số lần, {out_line} dòng in ra, {col} cột.";
+const PLACEHOLDERS = "Lúc chạy, game thay chỗ giữ chỗ bằng dữ liệu thật: {line} dòng lỗi, {vars} tên biến, {error_type} loại lỗi, {count} số lần, {out_line} dòng in ra, {col} cột, {round} vòng quét bị bác.";
 const BEAT_TEXT: TextLeaf = { type: "string", max: 400, multiline: true };
 
 export const LEVEL_TEXT: TextSpec = {
