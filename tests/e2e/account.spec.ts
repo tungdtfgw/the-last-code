@@ -113,7 +113,7 @@ plain("forgot password: the reset link sets a new password and signs other brows
   const mail = await latestMail(account.email);
   expect(mail.link).toContain("/#/reset/");
   await open(page, mail.link);
-  await page.getByLabel("Mật khẩu mới").fill("mat-khau-moi-1");
+  await page.getByLabel("Mật khẩu mới", { exact: true }).fill("mat-khau-moi-1");
   await page.getByLabel("Nhập lại mật khẩu").fill("mat-khau-moi-1");
   await page.getByRole("button", { name: "ĐẶT MẬT KHẨU" }).click();
   await expect(page.getByRole("heading", { name: "Đã đặt mật khẩu mới" })).toBeVisible();
