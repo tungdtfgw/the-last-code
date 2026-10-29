@@ -1,8 +1,19 @@
 import { defaultKeymap, history, historyKeymap, indentWithTab } from "@codemirror/commands";
 import { python } from "@codemirror/lang-python";
 import { HighlightStyle, bracketMatching, indentUnit, syntaxHighlighting } from "@codemirror/language";
-import { EditorState, Prec } from "@codemirror/state";
-import { EditorView, drawSelection, highlightActiveLine, highlightActiveLineGutter, keymap, lineNumbers } from "@codemirror/view";
+import { EditorState, Prec, StateEffect, StateField, type Range } from "@codemirror/state";
+import {
+  Decoration,
+  EditorView,
+  GutterMarker,
+  drawSelection,
+  gutter,
+  highlightActiveLine,
+  highlightActiveLineGutter,
+  keymap,
+  lineNumbers,
+  type DecorationSet,
+} from "@codemirror/view";
 import { tags as t } from "@lezer/highlight";
 import { forwardRef, useEffect, useImperativeHandle, useRef, useState } from "react";
 import type { Cue } from "../audio/sound-recipes";
@@ -15,8 +26,20 @@ export interface CodeEditorHandle {
   focus(): void;
 }
 
+/** Lines the last run never reached in the shown round (`skipped_lines`). */
+export interface SkippedLines {
+  lines: readonly number[];
+  /** "Không chạy ở {roundWord} {round}" in the line's title. */
+  round?: number;
+  roundWord: string;
+  /** The run these lines belong to: each run dims at most once. */
+  run: object;
+}
+
 interface Props {
   initialCode: string;
+  /** Dims these lines until the next edit; null clears them. */
+  skipped?: SkippedLines | null;
   lockStart: number;
   lockedTexts: readonly string[];
   onChange(code: string, lockedLineNumbers: number[]): void;
@@ -42,6 +65,8 @@ const theme = EditorView.theme(
       boxShadow: "inset 2px 0 0 oklch(88% 0.16 95 / 0.55)",
     },
     ".cm-lock-gutter .cm-gutterElement": { color: "var(--type-str)", display: "flex", alignItems: "center", paddingLeft: "6px" },
+    ".cm-skipped-line": { opacity: "0.4" },
+    ".cm-skip-gutter .cm-gutterElement": { color: "var(--text-faint)", paddingLeft: "4px" },
     ".cm-matchingBracket": { backgroundColor: "oklch(84% 0.13 178 / 0.18)", outline: "none" },
   },
   { dark: true },
@@ -58,9 +83,69 @@ const highlight = HighlightStyle.define([
   { tag: t.variableName, color: "var(--text)" },
 ]);
 
+export const setSkipped = StateEffect.define<SkippedLines | null>();
+
+interface SkippedState {
+  deco: DecorationSet;
+  /** The code changed since the last clear (a run starting): line numbers of the coming run may be off. */
+  edited: boolean;
+  /** Runs already shown, so a re-sent run (after an aborted one) never dims again. */
+  shown: WeakSet<object>;
+}
+
+/**
+ * Dimmed lines of the last run. Any edit clears them, and lines arriving after an
+ * edit made since the run started are dropped: they no longer match the code.
+ */
+export const skippedField = StateField.define<SkippedState>({
+  create: () => ({ deco: Decoration.none, edited: false, shown: new WeakSet() }),
+  update(value, tr) {
+    for (const e of tr.effects) {
+      if (!e.is(setSkipped)) continue;
+      if (!e.value) return { ...value, deco: Decoration.none, edited: false };
+      const { lines, round, roundWord, run } = e.value;
+      if (value.edited || value.shown.has(run)) return { ...value, deco: Decoration.none };
+      value.shown.add(run);
+      const title = round ? `Không chạy ở ${roundWord} ${round}` : "Không chạy";
+      const doc = tr.state.doc;
+      const ranges: Range<Decoration>[] = [...new Set(lines)]
+        .filter((n) => Number.isInteger(n) && n >= 1 && n <= doc.lines)
+        .sort((a, b) => a - b)
+        .map((n) => Decoration.line({ class: "cm-skipped-line", attributes: { title } }).range(doc.line(n).from));
+      return { ...value, deco: Decoration.set(ranges) };
+    }
+    return tr.docChanged ? { ...value, deco: Decoration.none, edited: true } : value;
+  },
+  provide: (f) => EditorView.decorations.from(f, (v) => v.deco),
+});
+
+class SkipMarker extends GutterMarker {
+  toDOM() {
+    const el = document.createElement("span");
+    el.textContent = "–";
+    el.setAttribute("aria-hidden", "true");
+    return el;
+  }
+}
+const skipMarker = new SkipMarker();
+
+/** "–" next to every dimmed line; empty (no width) when nothing is dimmed. */
+const skipGutter = gutter({
+  class: "cm-skip-gutter",
+  lineMarker(view, line) {
+    let found = false;
+    view.state.field(skippedField).deco.between(line.from, line.from, () => {
+      found = true;
+      return false;
+    });
+    return found ? skipMarker : null;
+  },
+  lineMarkerChange: (u) => u.startState.field(skippedField).deco !== u.state.field(skippedField).deco,
+});
+
 /** CodeMirror 6 editor with the locked chip-data block. */
 export const CodeEditor = forwardRef<CodeEditorHandle, Props>(function CodeEditor(
-  { initialCode, lockStart, lockedTexts, onChange, onRun, onCue },
+  { initialCode, skipped = null, lockStart, lockedTexts, onChange, onRun, onCue },
   ref,
 ) {
   const host = useRef<HTMLDivElement>(null);
@@ -91,6 +176,8 @@ export const CodeEditor = forwardRef<CodeEditorHandle, Props>(function CodeEdito
           ]),
         ),
         lineNumbers(),
+        skippedField,
+        skipGutter,
         highlightActiveLineGutter(),
         highlightActiveLine(),
         drawSelection(),
@@ -137,6 +224,11 @@ export const CodeEditor = forwardRef<CodeEditorHandle, Props>(function CodeEdito
     };
     // The editor is created once per document load; later changes flow through the view.
   }, [initialCode, lockStart]);
+
+  // Shown once the run has played back; cleared by the next run or the first edit.
+  useEffect(() => {
+    view.current?.dispatch({ effects: setSkipped.of(skipped) });
+  }, [skipped]);
 
   useEffect(() => {
     if (!flash) return;

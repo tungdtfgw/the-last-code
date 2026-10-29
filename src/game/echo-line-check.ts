@@ -10,8 +10,12 @@ export function renderTemplate(template: string, details: object): string {
   });
 }
 
-/** Typical run details, so a template is checked the way the player would read it. */
-const SAMPLE = { line: 7, vars: "ma_xac_thuc, chi_so", error_type: "ValueError", count: 12, out_line: 2, col: 6, round: 2 };
+/**
+ * Typical run details, so a template is checked the way the player would read it.
+ * The numbers sit in a range no level uses as data or forbids (9131–9137), so a
+ * level that forbids `7` or `12` can still say `{line}` or `{count}`.
+ */
+const SAMPLE = { line: 9131, vars: "ma_xac_thuc, chi_so", error_type: "ValueError", count: 9137, out_line: 9132, col: 9133, round: 9134 };
 
 /**
  * Free ECHO lines (reactions, their variants, ECHO beats of `outro_beats`) that

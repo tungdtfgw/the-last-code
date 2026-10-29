@@ -1,7 +1,7 @@
 import { readdirSync, readFileSync } from "node:fs";
 import { DatabaseSync } from "node:sqlite";
 import type { ContentTexts } from "../src/account/account-api";
-import { applyText, CHAPTER_TEXT, extractText, LEVEL_TEXT } from "../src/content/text-fields";
+import { applyText, CHAPTER_TEXT, extractText, LEVEL_TEXT, stripText } from "../src/content/text-fields";
 import { buildRegistry, type LevelRegistry } from "../src/game/level-registry";
 import type { LevelDefinition } from "../src/game/level-types";
 import { validateChapterText } from "../src/content/validate-text";
@@ -17,7 +17,7 @@ import type { ChapterDefinition } from "../src/story/story-types";
 
 const MIGRATIONS = new URL("../db/migrations/", import.meta.url);
 const LEVELS = new URL("../src/levels/", import.meta.url);
-const CHAPTER = new URL("../src/story/chapter-1.json", import.meta.url);
+const STORY = new URL("../src/story/", import.meta.url);
 
 const readJson = (url: URL): unknown => JSON.parse(readFileSync(url, "utf8"));
 const clone = <T>(v: T): T => JSON.parse(JSON.stringify(v)) as T;
@@ -79,20 +79,47 @@ export function realLevelJson(id: string): Record<string, any> {
   return applyText(file, text.text, LEVEL_TEXT).doc as Record<string, any>;
 }
 
-/** The chapter file (the puzzle only). */
-export const chapterFile = (): Record<string, any> => readJson(CHAPTER) as Record<string, any>;
+/** The numbers of the chapter files in `src/story`, in order. */
+export function chapterNumbers(): number[] {
+  return readdirSync(STORY)
+    .map((f) => /^chapter-(\d+)\.json$/.exec(f)?.[1])
+    .filter((n): n is string => n !== undefined)
+    .map(Number)
+    .sort((a, b) => a - b);
+}
 
-/** The chapter file with its migrated text applied, unvalidated. */
-export function realChapterJson(): Record<string, any> {
-  const file = chapterFile();
+/** Chapter `n`'s file (the puzzle only). */
+export const chapterFile = (n = 1): Record<string, any> => readJson(new URL(`chapter-${n}.json`, STORY)) as Record<string, any>;
+
+/** Chapter `n`'s file with its migrated text applied, unvalidated. */
+export function realChapterJson(n = 1): Record<string, any> {
+  const file = chapterFile(n);
   return applyText(file, migratedTexts()[`chapter:${file.chapter}`]?.text, CHAPTER_TEXT).doc as Record<string, any>;
 }
 
-/** The validated chapter with its migrated text, checked like the game checks it (`getChapter`). */
-export function realChapter(): ChapterDefinition {
-  const file = chapterFile();
+/** Chapter `n` validated with its migrated text, checked like the game checks it (`getChapters`). */
+export function realChapter(n = 1): ChapterDefinition {
+  const file = chapterFile(n);
   const checked = validateChapterText(file, migratedTexts()[`chapter:${file.chapter}`]?.text);
   const result = checked.ok ? validateChapter(checked.doc) : null;
-  if (!result?.ok) throw new Error(`chương 1 không dựng được: ${JSON.stringify(checked.ok ? result : checked.errors)}`);
+  if (!result?.ok) throw new Error(`chương ${n} không dựng được: ${JSON.stringify(checked.ok ? result : checked.errors)}`);
   return result.chapter;
+}
+
+/** Every real chapter with its migrated text, in order. */
+export const realChapters = (): ChapterDefinition[] => chapterNumbers().map(realChapter);
+
+/**
+ * Made-up chapter documents that carry their own text, split as the game gets
+ * them: the puzzle files (as `import.meta.glob` would key them) and their D1 text.
+ */
+export function chaptersOf(files: unknown[]): { modules: Record<string, unknown>; texts: ContentTexts } {
+  const modules: Record<string, unknown> = {};
+  const texts: ContentTexts = {};
+  for (const doc of files) {
+    const n = (doc as { chapter: number }).chapter;
+    modules[`./chapter-${n}.json`] = stripText(doc, CHAPTER_TEXT);
+    texts[`chapter:${n}`] = { revision: 1, text: extractText(doc, CHAPTER_TEXT) };
+  }
+  return { modules, texts };
 }

@@ -106,6 +106,18 @@ export function vocabularyFor(level: Pick<LevelDefinition, "simulation">): SimVo
         round: "VÒNG QUÉT",
         headlines: ["Qua cổng, bị ghi nhận", "Cổng mở một nửa", "Cổng mở hoàn toàn"],
       };
+    case "patrol":
+      return {
+        runTarget: "đưa Kai qua dải tuần tra",
+        gate: "LỐI QUA",
+        counterSurvived: "DRONE ĐÃ ĐỔI LUẬT MÀ VẪN BỎ QUA: mã vẫn đứng vững",
+        sent: "DRONE BỎ QUA",
+        dropped: "DRONE PHÁT HIỆN",
+        objectivesNote: "drone chỉ làm đúng luật, không đoán",
+        terminalNote: "nhật ký dải tuần tra",
+        round: "TÌNH HUỐNG",
+        headlines: ["Qua dải tuần tra, bị ghi nhận", "Lối qua mở một nửa", "Lối qua mở hoàn toàn"],
+      };
     case "scanner":
       return SCANNER;
   }

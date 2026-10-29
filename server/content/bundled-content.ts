@@ -5,7 +5,8 @@ import { docIdOf, type DocKind } from "./content-store.js";
 
 /** The puzzle files of this deploy: the same files the client bundles (`vercel.json` `includeFiles`). */
 export const LEVELS_DIR = fileURLToPath(new URL("../../src/levels", import.meta.url));
-export const CHAPTER_FILE = fileURLToPath(new URL("../../src/story/chapter-1.json", import.meta.url));
+/** Holds `chapter-<n>.json`, one file per chapter. */
+export const STORY_DIR = fileURLToPath(new URL("../../src/story", import.meta.url));
 
 export interface BundledDoc {
   docId: string;
@@ -35,24 +36,29 @@ function readJson(file: string): { value: unknown; error?: string } {
   }
 }
 
-/** Reads every level file and the chapter file. Pure apart from the reads; the paths are parameters for tests and the migration script. */
-export function loadBundledContent(levelsDir = LEVELS_DIR, chapterFile = CHAPTER_FILE): BundledContent {
+/** Reads every level file and every chapter file. Pure apart from the reads; the paths are parameters for tests and the migration script. */
+export function loadBundledContent(levelsDir = LEVELS_DIR, storyDir = STORY_DIR): BundledContent {
   const docs: BundledDoc[] = [];
   const seen = new Set<string>();
+  const add = (doc: BundledDoc) => {
+    if (seen.has(doc.docId)) return;
+    seen.add(doc.docId);
+    docs.push(doc);
+  };
   for (const name of readdirSync(levelsDir).filter((f) => f.endsWith(".json")).sort()) {
     const file = join(levelsDir, name);
     const { value, error } = readJson(file);
     const id = value && typeof value === "object" ? (value as { id?: unknown }).id : undefined;
     if (typeof id !== "string" || id.trim() === "") continue; // nothing to address it by
-    const docId = docIdOf("level", id);
-    if (seen.has(docId)) continue;
-    seen.add(docId);
-    docs.push({ docId, kind: "level", id, title: titleOf(value), file, puzzle: value, errors: error ? [error] : [] });
+    add({ docId: docIdOf("level", id), kind: "level", id, title: titleOf(value), file, puzzle: value, errors: error ? [error] : [] });
   }
-  const { value, error } = readJson(chapterFile);
-  const n = value && typeof value === "object" ? (value as { chapter?: unknown }).chapter : undefined;
-  const id = typeof n === "number" ? String(n) : "1";
-  docs.push({ docId: docIdOf("chapter", id), kind: "chapter", id, title: titleOf(value), file: chapterFile, puzzle: value, errors: error ? [error] : [] });
+  for (const name of readdirSync(storyDir).filter((f) => /^chapter-\d+\.json$/.test(f)).sort()) {
+    const file = join(storyDir, name);
+    const { value, error } = readJson(file);
+    const n = value && typeof value === "object" ? (value as { chapter?: unknown }).chapter : undefined;
+    const id = typeof n === "number" ? String(n) : /^chapter-(\d+)\.json$/.exec(name)![1];
+    add({ docId: docIdOf("chapter", id), kind: "chapter", id, title: titleOf(value), file, puzzle: value, errors: error ? [error] : [] });
+  }
   docs.sort((a, b) => (a.kind === b.kind ? a.id.localeCompare(b.id, "en", { numeric: true }) : a.kind === "chapter" ? -1 : 1));
   return { docs, get: (kind, id) => docs.find((d) => d.kind === kind && d.id === id) };
 }

@@ -6,6 +6,8 @@ import { useTypewriter } from "./use-typewriter";
 const TYPE_MS = 26;
 
 interface Props {
+  /** The title of the level's chapter ("Vùng Tối"). */
+  chapterTitle: string;
   level: LevelDefinition;
   /** Intro reveal: hidden behind the gate, typing after it, full once skipped or done. */
   mode: "hidden" | "typing" | "full";
@@ -16,7 +18,7 @@ interface Props {
   onToggle(): void;
 }
 
-export function BriefingPanel({ level, mode, onCue, onTyped, collapsed, onToggle }: Props) {
+export function BriefingPanel({ level, chapterTitle, mode, onCue, onTyped, collapsed, onToggle }: Props) {
   const typed = useTypewriter(level.briefing, { mode, msPerChar: TYPE_MS, tickEvery: 2, onTick: () => onCue("teletype"), onDone: onTyped });
   const [head, ...rest] = typed.split("\n");
   const typing = mode === "typing" && typed.length < level.briefing.length;
@@ -47,7 +49,7 @@ export function BriefingPanel({ level, mode, onCue, onTyped, collapsed, onToggle
             )}
           </button>
         </h2>
-        {!collapsed && <span className="panel-meta">Chương {level.chapter} · Vùng Tối</span>}
+        {!collapsed && <span className="panel-meta">Chương {level.chapter} · {chapterTitle}</span>}
       </header>
       <div id="briefing-body" hidden={collapsed}>
         <div className="panel-body" aria-hidden="true">

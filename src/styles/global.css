@@ -2089,8 +2089,8 @@ kbd {
   animation: fragment-flare 2.4s calc(var(--i) * 140ms) var(--ease-out) 1 both;
 }
 
-/* One fragment found: it stays lit in the signal colour while the other seven fade. */
-.city-fragments.is-found circle:first-child {
+/* The fragments found so far (one per chapter) stay lit in the signal colour while the others fade. */
+.city-fragments.is-found circle.is-lit {
   fill: var(--signal);
   animation: fragment-found 2.4s var(--ease-out) 1 both;
 }
@@ -6139,6 +6139,292 @@ body:has(.learn-screen)::before {
   .checkpoint-figure,
   .checkpoint-booth-glass,
   .checkpoint-id-cell {
+    transition: none;
+  }
+}
+
+/* Chapter row on the map: one button per chapter file. */
+.map-chapters {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  padding: 0 0 12px;
+}
+
+.map-chapter[aria-current="page"] {
+  border-color: var(--signal);
+  color: var(--signal);
+}
+
+.map-chapter.is-broken {
+  color: var(--text-faint);
+  cursor: not-allowed;
+}
+
+.map-chapter-tag {
+  margin-left: 6px;
+  color: var(--alarm);
+  font-size: var(--text-2xs);
+  letter-spacing: 0.08em;
+}
+
+@media (max-width: 480px) {
+  .map-chapter-title {
+    display: none;
+  }
+}
+
+/* ---------- Patrol strip (simulation kind "patrol"): Kai's things in signal, the drone in OMNI red ---------- */
+
+.patrol-situations {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--s-1);
+  margin: 0;
+  padding: var(--s-2) var(--s-3);
+  list-style: none;
+  border-bottom: 1px solid var(--line);
+  font-family: var(--font-display);
+  font-size: var(--text-2xs);
+  letter-spacing: 0.08em;
+}
+
+.patrol-situation {
+  padding: 2px var(--s-2);
+  border: 1px solid var(--line);
+  color: var(--text-faint);
+}
+
+.patrol-situation.is-active {
+  border-color: var(--signal);
+  color: var(--signal);
+}
+
+.patrol-situation.is-passed {
+  border-color: var(--ok);
+  color: var(--ok);
+}
+
+.patrol-situation.is-caught,
+.patrol-situation.is-counter {
+  border-color: var(--omni);
+  color: var(--omni);
+}
+
+.patrol-situation.is-notReached {
+  opacity: 0.6;
+}
+
+.patrol-stage {
+  flex: 0 0 auto;
+}
+
+.patrol-fence path {
+  stroke: var(--line-strong);
+  stroke-width: 2;
+  stroke-dasharray: 3 5;
+}
+
+.patrol-beam {
+  fill: color-mix(in oklch, var(--omni) 16%, transparent);
+  stroke: color-mix(in oklch, var(--omni) 40%, transparent);
+  transform-origin: 210px 70px;
+}
+
+.patrol-drone.is-sweep .patrol-beam {
+  animation: patrol-sweep 2.4s ease-in-out infinite alternate;
+}
+
+.patrol-drone.is-locked .patrol-beam {
+  fill: color-mix(in oklch, var(--omni) 34%, transparent);
+  stroke: var(--omni);
+}
+
+.patrol-drone.is-passed .patrol-beam {
+  opacity: 0.35;
+}
+
+.patrol-drone-body rect,
+.patrol-drone-body path {
+  fill: var(--surface-raised);
+  stroke: var(--omni);
+  stroke-width: 1.5;
+}
+
+.patrol-drone-eye {
+  fill: var(--omni);
+}
+
+.patrol-drone.is-idle .patrol-drone-eye {
+  fill: var(--text-faint);
+}
+
+.patrol-kai circle {
+  fill: var(--signal);
+}
+
+.patrol-kai {
+  transition: transform 0.6s var(--ease-out);
+}
+
+.patrol-kai.is-caught circle:first-child {
+  fill: var(--alarm);
+}
+
+.patrol-kai.is-still circle:first-child {
+  fill: var(--text-faint);
+}
+
+.patrol-kai-ring {
+  fill: none !important;
+  stroke: var(--omni);
+  stroke-width: 2;
+}
+
+.patrol-label {
+  font-family: var(--font-display) !important;
+  font-size: 15px;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  fill: var(--text);
+}
+
+.patrol-label.is-alarm {
+  fill: var(--alarm);
+}
+
+.patrol-label.is-pass {
+  fill: var(--ok);
+}
+
+.patrol-sensors {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--s-1);
+  margin: 0;
+  padding: var(--s-2) var(--s-3);
+  list-style: none;
+  border-top: 1px solid var(--line);
+  font-family: var(--font-mono);
+  font-size: var(--text-xs);
+}
+
+.patrol-sensor {
+  display: flex;
+  flex-direction: column;
+  min-width: 4.5em;
+  padding: var(--s-1) var(--s-2);
+  border: 1px solid var(--line-strong);
+}
+
+.patrol-sensor-name {
+  font-size: var(--text-2xs);
+  color: var(--text-faint);
+}
+
+.patrol-sensor.is-input .patrol-sensor-value {
+  color: var(--type-str);
+}
+
+.patrol-sensor.is-empty {
+  border-style: dashed;
+}
+
+.patrol-sensor.is-empty .patrol-sensor-value {
+  color: var(--text-faint);
+  font-style: italic;
+}
+
+.patrol-readout {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  gap: var(--s-2) var(--s-3);
+  padding: var(--s-2) var(--s-3);
+  border-top: 1px solid var(--line);
+  font-family: var(--font-mono);
+  font-size: var(--text-xs);
+}
+
+.patrol-chip {
+  display: flex;
+  flex-direction: column;
+  margin: 0;
+  padding: var(--s-1) var(--s-3);
+  border: 1px solid var(--line-strong);
+}
+
+.patrol-chip-name {
+  font-size: var(--text-2xs);
+  color: var(--text-faint);
+}
+
+.patrol-chip-value {
+  font-size: var(--text-base);
+}
+
+.patrol-chip.is-ok {
+  border-color: var(--signal);
+  background: var(--signal-dim);
+}
+
+.patrol-chip.is-bad {
+  border-color: var(--alarm);
+  background: var(--alarm-dim);
+}
+
+.patrol-lamps {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.patrol-lamp {
+  display: flex;
+  align-items: center;
+  gap: var(--s-2);
+}
+
+.patrol-lamp-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--surface-raised);
+  border: 1px solid var(--line-strong);
+}
+
+.patrol-lamp.is-ok .patrol-lamp-dot {
+  background: var(--ok);
+  border-color: var(--ok);
+}
+
+.patrol-lamp.is-bad .patrol-lamp-dot {
+  background: var(--alarm);
+  border-color: var(--alarm);
+}
+
+.patrol-lamp-name {
+  color: var(--text-muted);
+}
+
+@keyframes patrol-sweep {
+  from {
+    transform: rotate(-18deg);
+  }
+  to {
+    transform: rotate(18deg);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .patrol-drone.is-sweep .patrol-beam {
+    animation: none;
+  }
+
+  .patrol-kai {
     transition: none;
   }
 }

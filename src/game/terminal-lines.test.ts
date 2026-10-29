@@ -161,3 +161,17 @@ describe("stdin channel line", () => {
     expect(t.some((x) => x.startsWith("> VÒNG"))).toBe(false);
   });
 });
+
+describe("lines that never ran", () => {
+  test("named just before the final result line, with the round when there is one", () => {
+    const passed = buildTerminalLines({ ...gradeFixture(level, "three-star"), skippedLines: [5, 6], skippedRound: 2 }, level, 1);
+    expect(passed.at(-2)).toMatchObject({ tone: "muted", text: "> KHÔNG CHẠY Ở VÒNG 2: dòng 5, 6", jumpLine: 5 });
+    expect(passed.at(-1)!.text).toBe("> CỔNG: MỞ HOÀN TOÀN");
+    const failed = buildTerminalLines({ ...gradeFixture(level, "original"), skippedLines: [9] }, level, 1).map((l) => l.text);
+    expect(failed.slice(-2)).toEqual(["> KHÔNG CHẠY: dòng 9", "> CỔNG: ĐÓNG"]);
+  });
+
+  test("absent without skipped lines: the log is the same as before", () => {
+    expect(lines("three-star").some((t) => t.startsWith("> KHÔNG CHẠY"))).toBe(false);
+  });
+});

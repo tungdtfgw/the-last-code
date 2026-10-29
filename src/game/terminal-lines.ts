@@ -139,6 +139,18 @@ const alertLine = (outcome: RunOutcome, level: LevelDefinition): TerminalLine[] 
         },
       ];
 
+/** Lines of the shown test that never ran: `> KHÔNG CHẠY Ở TÌNH HUỐNG 2: dòng 5, 6`. */
+const skippedLine = (outcome: RunOutcome, vocab: SimVocabulary): TerminalLine[] =>
+  outcome.skippedLines?.length
+    ? [
+        {
+          tone: "muted",
+          text: `> KHÔNG CHẠY${outcome.skippedRound ? ` Ở ${vocab.round} ${outcome.skippedRound}` : ""}: dòng ${outcome.skippedLines.join(", ")}`,
+          jumpLine: outcome.skippedLines[0],
+        },
+      ]
+    : [];
+
 /** The in-world log for one run (GDD 4.2). Pure, so it can be tested and rendered as text nodes. */
 export function buildTerminalLines(outcome: RunOutcome, level: LevelDefinition, runNumber: number): TerminalLine[] {
   const vocab = vocabularyFor(level);
@@ -168,7 +180,7 @@ export function buildTerminalLines(outcome: RunOutcome, level: LevelDefinition, 
       out.push(...outputLines(outcome.output, vocab));
       out.push(...alertLine(outcome, level));
     }
-    out.push(closed);
+    out.push(...skippedLine(outcome, vocab), closed);
     return out;
   }
 
@@ -178,7 +190,7 @@ export function buildTerminalLines(outcome: RunOutcome, level: LevelDefinition, 
 
   if (outcome.sentinelCaught) {
     out.push({ tone: "alarm", text: "> SENTINEL ĐÃ KHÓA MỤC TIÊU — MỨC CẢNH BÁO: 100%+" });
-    out.push(closed);
+    out.push(...skippedLine(outcome, vocab), closed);
     return out;
   }
   if (outcome.stars === 1) out.push({ tone: "alarm", text: "> TÍN HIỆU BỊ GHI NHẬN: vượt ngưỡng tàng hình" });
@@ -220,6 +232,7 @@ export function buildTerminalLines(outcome: RunOutcome, level: LevelDefinition, 
   }
 
   const gate = gateFor(outcome);
+  out.push(...skippedLine(outcome, vocab));
   out.push(
     gate === "open"
       ? { tone: "ok", text: `> ${vocab.gate}: MỞ HOÀN TOÀN` }

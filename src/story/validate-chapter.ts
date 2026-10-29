@@ -13,7 +13,7 @@ export function validateChapter(raw: unknown): ChapterValidation {
   if (!isObject(raw)) return { ok: false, errors: ["chương phải là một object JSON"] };
   const r = raw;
   if (r.schema_version !== 1) errors.push("schema_version phải là 1");
-  if (typeof r.chapter !== "number") errors.push("chapter phải là số");
+  if (!Number.isInteger(r.chapter) || (r.chapter as number) < 1) errors.push("chapter phải là số nguyên ≥ 1");
   if (typeof r.title !== "string" || r.title.trim() === "") errors.push("title phải là chuỗi không rỗng");
 
   const levels = r.levels;
@@ -25,6 +25,20 @@ export function validateChapter(raw: unknown): ChapterValidation {
   const count = Array.isArray(levels) ? levels.length : 0;
   if (!Number.isInteger(r.neural_id_slots) || (r.neural_id_slots as number) < 1 || (r.neural_id_slots as number) > count)
     errors.push(`neural_id_slots phải là số nguyên 1–${count}`);
+
+  const shortName = (v: unknown, at: string) => {
+    if (typeof v !== "string" || v.trim() === "" || v.length > 40) errors.push(`${at} phải là chuỗi không rỗng, tối đa 40 ký tự`);
+  };
+  const pair = (v: unknown, field: string, keys: [string, string]) => {
+    if (!isObject(v)) {
+      errors.push(`${field} phải là object {${keys.join(", ")}}`);
+      return;
+    }
+    for (const k of Object.keys(v)) if (!keys.includes(k)) errors.push(`${field}: khóa lạ "${k}"`);
+    for (const k of keys) shortName(v[k], `${field}.${k}`);
+  };
+  pair(r.component_bar, "component_bar", ["label", "unit"]);
+  pair(r.map, "map", ["from", "to"]);
 
   const leak = (text: string) => findEchoLeak(text);
   validateBeats(r.prologue, "prologue", errors, leak);

@@ -20,10 +20,7 @@ export interface AdminEditorProps {
 
 /** The bundled file for this document: the puzzle the form is drawn from (it holds no text). */
 function bundledPuzzle(kind: AdminDocKind, id: string): unknown {
-  if (kind === "chapter") {
-    const chapter = bundledChapter() as { chapter?: unknown };
-    return String(chapter.chapter) === id ? chapter : undefined;
-  }
+  if (kind === "chapter") return /^\d+$/.test(id) ? bundledChapter(Number(id)) : undefined;
   return Object.values(bundledLevelModules()).find((m) => m && typeof m === "object" && (m as { id?: unknown }).id === id);
 }
 

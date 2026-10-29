@@ -8,19 +8,19 @@ import { extractText, LEVEL_TEXT, stripText } from "../../src/content/text-field
 import { all } from "../db/db";
 import { MIGRATIONS_DIR, SqliteDb } from "../db/sqlite-db";
 import { validateDocText } from "./admin-content";
-import { CHAPTER_FILE, LEVELS_DIR, loadBundledContent } from "./bundled-content";
+import { LEVELS_DIR, loadBundledContent, STORY_DIR } from "./bundled-content";
 import { writeContentMigration } from "./content-migration-cli";
 import { contentMigrationSql } from "./content-migration";
 import { readAllTexts } from "./content-store";
 
 describe("a fresh database (migrations only)", () => {
-  test("every bundled level and the chapter have text that passes the admin page's check", async () => {
+  test("every bundled level and chapter has text that passes the admin page's check", async () => {
     const db = new SqliteDb(":memory:");
     const rows = await readAllTexts(db);
     const history = await all(db, "SELECT doc_id FROM content_text_history WHERE revision = 1");
     db.close();
     const docs = loadBundledContent().docs;
-    expect(docs.map((d) => d.docId)).toEqual(expect.arrayContaining(["chapter:1", "level:1.1"]));
+    expect(docs.map((d) => d.docId)).toEqual(expect.arrayContaining(["chapter:1", "chapter:2", "level:1.1"]));
     for (const doc of docs) {
       const row = rows[doc.docId];
       expect(row, `${doc.docId}: chưa có migration câu chữ (npm run content:migration)`).toBeDefined();
@@ -53,7 +53,7 @@ test("a statement D1 would refuse is never written", () => {
 describe("npm run content:migration", () => {
   let dir: string;
   let lines: string[];
-  let opts: { levelsDir: string; chapterFile: string; migrationsDir: string; log(l: string): void; now: Date };
+  let opts: { levelsDir: string; storyDir: string; migrationsDir: string; log(l: string): void; now: Date };
   const textFile = (text: unknown) => {
     const file = join(dir, "text.json");
     writeFileSync(file, JSON.stringify(text));
@@ -67,7 +67,7 @@ describe("npm run content:migration", () => {
     lines = [];
     opts = {
       levelsDir: join(dir, "levels"),
-      chapterFile: CHAPTER_FILE,
+      storyDir: STORY_DIR,
       migrationsDir: join(dir, "migrations"),
       log: (l) => lines.push(l),
       now: new Date("2026-11-01T09:00:00.000Z"),

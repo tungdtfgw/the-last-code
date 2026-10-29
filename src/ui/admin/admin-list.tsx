@@ -2,7 +2,7 @@ import { useCallback, useEffect, useState } from "react";
 import type { AccountApi, AdminDocSummary } from "../../account/account-api";
 import { sourceLine } from "./admin-format";
 
-/** Every document the deploy bundles (chapter 1 and every level file); only those with text in D1 open. */
+/** Every document the deploy bundles (every chapter file and every level file); only those with text in D1 open. */
 export function AdminList(props: { api: AccountApi; onOpen(doc: AdminDocSummary): void; onGame(): void; onSessionExpired(): void }) {
   const { api, onSessionExpired } = props;
   const [docs, setDocs] = useState<AdminDocSummary[] | null>(null);

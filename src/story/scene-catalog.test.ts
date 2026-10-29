@@ -1,13 +1,16 @@
 import { describe, expect, test } from "vitest";
-import { realChapter, realRegistry } from "../../tests/content-fixture";
+import { realChapters, realRegistry } from "../../tests/content-fixture";
 import { buildStory } from "./build-story";
 import { backdropAt } from "./cutscene-reducer";
-import { buildChapterContext } from "./progression";
+import { buildGameContext, endId, prologueId } from "./progression";
 import { fxSupported } from "./scene-catalog";
 
 describe("scene effects", () => {
-  const ctx = buildChapterContext(realChapter(), realRegistry());
-  const ids = ["prologue", "teaser", ...[...ctx.built.keys()].map((id) => `after-${id}`)];
+  const ctx = buildGameContext(realChapters(), [], realRegistry());
+  const ids = [
+    ...ctx.chapters.flatMap((c) => [prologueId(c.chapter), endId(c.chapter)]),
+    ...[...ctx.built.keys()].map((id) => `after-${id}`),
+  ];
 
   test.each(ids)("%s: every effect is drawn by the backdrop it plays on", (id) => {
     const beats = buildStory(id, ctx)!;

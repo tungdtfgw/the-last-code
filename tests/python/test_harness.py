@@ -845,3 +845,60 @@ class StdinChannel(unittest.TestCase):
         b = base(grade(GOOD))
         self.assertNotIn("stdin_read", b)
         self.assertNotIn("prompts", b)
+
+
+def branch_config(*values):
+    """One base test per value of `muc`, grading nothing: only the run itself matters."""
+    return json.dumps(
+        {
+            "inputs": ["muc"],
+            "objectives": [],
+            "tests": [{"inputs": {"muc": v}, "expected": {}} for v in values],
+            "counter_attack_tests": [],
+            "float_abs_tolerance": 1e-9,
+        }
+    )
+
+
+LADDER = (
+    "\n"  # line 1: the blanked chip line
+    "if muc >= 8:\n"  # 2
+    "    lenh = 'NAP'\n"  # 3
+    "elif muc >= 4:\n"  # 4
+    "    lenh = 'CHO'\n"  # 5
+    "else:\n"  # 6
+    "    lenh = 'DI'\n"  # 7
+    "print(lenh)\n"  # 8
+)
+
+
+class SkippedLines(unittest.TestCase):
+    def skipped(self, src, *values):
+        return [r.get("skipped_lines") for r in grade(src, branch_config(*values))["base_results"]]
+
+    def test_if_true_runs_its_body_and_reports_nothing(self):
+        self.assertEqual(self.skipped("lenh = 'DI'\nif muc > 5:\n    lenh = 'NAP'\n", 9), [None])
+
+    def test_if_false_reports_its_body(self):
+        self.assertEqual(self.skipped("lenh = 'DI'\nif muc > 5:\n    lenh = 'NAP'\nprint(lenh)\n", 1), [[3]])
+
+    def test_elif_and_else_report_every_branch_not_reached(self):
+        self.assertEqual(self.skipped(LADDER, 9, 5, 1), [[4, 5, 7], [3, 7], [3, 5]])
+
+    def test_nested_branches(self):
+        src = "if muc > 0:\n    if muc > 5:\n        lenh = 'NAP'\n    else:\n        lenh = 'CHO'\nelse:\n    lenh = 'DI'\n"
+        self.assertEqual(self.skipped(src, 9, 3, -1), [[5, 7], [3, 7], [2, 3, 5]])
+
+    def test_straight_code_reports_nothing(self):
+        self.assertEqual(self.skipped("a = muc + 1\nprint(a)\n", 1), [None])
+
+    def test_a_failed_run_reports_nothing(self):
+        r = base(grade("if muc > 5:\n    lenh = 'NAP'\nprint(1 / 0)\n", branch_config(1)))
+        self.assertEqual(r["status"], "runtime_error")
+        self.assertNotIn("skipped_lines", r)
+
+    def test_global_alone_on_a_line_never_looks_skipped(self):
+        self.assertEqual(self.skipped("global lenh\nlenh = muc\n", 1), [None])
+
+    def test_counting_statements_is_unchanged(self):
+        self.assertEqual([r["line_count"] for r in grade(LADDER, branch_config(9, 5, 1))["base_results"]], [3, 4, 4])

@@ -1,5 +1,5 @@
 import { expect, test } from "vitest";
-import { chapterFile, levelFiles, migratedTexts, realChapterJson, realLevelJson } from "../../tests/content-fixture";
+import { chapterFile, chapterNumbers, levelFiles, migratedTexts, realChapterJson, realLevelJson } from "../../tests/content-fixture";
 import { CHAPTER_TEXT, extractText, LEVEL_TEXT } from "./text-fields";
 import { validateChapterText, validateLevelText } from "./validate-text";
 
@@ -12,7 +12,7 @@ const paths = (r: ReturnType<typeof validateLevelText>) => (r.ok ? [] : r.errors
 
 test("the migrated text passes on the puzzle files", () => {
   expect(validateLevelText(levelFiles()["../levels/level-1-4.json"], migratedTexts()["level:1.4"].text).ok).toBe(true);
-  expect(validateChapterText(chapterFile(), migratedTexts()["chapter:1"].text).ok).toBe(true);
+  for (const n of chapterNumbers()) expect(validateChapterText(chapterFile(n), migratedTexts()[`chapter:${n}`]?.text).ok, `chapter ${n}`).toBe(true);
 });
 
 test("an element that does not line up with the puzzle is refused at that element", () => {
