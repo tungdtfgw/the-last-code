@@ -1,0 +1,190 @@
+{
+  "schema_version": 1,
+  "id": "2.3",
+  "chapter": 2,
+  "title": "Hai ngả",
+  "difficulty": "easy",
+  "concepts": [
+    "else",
+    "block"
+  ],
+  "simulation": {
+    "kind": "patrol",
+    "decision": {
+      "var": "huong"
+    }
+  },
+  "knowledge_summary": {
+    "sections": [
+      {
+        "code": "diem = 7\nif diem >= 5:\n    print(\"DAT\")\nelse:\n    print(\"CHUA DAT\")",
+        "output": "DAT"
+      },
+      {
+        "code": "diem = 5\nif diem < 5:\n    print(\"CHUA DAT\")\nelse:\n    print(\"DAT\")",
+        "output": "DAT"
+      },
+      {
+        "code": "diem = 4\nif diem >= 5:\n    print(\"DAT\")\nelse:\n    print(\"CHUA DAT\")\nprint(\"DA CHAM XONG\")",
+        "output": "CHUA DAT\nDA CHAM XONG"
+      },
+      {
+        "code": "diem = 8\nif diem >= 5:\n    print(\"DAT\")\nelse:\n    print(\"CHUA DAT\")\n    print(\"DA CHAM XONG\")",
+        "output": "DAT"
+      },
+      {
+        "code": "diem = 5\nif diem < 5:\n    print(\"CHUA DAT\")\nif diem > 5:\n    print(\"DAT\")\nprint(\"HET\")",
+        "output": "HET"
+      },
+      {
+        "code": "diem = 9\nif diem >= 5:\n    ket_qua = \"DAT\"\nelse:\n    ket_qua = \"CHUA DAT\"\nprint(\"KET QUA:\", ket_qua)",
+        "output": "KET QUA: DAT"
+      }
+    ],
+    "mistakes": [
+      {
+        "code": "diem = 7\nif diem >= 5:\n    print(\"DAT\")\nelse diem < 5:\n    print(\"CHUA DAT\")",
+        "error": "SyntaxError: expected ':'"
+      },
+      {
+        "code": "diem = 7\nif diem >= 5:\n    print(\"DAT\")\nelse:\nprint(\"CHUA DAT\")",
+        "error": "IndentationError: expected an indented block after 'else' statement on line 4"
+      },
+      {
+        "code": "diem = 5\nif diem < 5:\n    ket_qua = \"CHUA DAT\"\nif diem > 5:\n    ket_qua = \"DAT\"\nprint(ket_qua)",
+        "error": "NameError: name 'ket_qua' is not defined"
+      },
+      {
+        "code": "diem = 8\nif diem >= 5:\n    ket_qua = \"DAT\"\nelse:\n    ket_qua = \"CHUA DAT\"\n    print(ket_qua)",
+        "error": "Không báo lỗi, nhưng không in ra gì"
+      }
+    ]
+  },
+  "starter_code": "# Góc đèn pha đo được (KHÔNG được sửa dòng này)\ngoc_den = 45\n\n# Đèn chiếu về phía nào thì Kai chạy về phía kia.\nif goc_den < 90:\n    huong = \"SANG PHAI\"\nif goc_den > 90:\n    huong = \"SANG TRAI\"\n    print(f\"GOC DEN: {goc_den}\")\n",
+  "locked_lines": [
+    2
+  ],
+  "inputs": [
+    "goc_den"
+  ],
+  "objectives": [
+    {
+      "var": "huong",
+      "type": "str"
+    },
+    {
+      "kind": "output_line",
+      "line": 1
+    }
+  ],
+  "alert_limit_statements": 3,
+  "float_abs_tolerance": 1e-09,
+  "tests": [
+    {
+      "inputs": {
+        "goc_den": 45
+      },
+      "expected": {
+        "huong": "SANG PHAI"
+      },
+      "expected_output": [
+        "GOC DEN: 45"
+      ]
+    },
+    {
+      "inputs": {
+        "goc_den": 135
+      },
+      "expected": {
+        "huong": "SANG TRAI"
+      },
+      "expected_output": [
+        "GOC DEN: 135"
+      ]
+    },
+    {
+      "inputs": {
+        "goc_den": 90
+      },
+      "expected": {
+        "huong": "SANG TRAI"
+      },
+      "expected_output": [
+        "GOC DEN: 90"
+      ]
+    }
+  ],
+  "counter_attack_tests": [
+    {
+      "inputs": {
+        "goc_den": 10
+      },
+      "expected": {
+        "huong": "SANG PHAI"
+      },
+      "expected_output": [
+        "GOC DEN: 10"
+      ]
+    },
+    {
+      "inputs": {
+        "goc_den": 170
+      },
+      "expected": {
+        "huong": "SANG TRAI"
+      },
+      "expected_output": [
+        "GOC DEN: 170"
+      ]
+    },
+    {
+      "inputs": {
+        "goc_den": 89
+      },
+      "expected": {
+        "huong": "SANG PHAI"
+      },
+      "expected_output": [
+        "GOC DEN: 89"
+      ]
+    }
+  ],
+  "forbidden_terms": [
+    "if",
+    "else",
+    "elif",
+    "<",
+    ">",
+    "<=",
+    ">=",
+    "==",
+    "!=",
+    "ngược lại",
+    "trường hợp còn lại",
+    "lớn hơn hoặc bằng",
+    "nhỏ hơn hoặc bằng",
+    "từ 90 trở lên",
+    "thụt lề",
+    "dấu hai chấm",
+    "goc_den",
+    "45",
+    "135",
+    "90",
+    "10",
+    "170",
+    "89"
+  ],
+  "scene": "tram-sentinel",
+  "outro_beats": [
+    {
+      "kind": "log",
+      "fx": "focus"
+    },
+    {
+      "kind": "echo"
+    },
+    {
+      "kind": "kai"
+    }
+  ]
+}
