@@ -179,11 +179,11 @@
     "75",
     "80"
   ],
-  "scene": "tram-sentinel",
+  "scene": "tram-sac",
   "outro_beats": [
     {
       "kind": "log",
-      "backdrop": "tram-sentinel",
+      "backdrop": "tram-sac",
       "cue": "siren",
       "fx": "focus"
     },
@@ -196,6 +196,7 @@
     },
     {
       "kind": "echo",
+      "backdrop": "tram-sentinel",
       "fx": "id_bar"
     }
   ]

@@ -125,12 +125,13 @@
     "21",
     "7"
   ],
-  "scene": "tram-sentinel",
+  "scene": "duong-ong",
   "outro_beats": [
     {
       "kind": "log",
-      "backdrop": "tram-sentinel",
-      "cue": "scan_reject"
+      "backdrop": "duong-ong",
+      "cue": "scan_reject",
+      "fx": "focus"
     },
     {
       "kind": "echo"
@@ -140,7 +141,8 @@
       "fx": "focus"
     },
     {
-      "kind": "log"
+      "kind": "log",
+      "backdrop": "hang-rao-ngoai"
     }
   ],
   "knowledge_summary": {

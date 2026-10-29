@@ -81,7 +81,17 @@ Cách ghi như trên. P = `prologue-2`, T = `teaser-2`. Phase tích hợp áp b�
 - **`scene` của từng màn:** 2.1 `duong-ong`, 2.2 `hang-rao-ngoai`, 2.3 `bai-container`, 2.4 `thap-den-pha`, 2.5 `nga-tu-tuan-tra`, 2.6 `tram-sac`, 2.7 `tram-sentinel`.
 - **Mở chương:** P0–1 `thanh-pho` (`trace`@1, đường từ Vùng Tối ra cổng); P2 `tram-sentinel` (định nghĩa Vành Sentinel); P7 `hang-rao-ngoai` (ECHO: drone so sánh rồi chọn, người chơi thấy drone đang quét rào); P9 `duong-ong` + `focus` (đèn D-31 còn nhấp nháy trong ống thoát nước, dẫn vào 2.1); P10 `thanh-pho` (thẻ chương).
 - **`outro_beats` (gợi ý, Phase tích hợp gắn sau khi đọc JSON màn):** 2.1 `focus` vào D-31 khi đọc nhật ký của nó; 2.2 `trace` dọc chân rào; 2.3 `focus` vào dấu R-17; 2.4 `focus` lên đỉnh tháp khi đọc thang của công dân; 2.5 `trace` theo lộ trình tuần tra; 2.6 `focus` vào bảng lệnh khi lệnh xuất kích hiện lên; 2.7 thẻ "MẢNH THUẬT TOÁN 2/8" trên `thanh-pho` + `fragment_found` (GDD Chương 2 mục 4).
-- **Hết chương:** T0 `tram-sentinel`; T2 `thanh-pho` + `fragment_found` (hai mảnh); T3 giữ `thanh-pho` (trung tâm dữ liệu là cảnh của Chương 3, chưa vẽ); T4 `signal_0xa7`; T6–7 `cong-kiem-soat` + `focus` (nhật ký ca trực về NX-0417, rồi câu của Kai); T8 `tram-sentinel` (thẻ hết chương).
+- **Hết chương:** T0 `hang-rao-ngoai` (Kai đã ở bên kia rào ngoài; bảng ban đầu ghi `tram-sentinel`, đổi khi gắn vì câu chữ); T2 `thanh-pho` + `fragment_found` (hai mảnh); T3 giữ `thanh-pho` (trung tâm dữ liệu là cảnh của Chương 3, chưa vẽ); T4 `signal_0xa7`; T6–7 `cong-kiem-soat` + `focus` (nhật ký ca trực về NX-0417, rồi câu của Kai); T8 `tram-sentinel` (thẻ hết chương).
+
+Đã gắn vào JSON ngày 2026-10-30 (`outro_beats`, OBn như Chương 1; nhịp đầu `after-<id>` nằm trên `scene` của màn):
+
+- **after-2.1:** `duong-ong`; OB0 `focus` (bản ghi cuối của D-31); OB2 `focus`; OB3 `hang-rao-ngoai` ("Phía trên ống là Hàng Rào Ngoài").
+- **after-2.2:** `hang-rao-ngoai`; OB0 `signal_0xa7`; OB1 `trace` dọc chân rào; OB2 `focus`.
+- **after-2.3:** `bai-container`; OB0 `focus` (dấu R-17).
+- **after-2.4:** `thap-den-pha`; OB0 `scan`; OB2 `focus` lên đỉnh tháp (tháp chỉ so mức tuân thủ).
+- **after-2.5:** `nga-tu-tuan-tra`; OB0 `trace` (lộ trình tuần tra, khi ECHO so lịch); OB2 `cong-bac` + `focus` (Kai nhớ lời dặn ở Cổng phía Bắc); OB3 `tram-sac`.
+- **after-2.6:** `tram-sac`; OB0 `focus` (bảng lệnh); OB3 `tram-sentinel` ("Tháp Sentinel ở ngay phía trước").
+- **after-2.7:** `tram-sentinel`; OB0 `focus`; OB1 `thanh-pho` + `fragment_found`; OB2 `tram-sentinel` + `signal_0xa7`; OB3 `omni_layer`.
 
 ## Hành vi
 

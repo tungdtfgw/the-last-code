@@ -185,11 +185,11 @@
     "41",
     "60"
   ],
-  "scene": "tram-sentinel",
+  "scene": "nga-tu-tuan-tra",
   "outro_beats": [
     {
       "kind": "echo",
-      "backdrop": "thanh-pho",
+      "backdrop": "nga-tu-tuan-tra",
       "fx": "trace"
     },
     {
@@ -197,11 +197,12 @@
     },
     {
       "kind": "kai",
-      "backdrop": "tram-sentinel",
+      "backdrop": "cong-bac",
       "fx": "focus"
     },
     {
-      "kind": "log"
+      "kind": "log",
+      "backdrop": "tram-sac"
     }
   ]
 }

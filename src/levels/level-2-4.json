@@ -183,7 +183,7 @@
     "100",
     "0"
   ],
-  "scene": "tram-sentinel",
+  "scene": "thap-den-pha",
   "outro_beats": [
     {
       "kind": "log",
@@ -194,7 +194,8 @@
       "hold_ms": 1500
     },
     {
-      "kind": "echo"
+      "kind": "echo",
+      "fx": "focus"
     }
   ]
 }

@@ -51,6 +51,7 @@
     },
     {
       "kind": "echo",
+      "backdrop": "hang-rao-ngoai",
       "cue": "echo_voice"
     },
     {
@@ -58,7 +59,9 @@
       "fx": "id_bar"
     },
     {
-      "kind": "log"
+      "kind": "log",
+      "backdrop": "duong-ong",
+      "fx": "focus"
     },
     {
       "kind": "card",
@@ -70,7 +73,7 @@
   "teaser": [
     {
       "kind": "log",
-      "backdrop": "tram-sentinel",
+      "backdrop": "hang-rao-ngoai",
       "cue": "gate_close_far"
     },
     {
@@ -83,8 +86,7 @@
       "fx": "fragment_found"
     },
     {
-      "kind": "log",
-      "backdrop": "vung-toi"
+      "kind": "log"
     },
     {
       "kind": "card",
@@ -96,11 +98,13 @@
     },
     {
       "kind": "log",
-      "backdrop": "terminal",
-      "cue": "scan_reject"
+      "backdrop": "cong-kiem-soat",
+      "cue": "scan_reject",
+      "fx": "focus"
     },
     {
       "kind": "kai",
+      "fx": "focus",
       "hold_ms": 2000
     },
     {

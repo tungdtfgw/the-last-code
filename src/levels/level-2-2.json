@@ -118,16 +118,17 @@
     "13",
     "12"
   ],
-  "scene": "tram-sentinel",
+  "scene": "hang-rao-ngoai",
   "outro_beats": [
     {
       "kind": "card",
-      "backdrop": "tram-sentinel",
+      "backdrop": "hang-rao-ngoai",
       "cue": "glitch",
       "fx": "signal_0xa7"
     },
     {
-      "kind": "echo"
+      "kind": "echo",
+      "fx": "trace"
     },
     {
       "kind": "kai",
