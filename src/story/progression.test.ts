@@ -2,6 +2,7 @@ import { describe, expect, test, vi } from "vitest";
 import fake1 from "../../tests/fixtures/chapters/chapter-test-1.json";
 import fake2 from "../../tests/fixtures/chapters/chapter-test-2.json";
 import { realChapter, realChapters, realLevelJson, realRegistry, registryOf } from "../../tests/content-fixture";
+import { buildStory } from "./build-story";
 import type { ChapterDefinition } from "./story-types";
 import type { StarCount } from "../storage/progress-repository";
 import {
@@ -117,6 +118,64 @@ describe("the shipped chapters (src/levels)", () => {
     expect(totals).toMatchObject({ stars: 3 * built.length, maxStars: 3 * built.length, slots: 6 });
     expect(registry.getLevel("1.7")?.component).toBeUndefined();
     expect(totals.components.map((c) => c.levelId)).toEqual(built.filter((id) => id !== "1.7"));
+  });
+});
+
+describe("the two shipped chapters, with their migrated text", () => {
+  const ctx = buildGameContext(realChapters(), [], realRegistry());
+  const ch1 = ["1.1", "1.2", "1.3", "1.4", "1.5", "1.6", "1.7"];
+  const ch2 = ["2.1", "2.2", "2.3", "2.4", "2.5", "2.6", "2.7"];
+  const stars = (...ids: string[]) => Object.fromEntries(ids.map((id) => [id, 3 as StarCount]));
+  const chapter1Seen = ["prologue", ...ch1.map((id) => `after-${id}`), "teaser"];
+
+  test("fourteen levels, all built, none broken, in chapter order", () => {
+    expect(ctx.order).toEqual([...ch1, ...ch2]);
+    expect([...ctx.built.keys()]).toEqual([...ch1, ...ch2]);
+    expect(ctx.broken.size).toBe(0);
+    expect(ctx.brokenChapters).toEqual([]);
+  });
+
+  test.each([
+    ["the boss of chapter 1 → its ending", "after-1.7", story("teaser")],
+    ["chapter 1's ending → chapter 2's opening", "teaser", story("prologue-2")],
+    ["chapter 2's opening → 2.1", "prologue-2", level("2.1")],
+    ["after-2.6 → the boss of chapter 2", "after-2.6", level("2.7")],
+    ["the boss of chapter 2 → its ending", "after-2.7", story("teaser-2")],
+    ["chapter 2's ending → the map", "teaser-2", MAP],
+  ])("%s", (_n, id, expected) => {
+    expect(storyEnd(id, ctx, snap(stars(...ch1, ...ch2)))).toEqual(expected);
+  });
+
+  test("2.1 opens once 1.7 has a star", () => {
+    expect(chapterNodes(ctx, snap(stars(...ch1.slice(0, 6))), 2)[0]).toMatchObject({ id: "2.1", status: "locked", requires: "1.7" });
+    expect(chapterNodes(ctx, snap({ ...stars(...ch1.slice(0, 6)), "1.7": 1 }), 2)[0]).toMatchObject({ id: "2.1", status: "open", next: true });
+  });
+
+  test("chapter 2: 21 stars at most, the evasion rulebook full (6/6) after 2.6, the boss takes no slot", () => {
+    const totals = chapterTotals(ctx, snap(stars(...ch1, ...ch2.slice(0, 6))), 2);
+    expect(totals).toMatchObject({ stars: 18, maxStars: 21, slots: 6, bar: { label: "Bộ luật né", unit: "Luật" } });
+    expect(totals.components.map((c) => c.slot)).toEqual([0, 1, 2, 3, 4, 5]);
+    expect(componentSlot(ctx, "2.7")).toBeUndefined();
+    expect(chapterTotals(ctx, snap(stars(...ch1, ...ch2)), 2)).toMatchObject({ stars: 21, maxStars: 21 });
+  });
+
+  test("after-2.7 carries the second algorithm fragment, lit on the city", () => {
+    const card = buildStory("after-2.7", ctx)!.find((b) => b.kind === "card" && b.text.startsWith("MẢNH THUẬT TOÁN 2/8"));
+    expect(card).toMatchObject({ fx: "fragment_found", backdrop: "thanh-pho" });
+  });
+
+  test("a player who saw the old chapter 1 ending: title TIẾP TỤC opens chapter 2's opening, then 2.1", () => {
+    expect(titleContinue(ctx, snap(stars(...ch1), chapter1Seen))).toEqual(story("prologue-2"));
+    expect(titleContinue(ctx, snap(stars(...ch1), [...chapter1Seen, "prologue-2"]))).toEqual(level("2.1"));
+    // TIẾP TỤC at the end of chapter 1's ending goes the same way.
+    expect(storyEnd("teaser", ctx, snap(stars(...ch1), chapter1Seen))).toEqual(story("prologue-2"));
+  });
+
+  test("chapter 2's stories stay closed until their level has a star", () => {
+    expect(guardRoute(story("prologue-2"), ctx, snap(stars(...ch1.slice(0, 6))))).toEqual(MAP);
+    expect(guardRoute(story("after-2.3"), ctx, snap(stars(...ch1, "2.1", "2.2")))).toEqual(MAP);
+    expect(guardRoute(story("teaser-2"), ctx, snap(stars(...ch1, ...ch2.slice(0, 6))))).toEqual(MAP);
+    expect(guardRoute(story("teaser-2"), ctx, snap(stars(...ch1, ...ch2)))).toEqual(story("teaser-2"));
   });
 });
 
