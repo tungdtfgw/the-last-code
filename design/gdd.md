@@ -1,7 +1,7 @@
 # MÃ CUỐI CÙNG (The Last Code)
 ### Tài liệu thiết kế game – Game hóa dạy lập trình Python
 
-> Phiên bản: bản nháp 0.2 · Cập nhật: 25/10/2026 (cập nhật theo prototype Level 1.4; nhật ký lỗi: `docs/nhat-ky-loi-prototype-1-4.md`)
+> Phiên bản: bản nháp 0.2 · Cập nhật: 30/10/2026 (thêm khung Chương 2, mục 5B; nhật ký lỗi: `docs/nhat-ky-loi-prototype-1-4.md`)
 > Đối tượng: sinh viên mới học lập trình Python
 > Cảm hứng cơ chế: GonnaCrash – System Design Game (200Lab)
 
@@ -195,6 +195,25 @@ Mỗi kiểu dữ liệu có một màu khi chạy trong mô phỏng – sinh vi
 
 ---
 
+## 5B. Chương 2 – TRẠM SENTINEL
+
+**Mục tiêu học:** so sánh (`== != < > <= >=`), `if`, `else`, `elif`, `and`/`or`/`not`, điều kiện lồng nhau.
+**Mạch truyện:** Kai rời Vùng Tối và phải vượt Vành Sentinel, dải biên giới do drone tuần tra theo luật cố định, trước đợt quét lớn làm Neural-ID giả tắt. Không đi theo lịch của 0xA7, Kai tự đọc luật của drone rồi viết một **bộ luật né** sáu luật, mỗi màn thường một luật. Boss chạy cả bộ luật qua bốn pha tuần tra của Trạm Sentinel và lấy mảnh thứ hai, **"Quyết định"**. Tên riêng, đoạn mở và hết chương, trục truyện và phác câu đố: `design/gdd-chuong-2.md`. Lựa chọn và lý do: `design/quyet-dinh/cot-truyen-chuong-2.md`.
+
+| # | Tên level | Độ khó | Khái niệm | Nhiệm vụ |
+|---|---|---|---|---|
+| 2.1 | Đọc luật tuần tra | Easy | So sánh, kết quả `bool` | Tính ba cờ cảm biến như chip của drone hỏng D-31 |
+| 2.2 | Lệnh nấp | Easy | `if`, khối lệnh | Nấp khi drone ở trong tầm quét |
+| 2.3 | Hai ngả | Easy | `else` | Chạy về phía đèn pha không chiếu |
+| 2.4 | Thang báo động | Medium | `elif`, thứ tự nhánh | Đoán mức báo động tháp sẽ đặt |
+| 2.5 | Ngã tư tuần tra | Medium | `and`, `or`, `not` | Chỉ qua khi đủ mọi điều kiện an toàn |
+| 2.6 | Bảng lệnh trạm sạc | Medium | Điều kiện lồng nhau | Đọc bảng lệnh của tháp qua kênh nhập |
+| 2.7 | **BOSS: Trạm Sentinel** | Boss | Tổng hợp | Chạy bộ luật né qua bốn pha tuần tra |
+
+Cả chương dùng một mô phỏng, dải tuần tra (`patrol`): mỗi test cơ bản là một tình huống, drone phát hiện Kai khi quyết định sai. Sau lượt chạy, editor làm mờ các dòng không chạy để người chơi thấy nhánh nào đã chạy. Chương 2 mở khi 1.7 có ít nhất 1 sao (chưa áp luật "đủ sao mới mở chương" của mục 4). Hạ tầng đa chương và thay đổi engine: `docs/hop-dong-engine-chuong-2.md`.
+
+---
+
 ## 6. Đặc tả từng level
 
 Mỗi level có một GDD riêng trong `design/chuong-<n>/gdd-<chương>.<level>-<slug>.md`. Phần mở đầu game ở `design/gdd-mo-dau.md`.
@@ -209,8 +228,18 @@ Mỗi level có một GDD riêng trong `design/chuong-<n>/gdd-<chương>.<level>
 | 1.5 Năng lượng tối thiểu | `design/chuong-1/gdd-1.5-nang-luong-toi-thieu.md` |
 | 1.6 Đối thoại với Cổng | `design/chuong-1/gdd-1.6-doi-thoai-voi-cong.md` |
 | 1.7 BOSS Cổng Kiểm Soát (kèm đoạn hết chương) | `design/chuong-1/gdd-1.7-boss-cong-kiem-soat.md` |
+| Mở chương, chuyển cảnh, bản đồ, trục truyện và phác câu đố Chương 2 | `design/gdd-chuong-2.md` |
+| 2.1 Đọc luật tuần tra | `design/chuong-2/gdd-2.1-doc-luat-tuan-tra.md` |
+| 2.2 Lệnh nấp | `design/chuong-2/gdd-2.2-lenh-nap.md` |
+| 2.3 Hai ngả | `design/chuong-2/gdd-2.3-hai-nga.md` |
+| 2.4 Thang báo động | `design/chuong-2/gdd-2.4-thang-bao-dong.md` |
+| 2.5 Ngã tư tuần tra | `design/chuong-2/gdd-2.5-nga-tu-tuan-tra.md` |
+| 2.6 Bảng lệnh trạm sạc | `design/chuong-2/gdd-2.6-bang-lenh-tram-sac.md` |
+| 2.7 BOSS Trạm Sentinel | `design/chuong-2/gdd-2.7-boss-tram-sentinel.md` |
 
 Thay đổi engine dùng chung cho 1.5–1.7 (kênh nhập cho `input()`, nhiều vòng quét, kết chương, thứ tự làm và số migration): `docs/hop-dong-engine-level-1-5-den-1-7.md`.
+
+Hạ tầng Chương 2 (nhiều chương, mô phỏng `patrol`, khóa `wrong_branch`, dòng không chạy, đếm câu lệnh khi có nhánh, chia nhánh và số migration `0010`–`0018`): `docs/hop-dong-engine-chuong-2.md`.
 
 ---
 
@@ -308,8 +337,11 @@ Trình duyệt mục tiêu của prototype: Chrome. Safari/iOS chưa được ki
 - [x] Đặc tả mở đầu game, chuyển cảnh và level 1.1–1.3 (25/10/2026)
 - [x] Đặc tả các level 1.5–1.6 (28/10/2026)
 - [x] Dựng level 1.5–1.7 và đoạn hết Chương 1 theo `docs/hop-dong-engine-level-1-5-den-1-7.md` (28/10/2026)
-- [ ] Phác thảo chương 2–8 ở mức level
-- [ ] Thiết kế hồ sơ 8 Kiến Trúc Sư (tên, khu vực, nhật ký)
+- [x] Khung Chương 2: trục truyện, bảy màn, hạ tầng đa chương (30/10/2026)
+- [x] Đặc tả chi tiết level 2.1–2.7 theo `design/gdd-chuong-2.md` (30/10/2026)
+- [ ] Dựng Chương 2 theo `docs/hop-dong-engine-chuong-2.md`
+- [ ] Phác thảo chương 3–8 ở mức level
+- [ ] Thiết kế hồ sơ 8 Kiến Trúc Sư (tên, khu vực, nhật ký); đã lộ: KTS-01, 03, 05, 07 (Chương 1), KTS-02 và một bản ghi KTS-0█ chưa rõ người viết (Chương 2)
 - [ ] Thiết kế cơ chế ghép kill switch ở Boss cuối
 - [x] Xây prototype chơi được cho Level 1.4 (25/10/2026)
 - [ ] Kiểm Safari/iOS (`npm run test:safari` sau khi bật "Allow remote automation")

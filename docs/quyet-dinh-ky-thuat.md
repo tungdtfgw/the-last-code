@@ -184,3 +184,17 @@ Mẫu một mục: ngày · quyết định · các phương án đã xét · l�
 - **Lý do:** đồng bộ với màn tiêu đề, bản đồ và mô phỏng; sửa một cảnh là sửa code, xem ngay trong dev.
 - **Phương án đã xét:** ảnh AI (QĐ-17, bỏ: lệch phong cách); canvas/WebGL (bỏ: tốn pin, khó làm giảm chuyển động).
 - **Đánh đổi:** cảnh đơn giản hơn tranh vẽ; chi tiết nhiều thì số node SVG tăng (giữ dưới khoảng 200 node mỗi cảnh).
+
+## QĐ-19 · Nhiều chương: mỗi chương một file, một chuỗi mở khóa nối liền
+
+- **Ngày:** 30/10/2026 · **Trạng thái:** đã chốt cho Chương 2, chưa làm (chạy tự động, chủ dự án có thể đổi). Chi tiết: `docs/hop-dong-engine-chuong-2.md` mục 1.
+- **Vấn đề:** game chỉ biết một chương. `chapter.ts` import thẳng `chapter-1.json`, `GameRoot` dựng một ngữ cảnh, server và trang quản trị đọc một file chương, bản đồ và màn tiêu đề viết cứng tên Vùng Tối, id đoạn truyện `prologue`/`teaser` là duy nhất.
+- **Quyết định:**
+  - Mỗi chương một file câu đố `src/story/chapter-<n>.json`, nạp bằng glob; tài liệu câu chữ D1 `chapter:<n>`. Hình dạng giữ như chương 1 (cùng `CHAPTER_TEXT`), thêm hai tên ngắn trong file câu đố theo tiền lệ `title`: `component_bar` (`label`, `unit`) và `map` (`from`, `to`).
+  - Thứ tự chơi là các `levels` của mọi chương nối liền; luật "đã dựng" và mở khóa bằng 1 sao giữ nguyên, nên level đầu chương n mở khi level đã dựng cuối chương n−1 có sao. Không thêm trạng thái lưu.
+  - Id đoạn truyện chương n ≥ 2 là `prologue-<n>`, `teaser-<n>`; chương 1 giữ `prologue`, `teaser`. Không id nào dùng lại id cũ.
+  - Chương 1 hỏng thì cả game hiện "DỮ LIỆU CHƯƠNG HỎNG" như cũ; chương ≥ 2 hỏng thì chỉ chương đó không vào được.
+  - Bản đồ hiện một chương mỗi lần (`#/map/<n>`), có hàng chuyển chương.
+- **Lý do:** thêm chương là thêm file và migration, không sửa code; không đổi hình dạng tài liệu D1 đã có; người chơi hiện có không mang id đoạn truyện nào của chương mới.
+- **Phương án đã xét:** một file chứa mọi chương (bỏ: phải vá cấu trúc câu D1 `chapter:1`, mọi nhánh sửa chung một file); tách mỗi chương thành một game riêng (bỏ: lặp tiến trình, bản đồ, màn tiêu đề ở mỗi chương); đổi id chương 1 sang `prologue-1`, `teaser-1` cho đồng đều (bỏ: cần migration `story_seen`, tab đang mở lúc deploy có thể ghi lại id cũ).
+- **Đánh đổi:** không chọn được chương tự do; `component_bar` và `map` không sửa được trên trang quản trị (như `title`).
