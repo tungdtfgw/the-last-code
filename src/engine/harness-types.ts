@@ -86,6 +86,8 @@ export interface HarnessTestResult {
   var_history?: VarHistoryEntry[];
   /** More changes happened than the history kept. */
   var_history_truncated?: boolean;
+  /** Only for a run that went to the end: statement lines that never ran (branches not taken), ascending, at most 200. */
+  skipped_lines?: number[];
 }
 
 export interface HarnessCompileError {

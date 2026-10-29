@@ -114,6 +114,10 @@ export interface RunOutcome {
   counterPrompts?: string[];
   /** Every base test as a scan round, when the level has two or more and they ran. */
   rounds?: RoundVerdict[];
+  /** Statement lines the shown base test never ran (its run went to the end); absent when none. */
+  skippedLines?: number[];
+  /** The round those lines belong to (1-based), when the level has rounds. */
+  skippedRound?: number;
   details: OutcomeDetails;
 }
 
@@ -435,6 +439,8 @@ export function classifyRun(result: Exclude<RunnerResult, { kind: "not_ready" }>
     stdinRead: shown?.stdin_read,
     prompts: shown?.prompts,
     rounds,
+    skippedLines: shown?.skipped_lines,
+    skippedRound: rounds && shown?.skipped_lines ? shown.index + 1 : undefined,
   };
 
   if (failing) {

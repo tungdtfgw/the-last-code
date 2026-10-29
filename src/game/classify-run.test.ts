@@ -379,6 +379,13 @@ describe("wrong_branch: a value another situation expects", () => {
     expect(run(all, [base(0, { output: outLine("CHO muc", "DI 45") }), base(1)]).key).toBe("output_is_label");
     expect(run(all, [base(0, { output: outLine("NAP 0", "DI 45"), prompts: ["NAP"] }), base(1)]).key).toBe("output_has_prompt");
   });
+
+  test("skipped lines are those of the shown round: the first failing one, else the first", () => {
+    const failing = run(branchLevel(), [base(0, { skipped_lines: [3] }), base(1, { vars: vars("'XX'"), skipped_lines: [5, 6] })]);
+    expect(failing).toMatchObject({ skippedLines: [5, 6], skippedRound: 2 });
+    expect(run(branchLevel(), [base(0, { skipped_lines: [3] }), base(1)])).toMatchObject({ skippedLines: [3], skippedRound: 1 });
+    expect(run(branchLevel(), [base(0), base(1)]).skippedLines).toBeUndefined();
+  });
 });
 
 test("pyStrRepr writes a str the way the harness previews it (Python repr)", () => {

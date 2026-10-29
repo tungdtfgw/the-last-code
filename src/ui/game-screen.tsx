@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import type { AudioControls } from "../audio/use-audio";
 import { canRun } from "../game/game-reducer";
 import type { LevelDefinition } from "../game/level-types";
@@ -57,6 +57,13 @@ export function GameScreen({ level, repository, audio, entryGuardMs = 0, onMap, 
   const autoSwitched = useRef(false);
   const refocusRun = useRef(false);
   const runnable = canRun(state);
+  // Lines the shown round never ran, dimmed once the run has played back; one object per run,
+  // so a later render never dims them again after the player edits.
+  const { phase, outcome } = state;
+  const skipped = useMemo(
+    () => (phase === "ready" && outcome?.skippedLines?.length ? { lines: outcome.skippedLines, round: outcome.skippedRound } : null),
+    [phase, outcome],
+  );
 
   // The briefing folds once after the first finished run (kept per level for this page session).
   const [fold, setFold] = useState(() => sessionFold(level.id));
@@ -263,6 +270,7 @@ export function GameScreen({ level, repository, audio, entryGuardMs = 0, onMap, 
               <CodeEditor
                 ref={editor}
                 initialCode={game.initialDoc.code}
+                skipped={skipped}
                 lockStart={game.initialDoc.lockStart}
                 lockedTexts={game.lockedTexts}
                 onChange={game.onCodeChange}
