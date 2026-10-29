@@ -1,0 +1,17 @@
+{
+  "version": 1,
+  "skills": {
+    "create-game-assets": {
+      "source": "gamedev-skills/awesome-gamedev-agent-skills",
+      "sourceType": "github",
+      "skillPath": "skills/disciplines/create-game-assets/SKILL.md",
+      "computedHash": "4531191945f6a6f64c280f8468f916aba42459c4e2f090b199b4edfe78474576"
+    },
+    "svg-animations": {
+      "source": "supermemoryai/skills",
+      "sourceType": "github",
+      "skillPath": "svg-animations/SKILL.md",
+      "computedHash": "9be4b3e0afe9d3cbb1bcf238f8504f9a23552f742350fbef9483070112ac1977"
+    }
+  }
+}
