@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import type { AudioControls } from "../audio/use-audio";
 import { canRun } from "../game/game-reducer";
 import type { LevelDefinition } from "../game/level-types";
@@ -33,6 +33,8 @@ const OBJECTIVE_STEP_MS = 420;
 
 export interface GameScreenProps {
   level: LevelDefinition;
+  /** The title of the level's chapter, for the entry gate and the briefing. */
+  chapterTitle: string;
   repository: ProgressRepository;
   /** Owned by the app so one AudioContext lives across every screen. */
   audio: AudioControls;
@@ -43,7 +45,7 @@ export interface GameScreenProps {
   onContinue(): void;
 }
 
-export function GameScreen({ level, repository, audio, entryGuardMs = 0, onMap, onContinue }: GameScreenProps) {
+export function GameScreen({ level, chapterTitle, repository, audio, entryGuardMs = 0, onMap, onContinue }: GameScreenProps) {
   const game = useGame(level, repository, audio);
   const { state } = game;
   const editor = useRef<CodeEditorHandle>(null);
@@ -57,6 +59,18 @@ export function GameScreen({ level, repository, audio, entryGuardMs = 0, onMap, 
   const autoSwitched = useRef(false);
   const refocusRun = useRef(false);
   const runnable = canRun(state);
+  // Lines the shown round never ran, dimmed once the run has played back. The editor shows
+  // each run at most once and drops them when the code changed since the run started.
+  const { phase, outcome } = state;
+  // A string, so a new level object (an admin saving text mid-run) does not re-send the run.
+  const roundWord = vocabularyFor(level).round.toLocaleLowerCase("vi");
+  const skipped = useMemo(
+    () =>
+      phase === "ready" && outcome?.skippedLines?.length
+        ? { lines: outcome.skippedLines, round: outcome.skippedRound, roundWord, counter: outcome.skippedCounter, run: outcome }
+        : null,
+    [phase, outcome, roundWord],
+  );
 
   // The briefing folds once after the first finished run (kept per level for this page session).
   const [fold, setFold] = useState(() => sessionFold(level.id));
@@ -237,6 +251,7 @@ export function GameScreen({ level, repository, audio, entryGuardMs = 0, onMap, 
       <div ref={missionCol} className="col col-mission" data-area="mission">
         <BriefingPanel
           level={level}
+          chapterTitle={chapterTitle}
           mode={intro === "gate" ? "hidden" : intro === "briefing" ? "typing" : "full"}
           onCue={audio.play}
           onTyped={() => setIntro((i) => (i === "briefing" ? "objectives" : i))}
@@ -263,6 +278,8 @@ export function GameScreen({ level, repository, audio, entryGuardMs = 0, onMap, 
               <CodeEditor
                 ref={editor}
                 initialCode={game.initialDoc.code}
+                skipped={skipped}
+                running={phase === "running"}
                 lockStart={game.initialDoc.lockStart}
                 lockedTexts={game.lockedTexts}
                 onChange={game.onCodeChange}
@@ -333,7 +350,7 @@ export function GameScreen({ level, repository, audio, entryGuardMs = 0, onMap, 
         onCue={audio.play}
       />
 
-      {intro === "gate" && <IntroGate level={level} onEnter={enterMission} guardMs={entryGuardMs} />}
+      {intro === "gate" && <IntroGate level={level} chapterTitle={chapterTitle} onEnter={enterMission} guardMs={entryGuardMs} />}
 
       <ResultsDialog open={state.dialogOpen} outcome={state.outcome} echo={state.echo} progress={state.progress} level={level} onClose={closeDialog} onContinue={onContinue} />
     </div>

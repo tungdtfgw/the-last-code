@@ -1,0 +1,184 @@
+{
+  "schema_version": 1,
+  "id": "2.2",
+  "chapter": 2,
+  "title": "Lệnh nấp",
+  "difficulty": "easy",
+  "concepts": [
+    "if",
+    "block"
+  ],
+  "starter_code": "# Cảm biến Hàng Rào Ngoài (KHÔNG được sửa 2 dòng này)\nkhoang_cach = 25\ntam_quet = 30\n\n# Luật của Kai: mặc định là đi, drone trong tầm quét thì nấp\nlenh = \"DI\"\nif khoang_cach > tam_quet:\nlenh = \"NAP\"\n",
+  "locked_lines": [
+    2,
+    3
+  ],
+  "inputs": [
+    "khoang_cach",
+    "tam_quet"
+  ],
+  "objectives": [
+    {
+      "var": "lenh",
+      "type": "str"
+    }
+  ],
+  "alert_limit_statements": 3,
+  "float_abs_tolerance": 1e-09,
+  "tests": [
+    {
+      "inputs": {
+        "khoang_cach": 25,
+        "tam_quet": 30
+      },
+      "expected": {
+        "lenh": "NAP"
+      }
+    },
+    {
+      "inputs": {
+        "khoang_cach": 50,
+        "tam_quet": 30
+      },
+      "expected": {
+        "lenh": "DI"
+      }
+    },
+    {
+      "inputs": {
+        "khoang_cach": 30,
+        "tam_quet": 30
+      },
+      "expected": {
+        "lenh": "NAP"
+      }
+    }
+  ],
+  "counter_attack_tests": [
+    {
+      "inputs": {
+        "khoang_cach": 41,
+        "tam_quet": 40
+      },
+      "expected": {
+        "lenh": "DI"
+      }
+    },
+    {
+      "inputs": {
+        "khoang_cach": 40,
+        "tam_quet": 40
+      },
+      "expected": {
+        "lenh": "NAP"
+      }
+    },
+    {
+      "inputs": {
+        "khoang_cach": 13,
+        "tam_quet": 12
+      },
+      "expected": {
+        "lenh": "DI"
+      }
+    }
+  ],
+  "simulation": {
+    "kind": "patrol",
+    "decision": {
+      "var": "lenh"
+    }
+  },
+  "forbidden_terms": [
+    "if",
+    "else",
+    "elif",
+    "==",
+    "!=",
+    "<=",
+    ">=",
+    "<",
+    ">",
+    "nhỏ hơn hoặc bằng",
+    "lớn hơn hoặc bằng",
+    "không vượt quá",
+    "thụt lề",
+    "thụt vào",
+    "lùi vào",
+    "dấu cách",
+    "khoảng trắng",
+    "dấu hai chấm",
+    "khoang_cach",
+    "tam_quet",
+    "25",
+    "30",
+    "50",
+    "41",
+    "40",
+    "13",
+    "12"
+  ],
+  "scene": "hang-rao-ngoai",
+  "outro_beats": [
+    {
+      "kind": "card",
+      "backdrop": "hang-rao-ngoai",
+      "cue": "glitch",
+      "fx": "signal_0xa7"
+    },
+    {
+      "kind": "echo",
+      "fx": "trace"
+    },
+    {
+      "kind": "kai",
+      "fx": "focus"
+    }
+  ],
+  "knowledge_summary": {
+    "sections": [
+      {
+        "code": "nhiet_do = 38\nif nhiet_do > 37:\n    print(\"Sot\")\nprint(\"Do xong\")",
+        "output": "Sot\nDo xong"
+      },
+      {
+        "code": "nhiet_do = 36\nif nhiet_do > 37:\n    print(\"Sot\")\nprint(\"Do xong\")",
+        "output": "Do xong"
+      },
+      {
+        "code": "diem = 9\nif diem >= 8:\n    print(\"Gioi\")\n    print(\"Duoc thuong\")\nprint(\"Het\")",
+        "output": "Gioi\nDuoc thuong\nHet"
+      },
+      {
+        "code": "so_khach = 12\nphong = \"NHO\"\nif so_khach > 10:\n    phong = \"LON\"\nprint(phong)",
+        "output": "LON"
+      },
+      {
+        "code": "tuoi = 18\nif tuoi >= 18:\n    print(\"Du tuoi\")\nif tuoi > 18:\n    print(\"Hon 18\")\nprint(\"Xong\")",
+        "output": "Du tuoi\nXong"
+      }
+    ],
+    "mistakes": [
+      {
+        "code": "x = 7\nif x > 5:\nprint(\"Lon\")",
+        "error": "IndentationError: expected an indented block after 'if' statement on line 2"
+      },
+      {
+        "code": "x = 7\nif x > 5\n    print(\"Lon\")",
+        "error": "SyntaxError: expected ':'"
+      },
+      {
+        "code": "x = 7\nif x = 5:\n    print(\"Nam\")",
+        "error": "SyntaxError: invalid syntax. Maybe you meant '==' or ':=' instead of '='?"
+      },
+      {
+        "code": "diem = 4\nif diem >= 5:\n    kq = \"DAT\"\nprint(kq)",
+        "error": "NameError: name 'kq' is not defined"
+      },
+      {
+        "code": "diem = 7\nif diem >= 5:\n    kq = \"DAT\"\nkq = \"TRUOT\"\nprint(kq)",
+        "error": "Không báo lỗi, nhưng luôn in TRUOT"
+      }
+    ]
+  }
+}

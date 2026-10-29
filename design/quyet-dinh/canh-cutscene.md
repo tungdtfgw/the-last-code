@@ -42,6 +42,12 @@ Kiểm ở ba khoảng cách: cỡ thật 1280×800 dưới lớp chữ; cỡ đ
 | `tram-tham-van` | cảnh vẽ | Trạm Thẩm Vấn |
 | `cong-kiem-soat` | cảnh vẽ | Cổng Kiểm Soát, buồng trực sáng đèn, trống |
 | `tram-sentinel` | cảnh vẽ | Trạm Sentinel ở biên giới thành phố |
+| `duong-ong` | cảnh vẽ | Đường Ống Số 9: lòng ống nhìn vào sâu, nước đọng, D-31 kẹt nghiêng, giọt nước rơi |
+| `hang-rao-ngoai` | cảnh vẽ | Hàng Rào Ngoài: rào chạy về điểm tụ, một drone bay dọc rào, đèn của nó quét chân rào |
+| `bai-container` | cảnh vẽ | Bãi Container: hai dãy container hai bên lối giữa, vệt đèn pha trượt trên vách, dấu R-17 khắc tay |
+| `thap-den-pha` | cảnh vẽ | Tháp Đèn Pha: tháp giữa khung, thang báo động năm nấc, chùm đèn xoay trên cả vành |
+| `nga-tu-tuan-tra` | cảnh vẽ | Ngã Tư Tuần Tra: hai lộ trình cắt nhau, drone gác giữa ngã tư, đèn tháp thỉnh thoảng lướt qua |
+| `tram-sac` | cảnh vẽ | Trạm Sạc Drone: dãy cột sạc, drone đậu, bảng lệnh sáng vàng ấm (đèn vàng duy nhất của Chương 2) |
 
 Hình vẽ: `src/ui/scene-art.tsx`. Không khí chung của mọi cảnh: sương trôi, bụi lơ lửng, viền tối, đèn chập chờn, thỉnh thoảng cả cảnh nhoè một nhịp. Điểm `focus` và đường `trace` của từng cảnh: `src/story/scene-catalog.ts`.
 
@@ -65,6 +71,27 @@ Chỉ số từ 0. P = prologue, T = đoạn hết chương (`teaser`), OBn = `o
 - **after-1.6:** `tram-tham-van`; OB0 `cong-kiem-soat`; OB1 `focus`; OB2 `signal_0xa7`; OB3 `trace` (tín hiệu phát từ bên trong cổng).
 - **after-1.7:** `cong-kiem-soat`; OB0 `focus` (kính buồng trực); OB1 `scan` (dấu duyệt trễ một nhịp); OB2 `thanh-pho` + `fragment_found` (mảnh 1/8); OB3 `cong-kiem-soat` + `signal_0xa7`; OB4 `omni_layer`.
 - **Hết chương:** T0 `cong-kiem-soat`; T2 `thanh-pho` + `fragment_found`; T3 `tram-sentinel`; T4 `signal_0xa7`; T6–7 `cong-kiem-soat` + `focus` (nhật ký ca trực, "Anh sẽ quay lại, Nhi."); T8 `tram-sentinel`.
+
+## Gắn vào truyện Chương 2
+
+Ngày: 2026-10-30. Chương 2 diễn ra trên Vành Sentinel, không có người, nên vàng ấm gần như vắng: chỉ bảng lệnh ở `tram-sac` còn ánh vàng. Đỏ là drone, tháp, đèn pha; xanh tín hiệu chỉ còn ở dấu R-17 trên container (`bai-container`).
+
+Cách ghi như trên. P = `prologue-2`, T = `teaser-2`. Phase tích hợp áp bảng này vào `src/story/chapter-2.json` và `scene` của các level; đây là câu đố, không cần migration. Nhịp nào không ghi thì giữ nền của nhịp trước.
+
+- **`scene` của từng màn:** 2.1 `duong-ong`, 2.2 `hang-rao-ngoai`, 2.3 `bai-container`, 2.4 `thap-den-pha`, 2.5 `nga-tu-tuan-tra`, 2.6 `tram-sac`, 2.7 `tram-sentinel`.
+- **Mở chương:** P0–1 `thanh-pho` (`trace`@1, đường từ Vùng Tối ra cổng); P2 `tram-sentinel` (định nghĩa Vành Sentinel); P7 `hang-rao-ngoai` (ECHO: drone so sánh rồi chọn, người chơi thấy drone đang quét rào); P9 `duong-ong` + `focus` (đèn D-31 còn nhấp nháy trong ống thoát nước, dẫn vào 2.1); P10 `thanh-pho` (thẻ chương).
+- **`outro_beats` (gợi ý, Phase tích hợp gắn sau khi đọc JSON màn):** 2.1 `focus` vào D-31 khi đọc nhật ký của nó; 2.2 `trace` dọc chân rào; 2.3 `focus` vào dấu R-17; 2.4 `focus` lên đỉnh tháp khi đọc thang của công dân; 2.5 `trace` theo lộ trình tuần tra; 2.6 `focus` vào bảng lệnh khi lệnh xuất kích hiện lên; 2.7 thẻ "MẢNH THUẬT TOÁN 2/8" trên `thanh-pho` + `fragment_found` (GDD Chương 2 mục 4).
+- **Hết chương:** T0 `hang-rao-ngoai` (Kai đã ở bên kia rào ngoài; bảng ban đầu ghi `tram-sentinel`, đổi khi gắn vì câu chữ); T2 `thanh-pho` + `fragment_found` (hai mảnh); T3 giữ `thanh-pho` (trung tâm dữ liệu là cảnh của Chương 3, chưa vẽ); T4 `signal_0xa7`; T6–7 `cong-kiem-soat` + `focus` (nhật ký ca trực về NX-0417, rồi câu của Kai); T8 `tram-sentinel` (thẻ hết chương).
+
+Đã gắn vào JSON ngày 2026-10-30 (`outro_beats`, OBn như Chương 1; nhịp đầu `after-<id>` nằm trên `scene` của màn):
+
+- **after-2.1:** `duong-ong`; OB0 `focus` (bản ghi cuối của D-31); OB2 `focus`; OB3 `hang-rao-ngoai` ("Phía trên ống là Hàng Rào Ngoài").
+- **after-2.2:** `hang-rao-ngoai`; OB0 `signal_0xa7`; OB1 `trace` dọc chân rào; OB2 `focus`.
+- **after-2.3:** `bai-container`; OB0 `focus` (dấu R-17).
+- **after-2.4:** `thap-den-pha`; OB0 `scan`; OB2 `focus` lên đỉnh tháp (tháp chỉ so mức tuân thủ).
+- **after-2.5:** `nga-tu-tuan-tra`; OB0 `trace` (lộ trình tuần tra, khi ECHO so lịch); OB2 `cong-bac` + `focus` (Kai nhớ lời dặn ở Cổng phía Bắc); OB3 `tram-sac`.
+- **after-2.6:** `tram-sac`; OB0 `focus` (bảng lệnh); OB3 `tram-sentinel` ("Tháp Sentinel ở ngay phía trước").
+- **after-2.7:** `tram-sentinel`; OB0 `focus`; OB1 `thanh-pho` + `fragment_found`; OB2 `tram-sentinel` + `signal_0xa7`; OB3 `omni_layer`.
 
 ## Hành vi
 

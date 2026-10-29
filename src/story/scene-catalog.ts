@@ -40,6 +40,22 @@ export const SCENES: Record<Backdrop, SceneInfo> = {
     trace: [{ x: 0, y: 86 }, { x: 20, y: 80 }, { x: 38, y: 73 }, { x: 49, y: 70 }, { x: 49, y: 50 }, { x: 49, y: 26 }],
   },
   "tram-sentinel": { place: true, focus: { x: 69, y: 16, scale: 1.35 } },
+  "duong-ong": { place: true, focus: { x: 63, y: 29, scale: 1.5 } },
+  "hang-rao-ngoai": {
+    place: true,
+    focus: { x: 41, y: 20, scale: 1.35 },
+    // Along the foot of the fence, toward the far end.
+    trace: [{ x: 0, y: 89 }, { x: 19, y: 78 }, { x: 38, y: 67 }, { x: 56, y: 57 }, { x: 68, y: 50 }],
+  },
+  "bai-container": { place: true, focus: { x: 25, y: 34, scale: 1.6 } },
+  "thap-den-pha": { place: true, focus: { x: 50, y: 13, scale: 1.4 } },
+  "nga-tu-tuan-tra": {
+    place: true,
+    focus: { x: 50, y: 33, scale: 1.4 },
+    // One patrol route: up the near road to the crossing, then off to the right.
+    trace: [{ x: 50, y: 98 }, { x: 50, y: 67 }, { x: 50, y: 54 }, { x: 69, y: 54 }, { x: 100, y: 54 }],
+  },
+  "tram-sac": { place: true, focus: { x: 79, y: 24, scale: 1.4 } },
 };
 
 const CITY_FX: readonly BeatFx[] = ["city_blink", "eight_fragments", "fragment_found"];

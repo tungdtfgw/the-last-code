@@ -594,6 +594,285 @@ const TramSentinel = ({ ids }: { ids: Ids }) => (
   </>
 );
 
+/*
+ * Chapter 2: the Sentinel Ring between the city wall and the outer fence.
+ * No one lives out here, so the warm light is gone; red is everything that
+ * watches, teal only what Kai's side left behind. The one warm light left is
+ * the command board at the charging station.
+ */
+
+type Pt = readonly [number, number];
+
+/** A point at depth `t` (0 near, 1 at the vanishing point) on the line from the first point to the second. */
+const along = ([x0, y0]: Pt, [x1, y1]: Pt, t: number): Pt => [x0 + (x1 - x0) * t, y0 + (y1 - y0) * t];
+
+/** A wall seen in perspective: its top and foot edges, each from the near end to the far one. */
+type Wall = { top: readonly [Pt, Pt]; foot: readonly [Pt, Pt] };
+
+const DuongOng = ({ ids }: { ids: Ids }) => {
+  // Looking down the drain: joint rings shrink toward the far opening at (80, 38).
+  const rings = [66, 46, 33, 24, 18, 14];
+  return (
+    <>
+      <rect x="0" y="0" width="160" height="90" fill={`url(#${ids.dim})`} />
+      {/* The nearer wall is denser: a band of dots between the frame and the deep part of the pipe. */}
+      <path d="M80 -62 A100 100 0 1 1 79.9 -62 Z M80 -2 A40 40 0 1 0 80.1 -2 Z" fill={`url(#${ids.dots})`} fillRule="evenodd" />
+      {rings.map((r, i) => (
+        <ellipse key={r} className="sa-edge" cx="80" cy="38" rx={r} ry={r * 0.94} style={{ strokeOpacity: 0.5 - i * 0.05 }} />
+      ))}
+      {/* Rust running down from two joints. */}
+      <path className="sa-crack" d="M48 8 L47 14 L48.4 19 M118 12 L119 18 L117.6 22" />
+      {/* The far mouth: night outside, the outer fence's posts against it. */}
+      <circle cx="80" cy="38" r="10" className="sa-hole" />
+      <path className="sa-line" d="M72 40 H88 M74 40 V35 M78 40 V34.6 M82 40 V34.6 M86 40 V35" style={{ strokeOpacity: 0.35 }} />
+      {/* D-31, wedged nose-down against the wall, one eye still blinking. */}
+      <Glow x={101} y={26} r={14} fill={ids.red} className="sa-breathe" />
+      <g transform="rotate(28 101 26)">
+        <Drone x={101} y={26} scale={0.72} />
+      </g>
+      {/* Standing water up to the joints' shoulders; the drone's light doubled in it. */}
+      <polygon className="sa-water" points="-1,91 161,91 91.7,45.7 68.3,45.7" />
+      <path className="sa-line" d="M60 66 H74 M88 72 H108 M70 52 H76 M84 56 H92" style={{ strokeOpacity: 0.25 }} />
+      <path className="sa-reflect" d="M101 50 V62 M99.6 54 V58" />
+      {/* A drop from the crown, a ring where it lands. */}
+      <circle className="sa-drip" cx="66" cy="9" r="0.35" style={{ ["--drop" as string]: "49px" }} />
+      <ellipse className="sa-splash" cx="66" cy="58" rx="2" ry="0.4" />
+      <Air ids={ids} low={50} />
+    </>
+  );
+};
+
+const HangRaoNgoai = ({ ids }: { ids: Ids }) => {
+  // The fence runs from the left edge to the vanishing point at (112, 40).
+  const vp = [112, 40] as const;
+  const top = (x: number) => 4 + 32 * (x / 112);
+  const foot = (x: number) => 80 - 36 * (x / 112);
+  const posts = [0, 30, 52, 68, 80, 89, 96, 101, 105];
+  const mesh = posts
+    .slice(0, -1)
+    .map((x, i) => {
+      const x2 = posts[i + 1];
+      return `M${x} ${top(x)} L${x2} ${foot(x2)} M${x} ${foot(x)} L${x2} ${top(x2)}`;
+    })
+    .join(" ");
+  const coils = Array.from({ length: 16 }, (_, i) => {
+    const x = 105 * (1 - (1 - i / 15) ** 1.6);
+    return [x, top(x) - 1 + (x / 112) * 0.7, 1 - (x / 112) * 0.7] as const;
+  });
+  return (
+    <>
+      {/* The city wall far behind, dark; the inner fence faint across the strip. */}
+      <path d="M112 42 V34 H124 V30 H140 V35 H160 V42 Z" fill={`url(#${ids.win})`} className="sa-far" />
+      <path className="sa-edge" d="M0 42 H160" />
+      <path className="sa-line sa-far" d={`M160 20 L${vp[0]} 38 M160 64 L${vp[0]} 43 M150 24 V60 M138 28.6 V55.4 M128 32.4 V51.6 M121 35 V48.6`} style={{ strokeOpacity: 0.3 }} />
+      {/* The outer fence: mesh panels between posts, wire coiled along its top. */}
+      <polygon points={`0,${top(0)} 105,${top(105)} 105,${foot(105)} 0,${foot(0)}`} fill={`url(#${ids.dim})`} />
+      <path className="sa-line" d={mesh} style={{ strokeOpacity: 0.4 }} />
+      <path className="sa-line is-strong" d={posts.map((x) => `M${x} ${top(x) - 1} V${foot(x)}`).join(" ")} />
+      <path className="sa-line" d={`M0 ${top(0)} L105 ${top(105)} M0 ${foot(0) - 8} L105 ${foot(105) - 0.8}`} />
+      {coils.map(([x, y, r], i) => (
+        <circle key={i} className="sa-wire" cx={x} cy={y} r={r} />
+      ))}
+      {/* Ruts the patrols wear along the foot of the fence. */}
+      <path className="sa-dash" d={`M20 90 L${vp[0]} 44 M70 90 L${vp[0]} 44.6`} style={{ strokeOpacity: 0.25 }} />
+      {/* The drone on its round, its light combing the fence. */}
+      <g className="sa-alongfence">
+        <g transform="translate(66 18)">
+          <g className="sa-search">
+            <polygon className="sa-cone is-red" points="-1.2,2 1.2,2 12,46 -10,46" />
+          </g>
+          <Glow x={0} y={0} r={8} fill={ids.red} className="sa-breathe" />
+          <Drone x={0} y={0} scale={0.32} />
+        </g>
+      </g>
+      <Air ids={ids} low={56} />
+    </>
+  );
+};
+
+const BaiContainer = ({ ids }: { ids: Ids }) => {
+  // Two walls of containers, stacked two high, run to the vanishing point at (80, 40).
+  const left: Wall = { top: [[0, 2], [68, 34]], foot: [[0, 78], [68, 46]] };
+  const right: Wall = { top: [[160, 2], [92, 34]], foot: [[160, 78], [92, 46]] };
+  const seams = [0, 0.38, 0.64, 0.82, 0.93];
+  const wall = (w: Wall) => {
+    const lines = seams.map((t, i) => {
+      const [x, y0] = along(w.top[0], w.top[1], t);
+      const [, y1] = along(w.foot[0], w.foot[1], t);
+      // Ribs on each container: three per box, closer as they recede.
+      const next = seams[i + 1] ?? 1;
+      const ribs = [0.25, 0.5, 0.75].map((f) => {
+        const [rx, ry0] = along(w.top[0], w.top[1], t + (next - t) * f);
+        const [, ry1] = along(w.foot[0], w.foot[1], t + (next - t) * f);
+        return `M${rx} ${ry0 + 1} V${ry1 - 1}`;
+      });
+      return { seam: `M${x} ${y0} V${y1}`, ribs: ribs.join(" ") };
+    });
+    return {
+      shape: `${w.top[0].join(",")} ${w.top[1].join(",")} ${w.foot[1].join(",")} ${w.foot[0].join(",")}`,
+      seams: lines.map((l) => l.seam).join(" "),
+      ribs: lines.map((l) => l.ribs).join(" "),
+    };
+  };
+  const l = wall(left);
+  const r = wall(right);
+  const clip = `${ids.dots}-walls`;
+  return (
+    <>
+      <clipPath id={clip}>
+        <polygon points={l.shape} />
+        <polygon points={r.shape} />
+      </clipPath>
+      {/* The tower's mast past the end of the lane, its lamp on top. */}
+      <path className="sa-line is-strong" d="M80 40 V24 M78.6 26 H81.4" />
+      <Glow x={80} y={24} r={7} fill={ids.red} className="sa-breathe" />
+      <circle className="sa-redlight" cx="80" cy="23.6" r="0.5" />
+      {[l, r].map((w, i) => (
+        <g key={i}>
+          <polygon points={w.shape} fill={`url(#${ids.dots})`} />
+          <polygon className="sa-edge" points={w.shape} />
+          <path className="sa-line" d={w.ribs} style={{ strokeOpacity: 0.3 }} />
+          <path className="sa-line is-strong" d={w.seams} />
+          {/* The seam between the two tiers runs level: it sits at eye height. */}
+          <path className="sa-line" d={i === 0 ? "M0 40 H68" : "M92 40 H160"} />
+        </g>
+      ))}
+      {/* The floodlight's band sliding along the walls. */}
+      <g clipPath={`url(#${clip})`}>
+        <g className="sa-slide">
+          <polygon className="sa-band" points="40,0 50,0 46,90 36,90" />
+        </g>
+      </g>
+      {/* R-17's mark, cut by hand into a container long ago: the mast and its rings. */}
+      <Glow x={40} y={31} r={4} fill={ids.teal} className="sa-breathe" />
+      <g transform="translate(40 31) scale(0.55)">
+        <path className="sa-mark" d="M-1.2 2 L0 -1.8 L1.2 2 M-0.7 0.6 H0.7 M-1.8 -2.4 A2.4 2.4 0 0 1 1.8 -2.4 M-2.8 -3.4 A3.8 3.8 0 0 1 2.8 -3.4" />
+      </g>
+      {/* The lane: ruts toward the far end, a puddle taking the lamp. */}
+      <path className="sa-line" d="M38 90 L78 46 M122 90 L82 46" style={{ strokeOpacity: 0.3 }} />
+      <path className="sa-reflect" d="M80 52 V60" />
+      <Air ids={ids} low={58} />
+    </>
+  );
+};
+
+const ThapDenPha = ({ ids }: { ids: Ids }) => {
+  const legs = "M70 66 L77 16 M90 66 L83 16";
+  // Cross bracing up the lattice, narrowing with height.
+  const brace = Array.from({ length: 7 }, (_, i) => {
+    const y0 = 66 - i * 7;
+    const y1 = y0 - 7;
+    const half = (y: number) => 3 + ((y - 16) / 50) * 7;
+    return `M${80 - half(y0)} ${y0} L${80 + half(y1)} ${y1} M${80 + half(y0)} ${y0} L${80 - half(y1)} ${y1}`;
+  }).join(" ");
+  return (
+    <>
+      {/* The ring's far wall and its fences along the horizon. */}
+      <path d="M0 56 V50 H30 V47 H58 V51 H104 V46 H132 V50 H160 V56 Z" fill={`url(#${ids.win})`} className="sa-far" />
+      <path className="sa-edge" d="M0 56 H160" />
+      <path className="sa-line" d="M0 60 H160 M8 56 V60 M28 56 V60 M48 56 V60 M112 56 V60 M132 56 V60 M152 56 V60" style={{ strokeOpacity: 0.4 }} />
+      {/* The tower: lattice legs, bracing, guy wires down to the ground. */}
+      <polygon points="70,66 90,66 83,16 77,16" fill={`url(#${ids.dots})`} />
+      <path className="sa-line is-strong" d={legs} />
+      <path className="sa-line" d={brace} />
+      <path className="sa-line" d="M78 22 L30 66 M82 22 L130 66" style={{ strokeOpacity: 0.4 }} />
+      {/* The alarm ladder on its front: five steps, one lit. */}
+      {[0, 1, 2, 3, 4].map((i) => (
+        <rect key={i} className={i === 2 ? "sa-step is-lit" : "sa-step"} x="78.6" y={52 - i * 6} width="2.8" height="1.4" />
+      ))}
+      {/* The lamp house, and the beams that turn over the whole ring. */}
+      <rect className="sa-metal" x="74" y="10" width="12" height="6" />
+      <path className="sa-line" d="M73 16.4 H87 M73 16.4 V18 M87 16.4 V18 M80 10 V6.4" />
+      <Glow x={80} y={12} r={14} fill={ids.red} className="sa-breathe" />
+      <g className="sa-beam">
+        <polygon className="sa-cone is-red" points="80,12 0,2 0,24" />
+      </g>
+      <g className="sa-beam is-other">
+        <polygon className="sa-cone is-red" points="80,12 160,6 160,28" />
+      </g>
+      <rect className="sa-lamphead" x="76" y="11.4" width="8" height="2.4" />
+      <circle className="sa-redlight" cx="80" cy="6" r="0.6" />
+      <path className="sa-line" d="M60 90 L72 66 M100 90 L88 66" style={{ strokeOpacity: 0.3 }} />
+      <Air ids={ids} low={58} />
+    </>
+  );
+};
+
+const NgaTuTuanTra = ({ ids }: { ids: Ids }) => (
+  <>
+    {/* Blocks at the far corners, long empty. */}
+    <path d="M0 46 V32 H12 V26 H30 V34 H48 V30 H66 V38 H74 V46 Z" fill={`url(#${ids.win})`} className="sa-far" />
+    <path d="M86 46 V36 H96 V28 H116 V33 H134 V24 H148 V31 H160 V46 Z" fill={`url(#${ids.win})`} className="sa-far" />
+    {/* The patrol road coming at us and the one crossing it. */}
+    <path className="sa-edge" d="M30 90 L68 52 L0 52 M130 90 L92 52 L160 52 M0 46 H74 L76 44 M160 46 H86 L84 44" style={{ strokeOpacity: 0.55 }} />
+    <path className="sa-dash" d="M80 90 V53 M0 49 H70 M90 49 H160" />
+    {/* Barriers on the corners. */}
+    {[[58, 58, 1], [102, 58, -1], [20, 54, 1], [140, 54, -1]].map(([x, y, s], i) => (
+      <path key={i} className="sa-metal" d={`M${x} ${y} h${4 * s} l${-0.8 * s} -2.4 h${-2.4 * s} Z`} />
+    ))}
+    <path className="sa-line" d="M24 52 V36 M136 52 V36 M22 36 H26 M134 36 H138" />
+    <circle className="sa-redlight" cx="24" cy="35.4" r="0.4" style={{ ["--i" as string]: 1 }} />
+    <circle className="sa-redlight" cx="136" cy="35.4" r="0.4" style={{ ["--i" as string]: 2 }} />
+    {/* The guard drone, holding the middle of the crossing. */}
+    <ellipse className="sa-shadow" cx="80" cy="49" rx="4" ry="0.6" />
+    <g className="sa-hover">
+      <Glow x={80} y={30} r={10} fill={ids.red} className="sa-breathe" />
+      <Drone x={80} y={30} scale={0.42} />
+    </g>
+    {/* Now and then the tower's light passes over the crossing. */}
+    <g className="sa-pass">
+      <polygon className="sa-cone is-red" points="180,-20 36,62 70,70" />
+    </g>
+    <Air ids={ids} low={56} />
+  </>
+);
+
+const TramSac = ({ ids }: { ids: Ids }) => {
+  // Charging posts in a row toward the vanishing point at (84, 42); drones on some.
+  const posts = [[14, 22, 6, 74], [38, 30, 4.2, 62], [54, 34, 3, 55], [65, 37, 2.2, 50], [72, 39, 1.6, 47]];
+  const docked = [[0, 0.3], [1, 0.2], [3, 0.1]];
+  return (
+    <>
+      {/* The canopy overhead, its beams closing toward the far end. */}
+      <polygon points="0,0 160,0 160,6 98,30 70,30 0,8" fill={`url(#${ids.dim})`} />
+      <path className="sa-edge" d="M0 8 L70 30 H98 L160 6 M24 0 L74 30 M60 0 L80 30 M100 0 L88 30 M136 0 L94 30" />
+      <path className="sa-edge" d="M0 82 L76 46 H94 L160 80" />
+      <path className="sa-line" d="M0 74 L76 46" style={{ strokeOpacity: 0.3 }} />
+      {posts.map(([x, top, w, foot], i) => (
+        <g key={i}>
+          <rect x={x - w / 2} y={top} width={w} height={foot - top} fill={`url(#${ids.dots})`} />
+          <rect className="sa-edge" x={x - w / 2} y={top} width={w} height={foot - top} />
+          <rect className="sa-metal" x={x - w * 0.8} y={top - 0.6} width={w * 1.6} height={w * 0.2 + 0.3} />
+          <circle className="sa-charge" cx={x} cy={top + (foot - top) * 0.3} r={w * 0.09} style={{ ["--i" as string]: i }} />
+        </g>
+      ))}
+      <path className="sa-line" d={`${cable(14, 60, 38, 52, 4)} ${cable(38, 52, 54, 48, 2.6)} ${cable(54, 48, 65, 46, 1.6)}`} />
+      {docked.map(([i, s]) => {
+        const [x, top] = posts[i];
+        return (
+          <g key={i} className="sa-parked">
+            <Drone x={x} y={top - 4.8 * s - 0.8} scale={s} />
+          </g>
+        );
+      })}
+      {/* The command board: the tower's orders scrolling for each docked drone. The only warm light out here. */}
+      <Glow x={127} y={22} r={24} fill={ids.warm} className="sa-breathe" />
+      <path className="sa-line is-strong" d="M112 34 V60 M142 34 V60" />
+      <rect className="sa-boardface" x="106" y="10" width="42" height="24" />
+      <rect className="sa-edge is-warm" x="106" y="10" width="42" height="24" />
+      {[[18, 0], [12, 1], [24, 2], [16, 3], [20, 4], [10, 5]].map(([w, i]) => (
+        <rect key={i} className={`sa-cmd${i === 2 ? " is-current" : ""}`} x="109" y={13 + i * 3.2} width={w} height="1.2" style={{ ["--i" as string]: i }} />
+      ))}
+      <path className="sa-edge is-warm" d="M134 13 V31" />
+      {[0, 1, 2, 3, 4, 5].map((i) => (
+        <rect key={i} className="sa-cmd" x="137" y={13 + i * 3.2} width={4 + (i % 3) * 2} height="1.2" style={{ ["--i" as string]: i + 3 }} />
+      ))}
+      <Pool x={127} y={66} rx={20} ry={2.4} fill={ids.warm} className="sa-breathe" />
+      <Air ids={ids} low={62} />
+    </>
+  );
+};
+
 const SCENE_ART: Partial<Record<Backdrop, (p: { ids: Ids }) => ReactNode>> = {
   "tang-ham": TangHam,
   "tram-r17": TramR17,
@@ -604,6 +883,12 @@ const SCENE_ART: Partial<Record<Backdrop, (p: { ids: Ids }) => ReactNode>> = {
   "tram-tham-van": TramThamVan,
   "cong-kiem-soat": CongKiemSoat,
   "tram-sentinel": TramSentinel,
+  "duong-ong": DuongOng,
+  "hang-rao-ngoai": HangRaoNgoai,
+  "bai-container": BaiContainer,
+  "thap-den-pha": ThapDenPha,
+  "nga-tu-tuan-tra": NgaTuTuanTra,
+  "tram-sac": TramSac,
 };
 
 /** Whether a backdrop is one of the drawn places (the rest are the city and the laptop). */

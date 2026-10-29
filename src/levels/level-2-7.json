@@ -1,0 +1,340 @@
+{
+  "schema_version": 1,
+  "id": "2.7",
+  "chapter": 2,
+  "title": "Trạm Sentinel",
+  "difficulty": "boss",
+  "concepts": [
+    "comparison",
+    "if",
+    "else",
+    "elif",
+    "boolean_operators",
+    "nested_if",
+    "input",
+    "type_conversion"
+  ],
+  "simulation": {
+    "kind": "patrol",
+    "decision": {
+      "line": 4
+    }
+  },
+  "starter_code": "# Dữ liệu cảm biến tháp nạp mỗi pha (KHÔNG được sửa 3 dòng này)\ntam_quet = 40\ncamera_bat = True\nden_pha = False\n\n# Kênh nhập: dòng 1 là khoảng cách tới Kai, dòng 2 là mã lệnh của tháp (có thể trống)\nkhoang_cach = input()\nma_lenh = input()\n\n# Luật 1 · Cảm biến tầm quét\ntrong_tam = khoang_cach < tam_quet\nprint(f\"TRONG TAM: {trong_tam}\")\n\n# Luật 4 · Thang báo động\nif khoang_cach < 100:\n    print(\"MUC: CANH GIAC\")\nelif khoang_cach < 50:\n    print(\"MUC: NGUY HIEM\")\nelif khoang_cach < 20:\n    print(\"MUC: BAO DONG\")\nelse:\n    print(\"MUC: AN TOAN\")\n\n# Luật 6 · Đọc bảng lệnh\nif ma_lenh:\n    if ma_lenh == \"XUAT KICH\":\n        lenh_drone = \"XUAT KICH\"\n    else:\n        lenh_drone = \"CHO LENH\"\nelse:\n    lenh_drone = \"KHONG CO\"\n    print(f\"LENH DRONE: {lenh_drone}\")\n\n# Luật 2, 3, 5 · Quyết định của Kai\nif trong_tam and camera_bat or den_pha:\n    print(\"KAI: NAP\")\nelif den_pha or ma_lenh == \"XUAT KICH\":\n    print(\"KAI: CHO\")\nelse:\n    print(\"KAI: QUA\")\n",
+  "locked_lines": [
+    2,
+    3,
+    4
+  ],
+  "inputs": [
+    "tam_quet",
+    "camera_bat",
+    "den_pha"
+  ],
+  "objectives": [
+    {
+      "kind": "output_line",
+      "line": 1
+    },
+    {
+      "kind": "output_line",
+      "line": 2
+    },
+    {
+      "kind": "output_line",
+      "line": 3
+    },
+    {
+      "kind": "output_line",
+      "line": 4
+    }
+  ],
+  "alert_limit_statements": 17,
+  "float_abs_tolerance": 1e-09,
+  "tests": [
+    {
+      "inputs": {
+        "tam_quet": 40,
+        "camera_bat": true,
+        "den_pha": false
+      },
+      "stdin": [
+        "35",
+        "XUAT KICH"
+      ],
+      "expected": {},
+      "expected_output": [
+        "TRONG TAM: True",
+        "MUC: NGUY HIEM",
+        "LENH DRONE: XUAT KICH",
+        "KAI: NAP"
+      ]
+    },
+    {
+      "inputs": {
+        "tam_quet": 80,
+        "camera_bat": false,
+        "den_pha": true
+      },
+      "stdin": [
+        "75",
+        ""
+      ],
+      "expected": {},
+      "expected_output": [
+        "TRONG TAM: True",
+        "MUC: CANH GIAC",
+        "LENH DRONE: KHONG CO",
+        "KAI: NAP"
+      ]
+    },
+    {
+      "inputs": {
+        "tam_quet": 12,
+        "camera_bat": false,
+        "den_pha": true
+      },
+      "stdin": [
+        "15",
+        "VE TRAM"
+      ],
+      "expected": {},
+      "expected_output": [
+        "TRONG TAM: False",
+        "MUC: BAO DONG",
+        "LENH DRONE: CHO LENH",
+        "KAI: CHO"
+      ]
+    },
+    {
+      "inputs": {
+        "tam_quet": 60,
+        "camera_bat": true,
+        "den_pha": false
+      },
+      "stdin": [
+        "150",
+        "TUAN TRA"
+      ],
+      "expected": {},
+      "expected_output": [
+        "TRONG TAM: False",
+        "MUC: AN TOAN",
+        "LENH DRONE: CHO LENH",
+        "KAI: QUA"
+      ]
+    }
+  ],
+  "counter_attack_tests": [
+    {
+      "inputs": {
+        "tam_quet": 50,
+        "camera_bat": true,
+        "den_pha": false
+      },
+      "stdin": [
+        "50",
+        " "
+      ],
+      "expected": {},
+      "expected_output": [
+        "TRONG TAM: True",
+        "MUC: CANH GIAC",
+        "LENH DRONE: CHO LENH",
+        "KAI: NAP"
+      ]
+    },
+    {
+      "inputs": {
+        "tam_quet": 15,
+        "camera_bat": false,
+        "den_pha": false
+      },
+      "stdin": [
+        "20",
+        "XUAT KICH"
+      ],
+      "expected": {},
+      "expected_output": [
+        "TRONG TAM: False",
+        "MUC: NGUY HIEM",
+        "LENH DRONE: XUAT KICH",
+        "KAI: CHO"
+      ]
+    },
+    {
+      "inputs": {
+        "tam_quet": 120,
+        "camera_bat": false,
+        "den_pha": false
+      },
+      "stdin": [
+        "100",
+        ""
+      ],
+      "expected": {},
+      "expected_output": [
+        "TRONG TAM: True",
+        "MUC: AN TOAN",
+        "LENH DRONE: KHONG CO",
+        "KAI: QUA"
+      ]
+    }
+  ],
+  "forbidden_terms": [
+    "if",
+    "elif",
+    "else",
+    "and",
+    "or",
+    "not",
+    "input",
+    "print",
+    "==",
+    "!=",
+    "<=",
+    ">=",
+    "<",
+    ">",
+    "lớn hơn hoặc bằng",
+    "nhỏ hơn hoặc bằng",
+    "không vượt",
+    "đảo thứ tự",
+    "xếp ngược",
+    "thứ tự ưu tiên",
+    "ngoặc",
+    "thụt lề",
+    "thụt vào",
+    "dấu hai chấm",
+    "đổi kiểu",
+    "ép kiểu",
+    "chuyển kiểu",
+    "tam_quet",
+    "camera_bat",
+    "den_pha",
+    "khoang_cach",
+    "ma_lenh",
+    "trong_tam",
+    "lenh_drone",
+    "True",
+    "False",
+    "NAP",
+    "BAO DONG",
+    "NGUY HIEM",
+    "CANH GIAC",
+    "AN TOAN",
+    "XUAT KICH",
+    "CHO LENH",
+    "KHONG CO",
+    "VE TRAM",
+    "TUAN TRA",
+    "12",
+    "15",
+    "20",
+    "35",
+    "40",
+    "50",
+    "60",
+    "75",
+    "80",
+    "100",
+    "120",
+    "150"
+  ],
+  "scene": "tram-sentinel",
+  "outro_beats": [
+    {
+      "kind": "log",
+      "backdrop": "tram-sentinel",
+      "cue": "terminal_line",
+      "fx": "focus"
+    },
+    {
+      "kind": "card",
+      "backdrop": "thanh-pho",
+      "cue": "pulse",
+      "fx": "fragment_found"
+    },
+    {
+      "kind": "card",
+      "backdrop": "tram-sentinel",
+      "cue": "glitch",
+      "fx": "signal_0xa7"
+    },
+    {
+      "kind": "echo",
+      "fx": "omni_layer"
+    },
+    {
+      "kind": "kai"
+    }
+  ],
+  "knowledge_summary": {
+    "sections": [
+      {
+        "code": "diem = 5\nprint(diem == 5, diem != 5)\nprint(diem < 5, diem <= 5)",
+        "output": "True False\nFalse True"
+      },
+      {
+        "code": "nhiet_do = 38\nif nhiet_do > 37:\n    print(\"Sot\")\n    print(\"Nen nghi ngoi\")\nif nhiet_do > 39:\n    print(\"Goi bac si\")",
+        "output": "Sot\nNen nghi ngoi"
+      },
+      {
+        "code": "tuoi = 16\nif tuoi >= 18:\n    print(\"Ve nguoi lon\")\nelse:\n    print(\"Ve tre em\")\nprint(\"Moi qua cua\")",
+        "output": "Ve tre em\nMoi qua cua"
+      },
+      {
+        "code": "diem = 9\nif diem >= 8:\n    print(\"Gioi\")\nelif diem >= 5:\n    print(\"Dat\")\nelse:\n    print(\"Chua dat\")",
+        "output": "Gioi"
+      },
+      {
+        "code": "co_ve = True\nco_nguoi_lon = False\nla_tre_em = False\nprint(co_ve or la_tre_em and co_nguoi_lon)\nprint((co_ve or la_tre_em) and co_nguoi_lon)\nprint(not co_ve)",
+        "output": "True\nFalse\nFalse"
+      },
+      {
+        "code": "ten = input()\nif ten:\n    if ten == \"Lan\":\n        print(\"Chao Lan\")\nelse:\n    print(\"Chua co ten\")\nprint(bool(\"\"), bool(\" \"))",
+        "output": "Chua co ten\nFalse True",
+        "stdin": "\n"
+      },
+      {
+        "code": "so_ve = int(input())\nif so_ve > 4:\n    print(\"Qua so ve cho phep\")\nelse:\n    print(\"Dat\", so_ve, \"ve\")",
+        "output": "Dat 3 ve",
+        "stdin": "3\n"
+      },
+      {
+        "code": "diem_dau = 5\nprint(4 >= diem_dau)\nprint(5 >= diem_dau)\nprint(6 >= diem_dau)",
+        "output": "False\nTrue\nTrue"
+      }
+    ],
+    "mistakes": [
+      {
+        "code": "tuoi = \"16\"\nprint(tuoi < 18)",
+        "error": "TypeError: '<' not supported between instances of 'str' and 'int'"
+      },
+      {
+        "code": "gioi_han = 90\ntoc_do = 90\nprint(toc_do < gioi_han)",
+        "error": "Không báo lỗi, nhưng in ra: False"
+      },
+      {
+        "code": "diem = 9\nif diem >= 5:\n    print(\"Dat\")\nelif diem >= 8:\n    print(\"Gioi\")",
+        "error": "Không báo lỗi, nhưng in ra: Dat"
+      },
+      {
+        "code": "tuoi = 10\nif tuoi < 18:\n    ve = \"Tre em\"\nelse:\n    ve = \"Nguoi lon\"\n    print(ve)",
+        "error": "Không báo lỗi, nhưng không in ra dòng nào."
+      },
+      {
+        "code": "co_ve = False\ndu_tuoi = True\nco_nguoi_lon = True\nprint(co_ve and du_tuoi or co_nguoi_lon)",
+        "error": "Không báo lỗi, nhưng in ra: True"
+      },
+      {
+        "code": "mon = \"Toan\"\nif mon = \"Toan\":\n    print(\"Thi sang\")",
+        "error": "SyntaxError: invalid syntax. Maybe you meant '==' or ':=' instead of '='?"
+      },
+      {
+        "code": "diem = 9\nif diem >= 8:\nprint(\"Gioi\")",
+        "error": "IndentationError: expected an indented block after 'if' statement on line 2"
+      }
+    ]
+  }
+}

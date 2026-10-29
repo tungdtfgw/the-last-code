@@ -84,7 +84,63 @@ const SIM_KEYS: Record<SimulationKind, readonly string[]> = {
   fence: ["kind", "energy", "cells", "remainder", "capacity"],
   interrogation: ["kind"],
   checkpoint: ["kind"],
+  patrol: ["kind", "decision"],
 };
+
+/**
+ * Patrol strip: every base test is a situation, so it needs two or more; `decision`,
+ * when present, names exactly one real objective: an output line or a str variable.
+ */
+function checkPatrol(sim: Record<string, unknown>, tests: unknown, objectives: { var: string; type: ValueType }[], outputLines: number[], errors: string[]) {
+  if (!Array.isArray(tests) || tests.length < 2) errors.push("simulation: dải tuần tra cần ít nhất 2 test cơ bản (mỗi test là một tình huống)");
+  if (sim.decision === undefined) return;
+  const d = sim.decision;
+  if (!isObject(d) || Object.keys(d).length !== 1 || !("line" in d || "var" in d)) {
+    errors.push('simulation.decision phải là object có đúng một khóa "line" hoặc "var"');
+    return;
+  }
+  if ("line" in d && !(Number.isInteger(d.line) && outputLines.includes(d.line as number)))
+    errors.push(`simulation.decision.line ${String(d.line)} không phải một mục tiêu output_line`);
+  if ("var" in d && !objectives.some((o) => o.var === d.var && o.type === "str"))
+    errors.push(`simulation.decision.var "${String(d.var)}" phải là tên một mục tiêu biến kiểu str`);
+}
+
+/**
+ * Keys whose run details never carry `round`, or not always (`wrong_branch` and
+ * `timeout` also fire on the counter-attack or a worker timeout): `{round}` would read "?".
+ */
+const NO_ROUND_KEYS = [
+  "entry",
+  "SyntaxError",
+  "IndentationError",
+  "alert_exceeded",
+  "two_stars",
+  "three_stars",
+  "counter_ValueError",
+  "counter_error",
+  "counter_type_mismatch",
+  "wrong_value_counter",
+  "counter_timeout",
+  "repeated_fail",
+  "engine_error",
+  "wrong_branch",
+  "timeout",
+  "generic",
+];
+
+/** From chapter 2 on: `{round}` only where a failing base round fills it. */
+function checkRoundPlaceholders(r: Record<string, unknown>, errors: string[]) {
+  const baseTests = Array.isArray(r.tests) ? r.tests.length : 0;
+  for (const field of ["reactions", "reaction_variants"]) {
+    const lines = r[field];
+    if (!isObject(lines)) continue;
+    for (const [key, text] of Object.entries(lines)) {
+      if (!isString(text) || !text.includes("{round}")) continue;
+      if (baseTests < 2) errors.push(`${field}.${key}: {round} chỉ dùng được ở level có ít nhất 2 test cơ bản`);
+      else if (NO_ROUND_KEYS.includes(key)) errors.push(`${field}.${key}: khóa này không mang số tình huống, không dùng được {round}`);
+    }
+  }
+}
 
 /** Limits of a test's stdin channel: lines `input()` reads. */
 const STDIN_MAX_LINES = 20;
@@ -300,6 +356,8 @@ export function validateLevel(raw: unknown): ValidationResult {
     }
   }
 
+  if (typeof r.chapter === "number" && r.chapter >= 2) checkRoundPlaceholders(r, errors);
+
   if (r.simulation !== undefined) {
     const sim = r.simulation;
     if (!isObject(sim) || !SIMULATION_KINDS.includes(sim.kind as never)) {
@@ -314,6 +372,7 @@ export function validateLevel(raw: unknown): ValidationResult {
       if (sim.kind === "fence") checkFence(sim, objectives, inputs, errors);
       if (sim.kind === "checkpoint" && (outputCount === 0 || objectives.length > 0 || !Array.isArray(r.tests) || r.tests.length < 2))
         errors.push("simulation: cổng kiểm soát cần chỉ mục tiêu output_line và ít nhất 2 test cơ bản (mỗi test là một vòng quét)");
+      if (sim.kind === "patrol") checkPatrol(sim, r.tests, objectives, outputLines, errors);
     }
   }
 

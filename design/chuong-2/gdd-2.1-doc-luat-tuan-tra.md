@@ -1,8 +1,8 @@
 # Level 2.1 – "Đọc luật tuần tra"
 
 > Chương 2 – Trạm Sentinel · Độ khó: Easy · Khái niệm: sáu phép so sánh `== != < > <= >=`, kết quả là `bool`
-> Câu đố: `src/levels/level-2-1.json` (chưa dựng). Câu chữ người chơi đọc: tài liệu `level:2.1` ở D1 (câu ban đầu sẽ vào `db/migrations/0011_content_level_2_1.sql`, sửa trên `#/admin`); GDD chỉ ghi ý đồ (`design/quyet-dinh/nguon-duy-nhat-cho-cau-chu.md`). Trục truyện và phác câu đố: `design/gdd-chuong-2.md` mục 6.1. Hợp đồng engine (thắng GDD này khi lệch): `docs/hop-dong-engine-chuong-2.md`. Brainstorm: `design/quyet-dinh/level-2-1-doc-luat-tuan-tra.md`.
-> Mọi con số trong tài liệu này đo bằng `run_level` thật (python3 3.13.2) ngày 30/10/2026. `wrong_branch` và `skipped_lines` chưa có trong mã; khóa và dòng mờ ghi ở đây suy ra theo hợp đồng engine mục 5.1 và 6.
+> Câu đố: `src/levels/level-2-1.json`. Câu chữ người chơi đọc: tài liệu `level:2.1` ở D1 (câu ban đầu vào `db/migrations/0011_content_level_2_1.sql`, sửa trên `#/admin`); GDD chỉ ghi ý đồ (`design/quyet-dinh/nguon-duy-nhat-cho-cau-chu.md`). Trục truyện và phác câu đố: `design/gdd-chuong-2.md` mục 6.1. Hợp đồng engine (thắng GDD này khi lệch): `docs/hop-dong-engine-chuong-2.md`. Brainstorm: `design/quyet-dinh/level-2-1-doc-luat-tuan-tra.md`.
+> Mọi con số trong tài liệu này đo bằng `run_level` thật (python3 3.13.2) ngày 30/10/2026. Khóa `wrong_branch` và dòng mờ (`skipped_lines`) đã kiểm lại bằng `tests/integration/level-2-1.test.ts`.
 
 ## 1. Bối cảnh
 
@@ -281,7 +281,7 @@ Không đổi `compute-stars.ts`.
 
 Câu chữ: `outro`, `lore_fragment`, `component`, `outro_beats` (D1, `level:2.1`).
 
-- `scene`: `tram-sentinel` (phông có sẵn). Phase I đổi sang `duong-ong` khi phông mới vào nhánh tích hợp (hợp đồng engine mục 8).
+- `scene`: `duong-ong`. Phông từng nhịp `outro_beats`: `design/quyet-dinh/canh-cutscene.md` mục "Gắn vào truyện Chương 2".
 - `outro`: ba cờ của Kai khớp chip; chip D-31 mở thêm một vùng nhớ cũ, trong đó có một ghi chú của người viết luật. Dẫn vào mảnh nhật ký.
 - `lore_fragment` (**KTS-02**, mảnh thứ nhất, lần đầu lộ): KTS-02 viết luật cho drone; mỗi luật là một phép so sánh; drone không ghét ai, drone chỉ so. Không nói KTS-02 giấu mảnh "Quyết định" (để dành 2.7).
 - `component`: Cảm biến tầm quét (ô 1/6 của thanh Bộ luật né).
@@ -289,10 +289,10 @@ Câu chữ: `outro`, `lore_fragment`, `component`, `outro_beats` (D1, `level:2.1
 
 | # | Kiểu, nền | Ý đồ | Cue, hiệu ứng |
 |---|---|---|---|
-| 1 | log, `tram-sentinel` | Bản ghi cuối của D-31: Trạm Sentinel đã bắn hạ nó vì nó bỏ qua một mục tiêu đứng đúng ở mép tầm quét. Một luật sai ở điểm bằng nhau | `scan_reject` |
+| 1 | log, `duong-ong` | Bản ghi cuối của D-31: Trạm Sentinel đã bắn hạ nó vì nó bỏ qua một mục tiêu đứng đúng ở mép tầm quét. Một luật sai ở điểm bằng nhau | `scan_reject`, `fx: "focus"` (D-31) |
 | 2 | echo | ECHO đọc bản ghi: Sentinel làm đúng luật, kể cả với drone của chính nó. Không bình luận thêm | |
 | 3 | kai | Một câu: nếu Sentinel không tha cả drone của mình, nó sẽ không tha Kai | `fx: "focus"` |
-| 4 | log | Phía trên ống là Hàng Rào Ngoài; drone bay dọc rào theo chu kỳ. Dẫn vào 2.2 | |
+| 4 | log, `hang-rao-ngoai` | Phía trên ống là Hàng Rào Ngoài; drone bay dọc rào theo chu kỳ. Dẫn vào 2.2 | |
 
 - Móc câu: luật của Sentinel tuyệt đối tới mức bắn cả drone sai luật.
 - Không được lộ: KTS-02 là người giấu mảnh; 0xA7 là ai.
@@ -337,7 +337,7 @@ Lỗi thường gặp (`mistakes`): `8 < "9"` → `TypeError: '<' not supported 
 - `inputs`: `["khoang_cach", "tam_quet", "che_do", "pin"]`; `locked_lines`: `[2, 3, 4, 5]`.
 - `objectives`: `trong_tam`, `dang_quet`, `het_pin`, kiểu `bool`.
 - `tests`, `counter_attack_tests`: mục 8. `alert_limit_statements`: 3.
-- `scene`: `tram-sentinel`; `outro_beats`: bốn nhịp mục 14.
+- `scene`: `duong-ong`; `outro_beats`: bốn nhịp mục 14.
 - `forbidden_terms`: mục 11.
 - Lời giải và đột biến: `tests/fixtures/solutions/2.1/` (`original.py`, `two-star.py`, `three-star.py`, `three-star-mirror.py`, `three-star-not.py`, một file cho mỗi dòng mục 8.2); test `tests/integration/level-2-1.test.ts`.
 

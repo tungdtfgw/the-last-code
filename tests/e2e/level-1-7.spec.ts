@@ -4,7 +4,7 @@ import { realChapterJson, realLevelJson } from "../content-fixture";
 import { continueFromResults, gotoLevel, replaceEditableCode, runAndWait, showTab, waitForPythonReady } from "./helpers";
 
 // Boss 1.7 end to end (real Pyodide): starter code → three stars → chapter summary →
-// after-1.7 → the end of chapter 1 → map. Written for the full chapter (seven levels).
+// after-1.7 → the end of chapter 1 → map. Its TIẾP TỤC into chapter 2 is in story-flow.spec.ts.
 
 let online = true;
 test.beforeAll(async () => {
@@ -64,11 +64,11 @@ test("boss: starter code breaks in round 1, the solution opens the gate, the cha
   await expect(page).toHaveURL(/#\/story\/teaser$/);
   await expect(page.locator(".story [aria-live]")).toContainText(teaser[0].text);
   await page.keyboard.press("Escape");
-  const toMap = page.getByRole("button", { name: "VỀ BẢN ĐỒ" });
-  await expect(toMap).toBeFocused();
-  await page.keyboard.press("Enter");
+  // Chapter 2 is built: TIẾP TỤC leads on (focused), VỀ BẢN ĐỒ stays beside it.
+  await expect(page.getByRole("button", { name: "TIẾP TỤC", exact: true })).toBeFocused();
+  await page.getByRole("button", { name: "VỀ BẢN ĐỒ" }).click();
 
-  await expect(page).toHaveURL(/#\/map$/);
+  await expect(page).toHaveURL(/#\/map(\/1)?$/);
   await expect(page.getByTestId("chapter-stars")).toHaveText(/\/21$/);
   await expect(page.getByRole("button", { name: "Hết chương 1" })).toBeVisible();
 });

@@ -1,0 +1,16 @@
+{
+  "schema_version": 1,
+  "chapter": 1,
+  "title": "Chương thử một",
+  "levels": ["9.1", "9.2"],
+  "neural_id_slots": 2,
+  "component_bar": { "label": "Thanh thử", "unit": "Ô" },
+  "map": { "from": "Đầu một", "to": "Cuối một" },
+  "prologue": [
+    { "kind": "log", "backdrop": "thanh-pho", "text": "Mở đầu chương thử một." },
+    { "kind": "echo", "fx": "id_bar", "text": "ECHO mở chương thử một." }
+  ],
+  "teaser": [
+    { "kind": "log", "backdrop": "thanh-pho", "fx": "fragment_found", "text": "Hết chương thử một." }
+  ]
+}

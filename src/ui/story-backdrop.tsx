@@ -17,7 +17,7 @@ const OVERLAY_FX: readonly BeatFx[] = ["alert_tick", "signal_0xa7", "omni_layer"
 /** Effects the dot-matrix city draws itself. */
 const CITY_FX: readonly BeatFx[] = ["city_blink", "eight_fragments", "fragment_found", "trace"];
 
-function Scene({ id, fx }: { id: Backdrop; fx?: BeatFx }) {
+function Scene({ id, fx, found }: { id: Backdrop; fx?: BeatFx; found?: number }) {
   const info = SCENES[id];
   if (id === "terminal") {
     return (
@@ -29,7 +29,7 @@ function Scene({ id, fx }: { id: Backdrop; fx?: BeatFx }) {
     );
   }
   if (!info.place) {
-    return <CityMatrix zoom={id === "vung-toi"} fx={fx && CITY_FX.includes(fx) ? fx : undefined} trace={info.trace} />;
+    return <CityMatrix zoom={id === "vung-toi"} fx={fx && CITY_FX.includes(fx) ? fx : undefined} trace={info.trace} found={found} />;
   }
   const style = info.focus && ({
     "--fx": info.focus.x,
@@ -83,12 +83,14 @@ function Overlay({ fx }: { fx: BeatFx }) {
  * The story backdrop: a new backdrop fades in over the old one, and its
  * entrance plays only when the backdrop changes. `still` (transcript) shows one
  * backdrop with no motion and no effects. `fxKey` restarts an overlay effect.
+ * `found` is how many fragments `fragment_found` lights.
  */
-export function StoryBackdrop({ backdrop, fx, fxKey = 0, still = false }: {
+export function StoryBackdrop({ backdrop, fx, fxKey = 0, still = false, found }: {
   backdrop: Backdrop;
   fx?: BeatFx;
   fxKey?: number;
   still?: boolean;
+  found?: number;
 }) {
   const [layers, setLayers] = useState<Layer[]>([{ id: backdrop, gen: 0 }]);
   const top = layers[layers.length - 1];
@@ -112,7 +114,7 @@ export function StoryBackdrop({ backdrop, fx, fxKey = 0, still = false }: {
         const isTop = i === shown.length - 1;
         return (
           <div key={`${l.id}-${l.gen}`} className={`scene-layer${isTop ? "" : " is-leaving"}`} data-scene={l.id}>
-            <Scene id={l.id} fx={isTop ? effect : undefined} />
+            <Scene id={l.id} fx={isTop ? effect : undefined} found={found} />
           </div>
         );
       })}

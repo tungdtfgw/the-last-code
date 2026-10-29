@@ -1,0 +1,75 @@
+{
+  "schema_version": 1,
+  "chapter": 9,
+  "difficulty": "easy",
+  "concepts": [
+    "if"
+  ],
+  "float_abs_tolerance": 1e-09,
+  "hints": [
+    "Gợi ý một.",
+    "Gợi ý hai.",
+    "Gợi ý ba."
+  ],
+  "outro": "Kai qua dải tuần tra giả.",
+  "lore_fragment": "",
+  "id": "9.22",
+  "title": "Tuần tra thử không dữ liệu nạp sẵn",
+  "briefing": "Level giả chỉ dùng trong test: không có dòng khóa, chỉ có kênh nhập.",
+  "starter_code": "tin = input()\nnap = tin == \"DRONE\"\nhuong = \"TRAI\"\n",
+  "locked_lines": [],
+  "inputs": [],
+  "objectives": [
+    {
+      "var": "nap",
+      "type": "bool",
+      "label": "Có nấp không"
+    },
+    {
+      "var": "huong",
+      "type": "str",
+      "label": "Hướng đi"
+    }
+  ],
+  "alert_limit_statements": 5,
+  "tests": [
+    {
+      "inputs": {},
+      "stdin": [
+        "DRONE"
+      ],
+      "expected": {
+        "nap": true,
+        "huong": "TRAI"
+      }
+    },
+    {
+      "inputs": {},
+      "stdin": [
+        ""
+      ],
+      "expected": {
+        "nap": false,
+        "huong": "PHAI"
+      }
+    }
+  ],
+  "counter_attack_tests": [
+    {
+      "inputs": {},
+      "stdin": [
+        "drone"
+      ],
+      "expected": {
+        "nap": false,
+        "huong": "PHAI"
+      }
+    }
+  ],
+  "simulation": {
+    "kind": "patrol"
+  },
+  "reactions": {
+    "generic": "Drone vẫn đang quét."
+  }
+}

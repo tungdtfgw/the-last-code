@@ -1,0 +1,16 @@
+{
+  "schema_version": 1,
+  "chapter": 2,
+  "title": "Chương thử hai",
+  "levels": ["9.3", "9.4"],
+  "neural_id_slots": 1,
+  "component_bar": { "label": "Bộ luật thử", "unit": "Luật" },
+  "map": { "from": "Đầu hai", "to": "Cuối hai" },
+  "prologue": [
+    { "kind": "log", "backdrop": "tram-sentinel", "text": "Mở đầu chương thử hai." }
+  ],
+  "teaser": [
+    { "kind": "log", "backdrop": "thanh-pho", "fx": "fragment_found", "text": "Hết chương thử hai." },
+    { "kind": "card", "text": "HẾT CHƯƠNG THỬ HAI" }
+  ]
+}

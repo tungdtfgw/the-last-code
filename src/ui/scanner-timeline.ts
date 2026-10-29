@@ -1,5 +1,5 @@
 import type { Cue } from "../audio/sound-recipes";
-import type { RunOutcome, VarVerdict } from "../game/classify-run";
+import { counterTimedOut, type RunOutcome, type VarVerdict } from "../game/classify-run";
 import { varObjectives, type InputValue, type LevelDefinition } from "../game/level-types";
 import { formatPyLiteral } from "../game/python-literal";
 import { gateFor, type GateState } from "../game/terminal-lines";
@@ -98,7 +98,7 @@ function failureLabel(v: VarVerdict): string {
 
 export function errorStatus(outcome: RunOutcome): string {
   if (outcome.key === "engine_error") return "LÕI PYTHON KHÔNG PHẢN HỒI";
-  if (outcome.stopStatus === "timeout" || outcome.key === "timeout") return "TIẾN TRÌNH BỊ CẮT";
+  if (outcome.stopStatus === "timeout" || counterTimedOut(outcome)) return "TIẾN TRÌNH BỊ CẮT";
   if (outcome.stopStatus === "resource_limit") return "BỘ NHỚ QUÁ TẢI";
   if (outcome.stopStatus === "blocked_import") return "MÔ-ĐUN BỊ PHONG TỎA";
   const line = outcome.error?.line;
@@ -231,7 +231,7 @@ export function buildTimeline(outcome: RunOutcome, level: LevelDefinition): Fram
   } else {
     const status = counterError
       ? `${outcome.error?.type ?? "LỖI"}: dòng ${outcome.error?.line ?? "?"}`
-      : outcome.key === "timeout"
+      : counterTimedOut(outcome)
         ? "TIẾN TRÌNH BỊ CẮT"
         : outcome.key === "wrong_value_counter"
           ? "LỆCH MẪU"

@@ -1,7 +1,7 @@
 # Level 2.7 – BOSS "Trạm Sentinel"
 
 > Chương 2 – Trạm Sentinel · Độ khó: Boss · Khái niệm: tổng hợp Chương 2 (so sánh và `bool`, `if`, `else`, `elif` và thứ tự nhánh, `and`/`or`/`not` và ngoặc, điều kiện lồng, chuỗi rỗng coi là sai), cộng đổi kiểu dữ liệu từ kênh nhập (1.4, 1.6)
-> Câu đố: `src/levels/level-2-7.json` (chưa dựng). Câu chữ người chơi đọc: tài liệu `level:2.7` ở D1 (câu ban đầu vào `db/migrations/0017_content_level_2_7.sql`); GDD chỉ ghi ý đồ (`design/quyet-dinh/nguon-duy-nhat-cho-cau-chu.md`). Khung chương: `design/gdd-chuong-2.md` mục 6.7 và 8. Hạ tầng: `docs/hop-dong-engine-chuong-2.md` (thắng tài liệu này khi khác nhau). Brainstorm: `design/quyet-dinh/level-2-7-boss-tram-sentinel.md`.
+> Câu đố: `src/levels/level-2-7.json`. Câu chữ người chơi đọc: tài liệu `level:2.7` ở D1 (câu ban đầu vào `db/migrations/0017_content_level_2_7.sql`); GDD chỉ ghi ý đồ (`design/quyet-dinh/nguon-duy-nhat-cho-cau-chu.md`). Khung chương: `design/gdd-chuong-2.md` mục 6.7 và 8. Hạ tầng: `docs/hop-dong-engine-chuong-2.md` (thắng tài liệu này khi khác nhau). Brainstorm: `design/quyet-dinh/level-2-7-boss-tram-sentinel.md`.
 > Mọi con số trong tài liệu này đo bằng harness thật (`run_level`, python3 3.13.2 và 3.14, cùng kết quả) ngày 30/10/2026.
 
 ## 0. Khác với phác thảo ở `design/gdd-chuong-2.md` mục 6.7
@@ -449,7 +449,7 @@ Câu chữ: `outro`, `lore_fragment`, `outro_beats` (D1, `level:2.7`). 2.7 khôn
 | 4 | `echo` | | | `omni_layer` | ECHO xác nhận một sự kiện kiểm được: tín hiệu 0xA7 lần này phát ra từ chính tháp Sentinel, tức là từ trong mạng của OMNI. ECHO không suy đoán thêm |
 | 5 | `kai` | | | | Kai cất mảnh, không trả lời 0xA7 |
 
-`fxSupported` đã kiểm: `focus` có trên `tram-sentinel` (tháp, điểm 69, 16); `fragment_found` chỉ có trên nền thành phố (`thanh-pho`); `signal_0xa7`, `omni_layer` vẽ trên mọi nền. Khi phông mới của Chương 2 có (phase I), các nhịp này vẫn dùng `tram-sentinel`, vì đó đúng là nơi xảy ra.
+`fxSupported` đã kiểm: `focus` có trên `tram-sentinel` (tháp, điểm 69, 16); `fragment_found` chỉ có trên nền thành phố (`thanh-pho`); `signal_0xa7`, `omni_layer` vẽ trên mọi nền. Các nhịp này dùng `tram-sentinel` vì đó đúng là nơi xảy ra.
 
 Nhịp 4 phải qua `findEchoLeak` (từ cấm ở mục 9).
 
@@ -498,7 +498,7 @@ Câu chữ: `knowledge_summary` (D1, `level:2.7`). Giọng tổng kết kỹ thu
 `src/levels/level-2-7.json`:
 
 - `id` `"2.7"`, `chapter` 2, `title` "Trạm Sentinel", `difficulty` `"boss"`;
-- `concepts`: `comparison`, `if`, `else`, `elif`, `boolean_operators`, `nested_if`, `input`, `type_conversion` (tên khái niệm theo cách các màn 2.1–2.6 đặt; phase I thống nhất);
+- `concepts`: `comparison`, `if`, `else`, `elif`, `boolean_operators`, `nested_if`, `input`, `type_conversion` (tên khái niệm theo cách các màn 2.1–2.6 đặt);
 - `simulation`: `{"kind": "patrol", "decision": {"line": 4}}`;
 - `starter_code` như mục 3; `locked_lines` `[2, 3, 4]`; `inputs` `["tam_quet", "camera_bat", "den_pha"]`;
 - 4 mục tiêu `output_line` (dòng 1–4);

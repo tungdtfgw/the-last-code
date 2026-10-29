@@ -1,5 +1,5 @@
 import type { Cue } from "../audio/sound-recipes";
-import type { OutputReport, RunOutcome } from "../game/classify-run";
+import { counterTimedOut, type OutputReport, type RunOutcome } from "../game/classify-run";
 import { outputObjectives, type LevelDefinition } from "../game/level-types";
 import { gateFor } from "../game/terminal-lines";
 import { emittedSlot, extraSlot, fillUnsent, firstProblem, idleSlots, type OutputSlot } from "./output-slots-model";
@@ -236,7 +236,7 @@ export function buildInterrogationTimeline(outcome: RunOutcome, level: LevelDefi
     channel: counterEof ? ("empty" as const) : ("idle" as const),
     promptMarks: promptMarksFor(outcome.counterOutput, outcome.counterPrompts),
   };
-  const cWave = answerWave(frames, cAnswering, outcome.counterOutput, counterError || outcome.key === "timeout" ? { label: breakLabel } : null);
+  const cWave = answerWave(frames, cAnswering, outcome.counterOutput, counterError || counterTimedOut(outcome) ? { label: breakLabel } : null);
   const cAfter = { ...cAnswering, slots: cWave.slots, extra: cWave.extra };
   const gate = gateFor(outcome);
 
@@ -253,7 +253,7 @@ export function buildInterrogationTimeline(outcome: RunOutcome, level: LevelDefi
     ? EMPTY_CHANNEL
     : counterError
       ? `${outcome.error?.type ?? "LỖI"}: dòng ${outcome.error?.line ?? "?"}`
-      : outcome.key === "timeout"
+      : counterTimedOut(outcome)
         ? "TIẾN TRÌNH BỊ CẮT"
         : (bad?.label ?? "LỆCH MẪU");
   frames.push({ scene: { ...cAfter, status: `TRẠM VỀ MỘT NỬA · ${reason}` }, hold: 0, cues: ["alarm"] });

@@ -1,7 +1,15 @@
-import type { HarnessOutput, HarnessTestResult, RunnerResult, VarHistoryEntry } from "../engine/harness-types";
+import type { HarnessOutput, HarnessStatus, HarnessTestResult, RunnerResult, VarHistoryEntry } from "../engine/harness-types";
 import { alertPercent, isCaught } from "./alert";
 import { computeStars, type Stars } from "./compute-stars";
-import { VALUE_TYPES, varObjectives, type InputValue, type LevelDefinition, type ReactionKey, type ValueType } from "./level-types";
+import {
+  VALUE_TYPES,
+  varObjectives,
+  type ExpectedValue,
+  type InputValue,
+  type LevelDefinition,
+  type ReactionKey,
+  type ValueType,
+} from "./level-types";
 
 export interface VarVerdict {
   name: string;
@@ -82,6 +90,8 @@ export interface RunOutcome {
   counterSurvived: boolean;
   /** The counter-attack phase hung or crashed; the base result is kept. */
   counterAborted?: "timeout" | "engine_error";
+  /** The shown counter-attack test stopped before its end (harness status: `timeout`, `runtime_error`…), whatever the key. */
+  counterStopStatus?: HarnessStatus;
   stdout: string;
   stdoutTruncated: boolean;
   /** Shown apart from stdout, never graded. */
@@ -106,6 +116,16 @@ export interface RunOutcome {
   counterPrompts?: string[];
   /** Every base test as a scan round, when the level has two or more and they ran. */
   rounds?: RoundVerdict[];
+  /**
+   * Statement lines the shown test never ran (its run went to the end); absent when none.
+   * The shown test is the failed counter-attack test when the base passed and the counter-attack
+   * did not, otherwise the shown base test.
+   */
+  skippedLines?: number[];
+  /** The round those lines belong to (1-based), when they come from a base test of a level with rounds. */
+  skippedRound?: number;
+  /** The lines come from the failed counter-attack test. */
+  skippedCounter?: boolean;
   details: OutcomeDetails;
 }
 
@@ -160,7 +180,8 @@ const names = (vs: VarVerdict[]) => vs.map((v) => v.name).join(", ");
  * `type_mismatch_unknown_shape` refines `type_mismatch`, `output_is_label` refines
  * `output_mismatch`, `string_repeated` refines `ValueError`, `type_mismatch` and `wrong_value`,
  * `value_overwritten` refines `wrong_value`, `EOFError` refines `runtime_error`,
- * `output_has_prompt` refines every output key whose line was printed).
+ * `output_has_prompt` refines every output key whose line was printed, `wrong_branch` refines
+ * `wrong_value`, `output_mismatch`, `output_case_only` and `wrong_value_counter`).
  * One is returned only when the level writes a line for it; otherwise the general key
  * applies. Every optional key is gated here and nowhere else.
  */
@@ -214,6 +235,76 @@ function outputHasPrompt(o: OutputReport, out_line: number | undefined, prompts:
     const text = p.normalize("NFC").trimEnd();
     return text !== "" && actual.includes(text) && !expected.includes(text);
   });
+}
+
+/**
+ * Python's `repr` of a `str`, as the harness previews it: `'NAP'`, `"it's"`. Escapes only
+ * `\\`, `\n`, `\r`, `\t`; other unprintable characters differ from Python's, so such a value
+ * simply never matches (the run falls back to `wrong_value`).
+ */
+export function pyStrRepr(text: string): string {
+  const quote = text.includes("'") && !text.includes('"') ? '"' : "'";
+  let out = "";
+  for (const ch of text) {
+    if (ch === "\\") out += "\\\\";
+    else if (ch === "\n") out += "\\n";
+    else if (ch === "\r") out += "\\r";
+    else if (ch === "\t") out += "\\t";
+    else if (ch === quote) out += `\\${quote}`;
+    else out += ch;
+  }
+  return quote + out + quote;
+}
+
+/** What every other test (base and counter) of the level expects, per objective. */
+interface OtherExpectations {
+  vars: Map<string, ExpectedValue[]>;
+  lines: Map<number, string[]>;
+}
+
+function otherExpectations(level: LevelDefinition, kind: "base" | "counter", index: number): OtherExpectations {
+  const vars = new Map<string, ExpectedValue[]>();
+  const lines = new Map<number, string[]>();
+  const add = <K, V>(m: Map<K, V[]>, k: K, v: V) => m.set(k, [...(m.get(k) ?? []), v]);
+  const tests = [
+    ...level.tests.map((t, i) => ({ t, kind: "base", i })),
+    ...level.counter_attack_tests.map((t, i) => ({ t, kind: "counter", i })),
+  ];
+  for (const { t, kind: k, i } of tests) {
+    if (k === kind && i === index) continue;
+    for (const [name, v] of Object.entries(t.expected)) add(vars, name, v);
+    (t.expected_output ?? []).forEach((line, j) => add(lines, j + 1, line));
+  }
+  return { vars, lines };
+}
+
+/**
+ * A wrong variable holding, with the right type, what another test expects of it:
+ * the code took a real branch, the one of another situation. `bool` and `type`
+ * objectives never count (any wrong `bool` is another test's answer).
+ */
+function isOtherBranchVar(v: VarVerdict | undefined, others: OtherExpectations, level: LevelDefinition): boolean {
+  if (!v || !v.typeOk || v.preview === null || v.expectedType === "bool" || v.expectedType === "type") return false;
+  const preview = v.preview;
+  return (others.vars.get(v.name) ?? []).some((x) => {
+    // NFC on both sides, like the harness's own string comparison.
+    if (v.expectedType === "str") return typeof x === "string" && preview.normalize("NFC") === pyStrRepr(x.normalize("NFC"));
+    if (typeof x !== "number") return false;
+    if (v.expectedType === "int") return Number(preview) === x;
+    return Math.abs(Number(preview) - x) <= level.float_abs_tolerance;
+  });
+}
+
+/** The first wrong variable that can tell a branch: `bool` and `type` objectives are skipped. */
+const firstBranchVar = (wrong: VarVerdict[]): VarVerdict | undefined =>
+  wrong.find((v) => v.expectedType !== "bool" && v.expectedType !== "type");
+
+/** The wrong printed line `out_line` is the line another test expects there (compared after NFC, like the harness). */
+function isOtherBranchLine(o: OutputReport, outLine: number | undefined, others: OtherExpectations): boolean {
+  const bad = o.lines.find((l) => l.line === outLine);
+  if (!bad || bad.actual === null) return false;
+  const actual = bad.actual.normalize("NFC");
+  return (others.lines.get(bad.line) ?? []).some((x) => x.normalize("NFC") === actual);
 }
 
 const history = (r: HarnessTestResult | undefined) => r?.var_history;
@@ -292,6 +383,8 @@ function failureKey(
     if (asLabel.length) return { key: "value_is_label", details: { vars: names(asLabel) } };
     const late = levelHasLine(level, "value_overwritten") ? overwrittenCopies(wrongValue, vs, r.var_history) : [];
     if (late.length && late.length === wrongValue.length) return { key: "value_overwritten", details: { vars: names(late) } };
+    if (levelHasLine(level, "wrong_branch") && isOtherBranchVar(firstBranchVar(wrongValue), otherExpectations(level, r.kind, r.index), level))
+      return { key: "wrong_branch", details: { vars: names(wrongValue) } };
     // `int(tuoi * 100 + cap_do)`: the shape is right, but the digits are the text repeated.
     if (levelHasLine(level, "string_repeated") && wrongValue.every((v) => hasRepeatedInput(v.preview, r.inputs)))
       return { key: "string_repeated", details: { vars: names(wrongValue) } };
@@ -305,6 +398,9 @@ function failureKey(
   }
   if (f.key === "output_mismatch" && levelHasLine(level, "output_is_label") && outputHasLabel(output, f.details.out_line, level)) {
     return { key: "output_is_label", details: f.details };
+  }
+  if (levelHasLine(level, "wrong_branch") && isOtherBranchLine(output, f.details.out_line, otherExpectations(level, r.kind, r.index))) {
+    return { key: "wrong_branch", details: f.details };
   }
   return f;
 }
@@ -360,6 +456,8 @@ export function classifyRun(result: Exclude<RunnerResult, { kind: "not_ready" }>
     stdinRead: shown?.stdin_read,
     prompts: shown?.prompts,
     rounds,
+    skippedLines: shown?.skipped_lines,
+    skippedRound: rounds && shown?.skipped_lines ? shown.index + 1 : undefined,
   };
 
   if (failing) {
@@ -409,6 +507,18 @@ export function classifyRun(result: Exclude<RunnerResult, { kind: "not_ready" }>
     details: { count },
   };
 
+  // Set before any key is chosen: a run over the alert threshold keeps `alert_exceeded`,
+  // but it still lost (or broke off) the counter-attack, and that is what the scenes show.
+  if (counterFailing) {
+    // The run that went wrong is the counter-attack: its unreached lines, not those of a passed round.
+    outcome.skippedLines = counterFailing.skipped_lines;
+    outcome.skippedRound = undefined;
+    outcome.skippedCounter = counterFailing.skipped_lines ? true : undefined;
+  }
+  if (counterFailing && counterFailing.status !== "ok") {
+    outcome.counterStopStatus = counterFailing.status;
+    outcome.error = toError(counterFailing, "counter");
+  }
   if (caught || count > limit) {
     outcome.key = "alert_exceeded";
     return outcome;
@@ -422,7 +532,6 @@ export function classifyRun(result: Exclude<RunnerResult, { kind: "not_ready" }>
     return outcome;
   }
   if (counterFailing && counterVars) {
-    outcome.error = toError(counterFailing, "counter");
     const line = counterFailing.error?.line ?? undefined;
     if (counterFailing.status === "timeout") {
       outcome.key = "timeout";
@@ -437,9 +546,15 @@ export function classifyRun(result: Exclude<RunnerResult, { kind: "not_ready" }>
         outcome.details = { ...outcome.details, vars: names(wrongShape) };
       } else {
         // A wrong value or a wrong output line: the code was written for the old data.
-        outcome.key = "wrong_value_counter";
+        const wrong = counterVars.filter((v) => !v.valueOk);
         const out = outcome.counterOutput && outputFailure(outcome.counterOutput);
-        outcome.details = { ...outcome.details, vars: names(counterVars.filter((v) => !v.valueOk)), out_line: out?.details.out_line };
+        outcome.details = { ...outcome.details, vars: names(wrong), out_line: out?.details.out_line };
+        // ...or it took the branch of another situation (no `round`: this is the counter-attack).
+        const others = otherExpectations(level, "counter", counterFailing.index);
+        const otherBranch = wrong.length
+          ? isOtherBranchVar(firstBranchVar(wrong), others, level)
+          : !!outcome.counterOutput && isOtherBranchLine(outcome.counterOutput, out?.details.out_line, others);
+        outcome.key = levelHasLine(level, "wrong_branch") && otherBranch ? "wrong_branch" : "wrong_value_counter";
       }
     }
     return outcome;
@@ -448,3 +563,6 @@ export function classifyRun(result: Exclude<RunnerResult, { kind: "not_ready" }>
   outcome.key = counterSurvived ? "three_stars" : "generic";
   return outcome;
 }
+
+/** The counter-attack test ran out of time (the key may be `timeout`, or `alert_exceeded` on a one-star run). */
+export const counterTimedOut = (o: RunOutcome): boolean => o.key === "timeout" || o.counterStopStatus === "timeout";

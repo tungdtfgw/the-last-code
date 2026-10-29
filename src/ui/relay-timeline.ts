@@ -1,5 +1,5 @@
 import type { Cue } from "../audio/sound-recipes";
-import type { OutputReport, RunOutcome } from "../game/classify-run";
+import { counterTimedOut, type OutputReport, type RunOutcome } from "../game/classify-run";
 import { outputObjectives, simulationOf, type LevelDefinition } from "../game/level-types";
 import { gateFor, type GateState } from "../game/terminal-lines";
 import { emittedSlot, extraSlot, fillUnsent, firstProblem, idleSlots, type OutputSlot } from "./output-slots-model";
@@ -166,7 +166,7 @@ export function buildRelayTimeline(outcome: RunOutcome, level: LevelDefinition):
   }
 
   const counterError = outcome.error?.phase === "counter";
-  const cWave = playWave(frames, cBase, outcome.counterOutput, counterError || outcome.key === "timeout" ? { label: breakLabel } : null);
+  const cWave = playWave(frames, cBase, outcome.counterOutput, counterError || counterTimedOut(outcome) ? { label: breakLabel } : null);
   const cAfter = { ...cBase, slots: cWave.slots, extra: cWave.extra, wavesLit: cWave.lit };
   const gate = gateFor(outcome);
 
@@ -181,7 +181,7 @@ export function buildRelayTimeline(outcome: RunOutcome, level: LevelDefinition):
   const bad = firstProblem(cWave.slots, cWave.extra);
   const reason = counterError
     ? `${outcome.error?.type ?? "LỖI"}: dòng ${outcome.error?.line ?? "?"}`
-    : outcome.key === "timeout"
+    : counterTimedOut(outcome)
       ? "TIẾN TRÌNH BỊ CẮT"
       : bad
         ? slotLabel(bad)

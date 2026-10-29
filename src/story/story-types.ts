@@ -20,6 +20,12 @@ export const BACKDROPS = [
   "tram-tham-van",
   "cong-kiem-soat",
   "tram-sentinel",
+  "duong-ong",
+  "hang-rao-ngoai",
+  "bai-container",
+  "thap-den-pha",
+  "nga-tu-tuan-tra",
+  "tram-sac",
 ] as const;
 export type Backdrop = (typeof BACKDROPS)[number];
 
@@ -68,7 +74,13 @@ export interface ChapterDefinition {
   title: string;
   /** Level ids in play order. An id without a level file is "not built yet". */
   levels: string[];
+  /** Number of slots on the chapter's component bar (the name is from chapter 1, where the bar is the Neural-ID). */
   neural_id_slots: number;
+  /** The component bar's name and the name of one slot ("Neural-ID giả" / "Thành phần"). */
+  component_bar: { label: string; unit: string };
+  /** The two ends of the trail on the chapter map. */
+  map: { from: string; to: string };
+  /** The chapter's opening; `teaser` is its ending. */
   prologue: StoryBeat[];
   teaser: StoryBeat[];
 }

@@ -228,8 +228,8 @@ Luật cũ giữ nguyên: `int`, `float`, `round` và `forbidden_terms` bị c�
 
 Người mới học `if` không thấy được mã đã đi qua nhánh nào khi kết quả sai. Chương 2 thêm đúng một thứ cho việc này:
 
-- **Harness:** mỗi kết quả test có thêm `skipped_lines`: các dòng mở đầu câu lệnh (`_statement_lines`) **không chạy lần nào** trong test đó, sắp tăng dần, tối đa 200. Chỉ có khi `status == "ok"` (chạy hết, không lỗi) và danh sách khác rỗng. Lượt lỗi đã có traceback chỉ dòng; mã chạy thẳng (mọi màn Chương 1) không có dòng nào bị bỏ, nên Chương 1 không đổi gì.
-- **Phân loại:** `RunOutcome.skippedLines` là của test đang hiện (tình huống sai đầu tiên, hoặc tình huống 1).
+- **Harness:** mỗi kết quả test có thêm `skipped_lines`: các dòng mở đầu câu lệnh (`_statement_lines`) **không chạy lần nào** trong test đó, sắp tăng dần, tối đa 200. Chỉ có khi `status == "ok"` (chạy hết, không lỗi) và danh sách khác rỗng. Điều kiện của `if`/`elif`/`while` viết xuống dòng dưới từ khóa (`if (` rồi `a > 3` ở dòng sau) vẫn tính dòng từ khóa là đã chạy: CPython báo sự kiện dòng ở dòng của điều kiện (bổ sung 30/10/2026; cách đếm câu lệnh không đổi). Lượt lỗi đã có traceback chỉ dòng; mã chạy thẳng (mọi màn Chương 1) không có dòng nào bị bỏ, nên Chương 1 không đổi gì.
+- **Phân loại:** `RunOutcome.skippedLines` là của test đang hiện (tình huống sai đầu tiên, hoặc tình huống 1). Khi mọi tình huống cơ bản qua mà lượt phản công trượt, đó là test phản công trượt (`skippedCounter`, không có `skippedRound`); terminal ghi `> KHÔNG CHẠY KHI OMNI PHẢN CÔNG: dòng …`, editor ghi "Không chạy khi OMNI phản công". Bổ sung ngày 30/10/2026: lấy dòng của tình huống 1 (đã qua) thì chỉ người chơi vào chỗ không sai.
 - **Editor:** sau khi mô phỏng phát xong, các dòng trong `skippedLines` mờ đi, có gutter "–" và `title` "Không chạy ở tình huống n". Sửa code thì xóa ngay. Giảm chuyển động: hiện ngay, không chuyển màu dần.
 - **Terminal:** một dòng `> KHÔNG CHẠY Ở TÌNH HUỐNG n: dòng 5, 6`, đặt trước dòng kết quả cuối, chỉ khi có `skippedLines`.
 - unittest Python: `if` đúng/sai, `elif`, `else`, lồng nhau, lượt lỗi (không có trường), mã thẳng (không có trường).

@@ -3,7 +3,7 @@ import { PYODIDE_MODULE_URL } from "../../src/engine/pyodide-config";
 import { SOLUTION_67, enterMission, replaceEditableCode, runAndWait, waitForPythonReady, continueFromResults } from "./helpers";
 
 // Game shell: title → prologue → level → transition → next level, and direct links.
-// The chapter's end (after-1.7 → teaser → map) is covered by level-1-7.spec.ts.
+// after-1.7 → teaser is covered by level-1-7.spec.ts; chapter 2 by chapter-2-flow.spec.ts.
 
 type Probe = { event: string }[];
 const instrument = (page: Page) =>
@@ -13,6 +13,19 @@ const instrument = (page: Page) =>
 const events = (page: Page) =>
   page.evaluate(() => (window as unknown as { __TLC_AUDIO_PROBE__: Probe }).__TLC_AUDIO_PROBE__.map((e) => e.event));
 const node = (page: Page, id: string) => page.locator(`.map-node[data-level="${id}"]`);
+
+const CHAPTER_1 = ["1.1", "1.2", "1.3", "1.4", "1.5", "1.6", "1.7"];
+/** Old local progress, folded into the account on entry: three stars on `ids`, `seen` stories seen. */
+const seed = (page: Page, ids: string[], seen: string[]) =>
+  page.addInitScript(
+    ({ ids, seen }) => {
+      const levels = Object.fromEntries(
+        ids.map((id) => [id, { draft: null, bestStars: 3, runs: 1, hintsOpened: 0, updatedAt: new Date().toISOString() }]),
+      );
+      localStorage.setItem("the-last-code:progress:v1", JSON.stringify({ schemaVersion: 1, levels, story: { seen } }));
+    },
+    { ids, seen },
+  );
 
 async function startFromTitle(page: Page) {
   await page.goto("/");
@@ -66,7 +79,7 @@ test("new player: title → prologue → level gate → map, one AudioContext th
 
   await page.goto("/");
   await expect(page.getByRole("button", { name: "TIẾP TỤC" })).toBeFocused();
-  await expect(page.getByRole("button", { name: "BẢN ĐỒ VÙNG TỐI" })).toBeVisible();
+  await expect(page.getByRole("button", { name: "BẢN ĐỒ", exact: true })).toBeVisible();
 });
 
 test.describe("with Python", () => {
@@ -134,8 +147,10 @@ test("direct links: story gate before any gesture; unbuilt levels and unearned t
   await expect(page.getByRole("button", { name: /BỎ QUA/ })).toBeVisible();
   await expect.poll(() => events(page)).toContain("context");
 
-  // No level of the chapter is unbuilt any more: an id outside it stands in.
-  await page.goto("/#/level/2.1");
+  // Every level of both chapters is built: an id outside them stands in.
+  await page.goto("/#/level/3.1");
+  await expect(page).toHaveURL(/#\/map$/);
+  await page.goto("/#/story/prologue-2");
   await expect(page).toHaveURL(/#\/map$/);
   await page.goto("/#/story/teaser");
   await expect(page).toHaveURL(/#\/map$/);
@@ -149,4 +164,34 @@ test("direct links: story gate before any gesture; unbuilt levels and unearned t
   await page.goto("/#/story/%E0");
   await page.reload();
   await expect(page.getByRole("heading", { name: "MÃ CUỐI CÙNG" })).toBeVisible();
+});
+
+test("the end of chapter 1 leads into chapter 2; replayed from the map it only goes back", async ({ page }) => {
+  await seed(page, CHAPTER_1, ["prologue", ...CHAPTER_1.map((id) => `after-${id}`)]);
+  await page.goto("/#/story/teaser");
+  await page.getByRole("button", { name: "TIẾP TỤC ĐOẠN TRUYỆN" }).click();
+  await page.keyboard.press("Escape");
+
+  // Played through: TIẾP TỤC (focused) into the next chapter, VỀ BẢN ĐỒ beside it.
+  const onward = page.getByRole("button", { name: "TIẾP TỤC", exact: true });
+  await expect(onward).toBeFocused();
+  await expect(page.getByRole("button", { name: "VỀ BẢN ĐỒ" })).toBeVisible();
+  await page.keyboard.press("Enter");
+  await expect(page).toHaveURL(/#\/story\/prologue-2$/);
+  await page.keyboard.press("Escape");
+  await expect(page).toHaveURL(/#\/level\/2\.1$/);
+  await expect(page.getByRole("button", { name: "VÀO NHIỆM VỤ" })).toBeVisible();
+
+  // Chapter 1's map still counts out of 21 and lists the ending for replay.
+  await page.goto("/#/map/1");
+  await expect(page.getByTestId("chapter-stars")).toHaveText("21/21");
+  await page.getByRole("button", { name: "Hết chương 1" }).click();
+  await expect(page).toHaveURL(/#\/story\/teaser$/);
+  await page.keyboard.press("Escape");
+  await expect(page.getByRole("button", { name: "TIẾP TỤC", exact: true })).toHaveCount(0);
+  const back = page.getByRole("button", { name: "VỀ BẢN ĐỒ" });
+  await expect(back).toBeFocused();
+  await back.click();
+  await expect(page).toHaveURL(/#\/map(\/1)?$/);
+  await expect(node(page, "1.1")).toBeVisible();
 });

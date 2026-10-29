@@ -1,0 +1,203 @@
+{
+  "schema_version": 1,
+  "id": "2.6",
+  "chapter": 2,
+  "title": "Bảng lệnh trạm sạc",
+  "difficulty": "medium",
+  "concepts": [
+    "nested_if",
+    "empty_string"
+  ],
+  "simulation": {
+    "kind": "patrol",
+    "decision": {
+      "line": 1
+    }
+  },
+  "knowledge_summary": {
+    "sections": [
+      {
+        "code": "co_mua = True\nco_o = False\nif co_mua:\n    if co_o:\n        print(\"Mo o\")\n    else:\n        print(\"Tim cho tru\")\nelse:\n    print(\"Di bo\")",
+        "output": "Tim cho tru"
+      },
+      {
+        "code": "print(bool(\"\"))\nprint(bool(\" \"))\nprint(bool(\"A\"))",
+        "output": "False\nTrue\nTrue"
+      },
+      {
+        "code": "ten = input()\nif ten:\n    print(\"Chao\", ten)\nelse:\n    print(\"Chua nhap ten\")",
+        "stdin": "\n",
+        "output": "Chua nhap ten"
+      },
+      {
+        "code": "ten = input()\nif ten != \"\":\n    print(\"Chao\", ten)\nelse:\n    print(\"Chua nhap ten\")",
+        "stdin": "Lan\n",
+        "output": "Chao Lan"
+      },
+      {
+        "code": "co_ve = True\ntuoi = 10\nif co_ve:\n    if tuoi >= 12:\n        print(\"Vao\")\nif co_ve and tuoi >= 12:\n    print(\"Vao\")\nprint(\"Het\")",
+        "output": "Het"
+      }
+    ],
+    "mistakes": [
+      {
+        "code": "diem = input()\nif diem < 50:\n    print(\"Thi lai\")",
+        "error": "TypeError: '<' not supported between instances of 'str' and 'int'"
+      },
+      {
+        "code": "a = True\nb = False\nif a:\n    if b:\n        print(\"B\")\nelse:\n    print(\"Khong A\")",
+        "error": "Không báo lỗi, nhưng không in gì"
+      },
+      {
+        "code": "ten = \" \"\nif ten:\n    print(\"Co ten\")",
+        "error": "Không báo lỗi, nhưng in ra: Co ten"
+      }
+    ]
+  },
+  "starter_code": "# Bảng lệnh gửi 2 dòng qua kênh nhập: mã lệnh (có thể trống), rồi mức pin\nma_lenh = input()\npin = input()\n\nif pin < 30:\n    print(\"LENH: DI\")\nelif ma_lenh == \"XUAT KICH\":\n    print(\"LENH: NAP\")\nelse:\n    print(\"LENH: CHO\")\n",
+  "locked_lines": [],
+  "inputs": [],
+  "objectives": [
+    {
+      "kind": "output_line",
+      "line": 1
+    }
+  ],
+  "alert_limit_statements": 6,
+  "float_abs_tolerance": 1e-09,
+  "tests": [
+    {
+      "inputs": {},
+      "stdin": [
+        "XUAT KICH",
+        "80"
+      ],
+      "expected": {},
+      "expected_output": [
+        "LENH: NAP"
+      ]
+    },
+    {
+      "inputs": {},
+      "stdin": [
+        "",
+        "12"
+      ],
+      "expected": {},
+      "expected_output": [
+        "LENH: DI"
+      ]
+    },
+    {
+      "inputs": {},
+      "stdin": [
+        "",
+        "75"
+      ],
+      "expected": {},
+      "expected_output": [
+        "LENH: CHO"
+      ]
+    },
+    {
+      "inputs": {},
+      "stdin": [
+        "VE TRAM",
+        "5"
+      ],
+      "expected": {},
+      "expected_output": [
+        "LENH: CHO"
+      ]
+    }
+  ],
+  "counter_attack_tests": [
+    {
+      "inputs": {},
+      "stdin": [
+        "",
+        "30"
+      ],
+      "expected": {},
+      "expected_output": [
+        "LENH: CHO"
+      ]
+    },
+    {
+      "inputs": {},
+      "stdin": [
+        "XUAT KICH",
+        "3"
+      ],
+      "expected": {},
+      "expected_output": [
+        "LENH: NAP"
+      ]
+    },
+    {
+      "inputs": {},
+      "stdin": [
+        " ",
+        "10"
+      ],
+      "expected": {},
+      "expected_output": [
+        "LENH: CHO"
+      ]
+    }
+  ],
+  "forbidden_terms": [
+    "and",
+    "or",
+    "not",
+    "if",
+    "elif",
+    "else",
+    "==",
+    "!=",
+    "<=",
+    ">=",
+    "<",
+    ">",
+    "lồng",
+    "lồng nhau",
+    "thụt lề",
+    "đảo thứ tự",
+    "dấu hai chấm",
+    "đổi kiểu",
+    "ép kiểu",
+    "chuyển kiểu",
+    "lớn hơn hoặc bằng",
+    "nhỏ hơn hoặc bằng",
+    "ma_lenh",
+    "LENH",
+    "XUAT KICH",
+    "VE TRAM",
+    "10",
+    "12",
+    "30",
+    "75",
+    "80"
+  ],
+  "scene": "tram-sac",
+  "outro_beats": [
+    {
+      "kind": "log",
+      "backdrop": "tram-sac",
+      "cue": "siren",
+      "fx": "focus"
+    },
+    {
+      "kind": "echo",
+      "fx": "alert_tick"
+    },
+    {
+      "kind": "kai"
+    },
+    {
+      "kind": "echo",
+      "backdrop": "tram-sentinel",
+      "fx": "id_bar"
+    }
+  ]
+}

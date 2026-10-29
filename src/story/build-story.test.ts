@@ -1,11 +1,14 @@
 import { describe, expect, test } from "vitest";
+import fake1 from "../../tests/fixtures/chapters/chapter-test-1.json";
+import fake2 from "../../tests/fixtures/chapters/chapter-test-2.json";
 import { realChapter, realLevelJson, registryOf } from "../../tests/content-fixture";
 import { buildStory } from "./build-story";
-import { buildChapterContext } from "./progression";
+import { buildGameContext } from "./progression";
+import type { ChapterDefinition } from "./story-types";
 
 const level14 = realLevelJson("1.4");
 const chapter = realChapter();
-const ctxOf = (level: object) => buildChapterContext(chapter, registryOf({ "./l.json": level }));
+const ctxOf = (level: object) => buildGameContext([chapter], [], registryOf({ "./l.json": level }));
 
 describe("buildStory", () => {
   test("after-1.4: outro → lore → component card → outro beats", () => {
@@ -40,5 +43,22 @@ describe("buildStory", () => {
     expect(buildStory("teaser", ctx)).toHaveLength(9);
     expect(buildStory("after-1.5", ctx)).toBeNull();
     expect(buildStory("nope", ctx)).toBeNull();
+  });
+});
+
+describe("a later chapter", () => {
+  const [c1, c2] = [fake1, fake2] as unknown as ChapterDefinition[];
+  const ctx = buildGameContext([c1, { ...c2, neural_id_slots: 2 }], [], registryOf({ "./l.json": { ...level14, id: "9.4" } }));
+
+  test("its component card names its own bar", () => {
+    expect(buildStory("after-9.4", ctx)!.find((b) => b.kind === "card")).toMatchObject({ text: "BỘ LUẬT THỬ · LUẬT 2/2: Dữ liệu sinh trắc", flashSlot: 1 });
+  });
+
+  test("its opening and ending are its own beats; chapter 1 keeps the unnumbered ids", () => {
+    expect(buildStory("prologue-2", ctx)).toBe(ctx.chapters[1].prologue);
+    expect(buildStory("teaser-2", ctx)).toBe(ctx.chapters[1].teaser);
+    expect(buildStory("prologue", ctx)).toBe(ctx.chapters[0].prologue);
+    expect(buildStory("prologue-1", ctx)).toBeNull();
+    expect(buildStory("teaser-3", ctx)).toBeNull();
   });
 });

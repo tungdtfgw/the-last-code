@@ -1,6 +1,6 @@
 import type { Cue } from "../audio/sound-recipes";
 import type { VarHistoryEntry } from "../engine/harness-types";
-import type { RunOutcome, VarVerdict } from "../game/classify-run";
+import { counterTimedOut, type RunOutcome, type VarVerdict } from "../game/classify-run";
 import { simulationOf, varObjectives, type InputValue, type LevelDefinition } from "../game/level-types";
 import { formatPyLiteral } from "../game/python-literal";
 import { gateFor, type GateState } from "../game/terminal-lines";
@@ -250,7 +250,7 @@ export function buildKioskTimeline(outcome: RunOutcome, level: LevelDefinition):
 
   const cWave = new Wave(frames, cBase, ids);
   cWave.play(outcome.counterHistory, outcome.counterHistoryTruncated, outcome.counterVars, COUNTER_STEP, []);
-  if (outcome.error?.phase === "counter" || outcome.key === "timeout") {
+  if (outcome.error?.phase === "counter" || counterTimedOut(outcome)) {
     cWave.broke(outcome, `CỔNG SẬP VỀ NỬA · ${errorStatus(outcome)}`);
     return frames;
   }

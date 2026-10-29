@@ -5,6 +5,7 @@ import { FenceSimulation } from "./fence-simulation";
 import { InterrogationSimulation } from "./interrogation-simulation";
 import { CheckpointSimulation } from "./checkpoint-simulation";
 import { KioskSimulation } from "./kiosk-simulation";
+import { PatrolSimulation } from "./patrol-simulation";
 import { RelaySimulation } from "./relay-simulation";
 import { ScannerSimulation } from "./scanner-simulation";
 import { SorterSimulation } from "./sorter-simulation";
@@ -44,6 +45,8 @@ export function LevelSimulation(props: SimulationProps) {
       return <InterrogationSimulation {...props} />;
     case "checkpoint":
       return <CheckpointSimulation {...props} />;
+    case "patrol":
+      return <PatrolSimulation {...props} />;
     case "scanner":
       return <ScannerSimulation {...props} />;
   }

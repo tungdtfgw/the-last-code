@@ -1,5 +1,5 @@
 import { formatAlertPercent } from "./alert";
-import type { OutputReport, RunOutcome, VarVerdict } from "./classify-run";
+import { counterTimedOut, type OutputReport, type RunOutcome, type VarVerdict } from "./classify-run";
 import { BASE_TYPES, type LevelDefinition } from "./level-types";
 import { formatPyLiteral } from "./python-literal";
 import { describeLine } from "./output-diff";
@@ -139,6 +139,21 @@ const alertLine = (outcome: RunOutcome, level: LevelDefinition): TerminalLine[] 
         },
       ];
 
+const skippedWhere = (outcome: RunOutcome, round: string): string =>
+  outcome.skippedCounter ? " KHI OMNI PHẢN CÔNG" : outcome.skippedRound ? ` Ở ${round} ${outcome.skippedRound}` : "";
+
+/** Lines of the shown test that never ran: `> KHÔNG CHẠY Ở TÌNH HUỐNG 2: dòng 5, 6` (`KHI OMNI PHẢN CÔNG` for the counter-attack). */
+const skippedLine = (outcome: RunOutcome, vocab: SimVocabulary): TerminalLine[] =>
+  outcome.skippedLines?.length
+    ? [
+        {
+          tone: "muted",
+          text: `> KHÔNG CHẠY${skippedWhere(outcome, vocab.round)}: dòng ${outcome.skippedLines.join(", ")}`,
+          jumpLine: outcome.skippedLines[0],
+        },
+      ]
+    : [];
+
 /** The in-world log for one run (GDD 4.2). Pure, so it can be tested and rendered as text nodes. */
 export function buildTerminalLines(outcome: RunOutcome, level: LevelDefinition, runNumber: number): TerminalLine[] {
   const vocab = vocabularyFor(level);
@@ -168,7 +183,7 @@ export function buildTerminalLines(outcome: RunOutcome, level: LevelDefinition, 
       out.push(...outputLines(outcome.output, vocab));
       out.push(...alertLine(outcome, level));
     }
-    out.push(closed);
+    out.push(...skippedLine(outcome, vocab), closed);
     return out;
   }
 
@@ -178,7 +193,7 @@ export function buildTerminalLines(outcome: RunOutcome, level: LevelDefinition, 
 
   if (outcome.sentinelCaught) {
     out.push({ tone: "alarm", text: "> SENTINEL ĐÃ KHÓA MỤC TIÊU — MỨC CẢNH BÁO: 100%+" });
-    out.push(closed);
+    out.push(...skippedLine(outcome, vocab), closed);
     return out;
   }
   if (outcome.stars === 1) out.push({ tone: "alarm", text: "> TÍN HIỆU BỊ GHI NHẬN: vượt ngưỡng tàng hình" });
@@ -203,7 +218,7 @@ export function buildTerminalLines(outcome: RunOutcome, level: LevelDefinition, 
       out.push({ tone: "ok", text: `> ${vocab.counterSurvived}` });
     } else if (outcome.error?.phase === "counter") {
       out.push(...traceLines(outcome));
-    } else if (outcome.key === "timeout") {
+    } else if (counterTimedOut(outcome)) {
       out.push({ tone: "alarm", text: STOP_TEXT.timeout });
     } else {
       out.push(
@@ -220,6 +235,7 @@ export function buildTerminalLines(outcome: RunOutcome, level: LevelDefinition, 
   }
 
   const gate = gateFor(outcome);
+  out.push(...skippedLine(outcome, vocab));
   out.push(
     gate === "open"
       ? { tone: "ok", text: `> ${vocab.gate}: MỞ HOÀN TOÀN` }

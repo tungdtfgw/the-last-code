@@ -1,8 +1,8 @@
 # Level 2.4 – "Thang báo động"
 
 > Chương 2 – Trạm Sentinel · Độ khó: Medium · Khái niệm: `elif` (nhiều nhánh, chỉ nhánh đúng đầu tiên chạy, thứ tự quan trọng)
-> Câu đố: `src/levels/level-2-4.json` (chưa dựng). Câu chữ người chơi đọc: tài liệu `level:2.4` ở D1 (câu ban đầu sẽ vào `db/migrations/0014_content_level_2_4.sql`, sửa trên `#/admin`); GDD chỉ ghi ý đồ (`design/quyet-dinh/nguon-duy-nhat-cho-cau-chu.md`). Trục truyện và phác câu đố: `design/gdd-chuong-2.md` mục 6.4. Hợp đồng engine (thắng GDD này khi lệch): `docs/hop-dong-engine-chuong-2.md`. Brainstorm: `design/quyet-dinh/level-2-4-thang-bao-dong.md`.
-> Mọi con số trong tài liệu này đo bằng `run_level` thật ngày 30/10/2026 trên python3 3.13.2, chạy lại trên 3.14.8 cho cùng kết quả (chỉ khác lời báo của một `SyntaxError`, ghi ở mục 8.2). `wrong_branch` và `skipped_lines` chưa có trong mã; khóa và dòng mờ ghi ở đây suy ra theo hợp đồng engine mục 5.1 và 6.
+> Câu đố: `src/levels/level-2-4.json`. Câu chữ người chơi đọc: tài liệu `level:2.4` ở D1 (câu ban đầu vào `db/migrations/0014_content_level_2_4.sql`, sửa trên `#/admin`); GDD chỉ ghi ý đồ (`design/quyet-dinh/nguon-duy-nhat-cho-cau-chu.md`). Trục truyện và phác câu đố: `design/gdd-chuong-2.md` mục 6.4. Hợp đồng engine (thắng GDD này khi lệch): `docs/hop-dong-engine-chuong-2.md`. Brainstorm: `design/quyet-dinh/level-2-4-thang-bao-dong.md`.
+> Mọi con số trong tài liệu này đo bằng `run_level` thật ngày 30/10/2026 trên python3 3.13.2, chạy lại trên 3.14.8 cho cùng kết quả (chỉ khác lời báo của một `SyntaxError`, ghi ở mục 8.2). Khóa `wrong_branch` và dòng mờ (`skipped_lines`) đã kiểm lại bằng `tests/integration/level-2-4.test.ts`.
 
 ## 1. Bối cảnh
 
@@ -335,7 +335,7 @@ Không đổi `compute-stars.ts`.
 
 ## 14. Đoạn truyện khi hoàn thành
 
-Câu chữ: `outro`, `lore_fragment`, `component`, `outro_beats` (D1, `level:2.4`). Cảnh: `scene` là `tram-sentinel` cho tới khi phông `thap-den-pha` có (phase I đổi).
+Câu chữ: `outro`, `lore_fragment`, `component`, `outro_beats` (D1, `level:2.4`). Cảnh: `scene` là `thap-den-pha`; nhịp 3 của `outro_beats` có `focus` lên đỉnh tháp.
 
 - `outro`: tháp hạ về mức thấp nhất đúng lúc Kai đi qua chân tháp. Bảng luật của tháp mở trên màn hình bảo trì; ở góc bảng có dòng chú thích của người đặt ngưỡng, dẫn vào mảnh nhật ký.
 - `lore_fragment` (**KTS-02**, mảnh thứ hai; người viết luật cho drone và Trạm Sentinel): các ngưỡng do tám người đặt; con số 60 được chọn trong một buổi chiều, sau đó không ai nghĩ lại. Không nói 60 là ngưỡng của cái gì: nhịp truyện sẽ nói.
@@ -384,13 +384,13 @@ Lỗi thường gặp (`mistakes`): `elif` sau `else` → `SyntaxError` (ghi l�
 
 Câu đố, JSON thắng khi lệch. Câu chữ ở D1 (tài liệu `level:2.4`, migration `0014`).
 
-- `id` `"2.4"`, `chapter` 2, `difficulty` `"medium"`, `concepts` `["elif", "thứ tự nhánh"]`.
+- `id` `"2.4"`, `chapter` 2, `difficulty` `"medium"`, `concepts` `["elif", "branch_order"]`.
 - `simulation`: `{ "kind": "patrol", "decision": { "line": 1 } }`.
 - `starter_code`: mục 5, đúng từng ký tự. `locked_lines` `[2]`, `inputs` `["khoang_cach"]`.
 - `objectives`: `[{ "kind": "output_line", "line": 1 }]` (nhãn ở D1).
 - `tests`, `counter_attack_tests`: mục 8. `alert_limit_statements` 5. `float_abs_tolerance` `1e-9`.
 - `forbidden_terms`: mục 11.
-- `scene` `"tram-sentinel"`; `outro_beats` (khung): `[{ "kind": "log", "fx": "scan" }, { "kind": "kai", "hold_ms": 1500 }, { "kind": "echo" }]`.
+- `scene` `"thap-den-pha"`; `outro_beats` (khung): `[{ "kind": "log", "fx": "scan" }, { "kind": "kai", "hold_ms": 1500 }, { "kind": "echo", "fx": "focus" }]`.
 - Khóa `reactions` bắt buộc có câu: mọi khóa ở mục 11, gồm `wrong_branch`, `output_extra`, `NameError`.
 
 ## 17. Tiêu chí chấp nhận

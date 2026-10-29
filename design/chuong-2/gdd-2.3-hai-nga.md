@@ -1,8 +1,8 @@
 # Level 2.3 – "Hai ngả"
 
 > Chương 2 – Trạm Sentinel · Độ khó: Easy · Khái niệm: `else`; dòng viết sau khối (không thụt lề) luôn chạy
-> Câu đố: `src/levels/level-2-3.json` (chưa dựng). Câu chữ người chơi đọc: tài liệu `level:2.3` ở D1 (câu ban đầu sẽ vào `db/migrations/0013_content_level_2_3.sql`, sửa trên `#/admin`); GDD chỉ ghi ý đồ (`design/quyet-dinh/nguon-duy-nhat-cho-cau-chu.md`). Trục truyện và phác câu đố: `design/gdd-chuong-2.md` mục 6.3. Hợp đồng engine (thắng GDD này khi lệch): `docs/hop-dong-engine-chuong-2.md`. Brainstorm: `design/quyet-dinh/level-2-3-hai-nga.md`.
-> Mọi con số trong tài liệu này đo bằng `run_level` thật ngày 30/10/2026 trên python3 3.13.2, chạy lại trên 3.14.8 cho cùng kết quả. `wrong_branch` và `skipped_lines` chưa có trong mã; khóa và dòng mờ ghi ở đây suy ra theo hợp đồng engine mục 5.1 và 6.
+> Câu đố: `src/levels/level-2-3.json`. Câu chữ người chơi đọc: tài liệu `level:2.3` ở D1 (câu ban đầu vào `db/migrations/0013_content_level_2_3.sql`, sửa trên `#/admin`); GDD chỉ ghi ý đồ (`design/quyet-dinh/nguon-duy-nhat-cho-cau-chu.md`). Trục truyện và phác câu đố: `design/gdd-chuong-2.md` mục 6.3. Hợp đồng engine (thắng GDD này khi lệch): `docs/hop-dong-engine-chuong-2.md`. Brainstorm: `design/quyet-dinh/level-2-3-hai-nga.md`.
+> Mọi con số trong tài liệu này đo bằng `run_level` thật ngày 30/10/2026 trên python3 3.13.2, chạy lại trên 3.14.8 cho cùng kết quả. Khóa `wrong_branch` và dòng mờ (`skipped_lines`) đã kiểm lại bằng `tests/integration/level-2-3.test.ts`.
 
 ## 1. Bối cảnh
 
@@ -309,7 +309,7 @@ Không đổi `compute-stars.ts`.
 
 ## 14. Đoạn truyện khi hoàn thành
 
-Câu chữ: `outro`, `lore_fragment`, `component`, `outro_beats` (D1, `level:2.3`). Cảnh: `scene` là `tram-sentinel` cho tới khi phông `bai-container` có (hợp đồng mục 8, phase I đổi).
+Câu chữ: `outro`, `lore_fragment`, `component`, `outro_beats` (D1, `level:2.3`). Cảnh: `scene` là `bai-container`.
 
 - `outro`: Kai ra tới cuối bãi; đèn pha vẫn quét, mỗi lần dừng đều chiếu vào chỗ Kai vừa rời. Hộp điều khiển đèn còn lưu một bản ghi kiểm thử cũ, dẫn vào mảnh nhật ký.
 - `lore_fragment` (**KTS-07**, mảnh thứ ba; người kiểm thử OMNI): KTS-07 từng đi hết mọi nhánh của OMNI, từng nhánh một, và nhánh nào cũng có lý do. Không nói lý do là gì. Gieo twist chương 6, không lộ.
@@ -359,13 +359,13 @@ Lỗi thường gặp (`mistakes`): `else` có điều kiện → `SyntaxError: 
 
 Câu đố, JSON thắng khi lệch. Câu chữ ở D1 (tài liệu `level:2.3`, migration `0013`).
 
-- `id` `"2.3"`, `chapter` 2, `difficulty` `"easy"`, `concepts` `["else", "khối lệnh"]`.
+- `id` `"2.3"`, `chapter` 2, `difficulty` `"easy"`, `concepts` `["else", "block"]`.
 - `simulation`: `{ "kind": "patrol", "decision": { "var": "huong" } }`.
 - `starter_code`: mục 5, đúng từng ký tự. `locked_lines` `[2]`, `inputs` `["goc_den"]`.
 - `objectives`: `[{ "var": "huong", "type": "str" }, { "kind": "output_line", "line": 1 }]` (nhãn ở D1).
 - `tests`, `counter_attack_tests`: mục 8. `alert_limit_statements` 3. `float_abs_tolerance` `1e-9`.
 - `forbidden_terms`: mục 11.
-- `scene` `"tram-sentinel"`; `outro_beats` (khung, câu ở D1): `[{ "kind": "log", "fx": "focus" }, { "kind": "echo" }, { "kind": "kai" }]`.
+- `scene` `"bai-container"`; `outro_beats` (khung, câu ở D1): `[{ "kind": "log", "fx": "focus" }, { "kind": "echo" }, { "kind": "kai" }]`.
 - Khóa `reactions` bắt buộc có câu: mọi khóa ở mục 11, gồm `wrong_branch`, `missing_var`, `output_is_label`; không cần `EOFError`, `output_has_prompt` (màn không có `stdin`).
 
 ## 17. Tiêu chí chấp nhận

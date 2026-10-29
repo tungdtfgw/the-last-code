@@ -84,6 +84,7 @@ DEFAULT_LIMITS = {
     "max_stdout_chars": 8000,
     "max_stdout_lines": 200,
     "preview_chars": 80,
+    "skipped_lines_max": 200,
     "message_chars": 300,
     "var_history_max": 40,
 }
@@ -444,6 +445,38 @@ def _statement_lines(source):
         return frozenset()
 
 
+def _skippable_lines(source, stmt_lines):
+    """Statement lines that report a line event when they run.
+
+    `global`/`nonlocal` compile to nothing, so a line holding only those would
+    always look skipped.
+    """
+    try:
+        nodes = [n for n in _ast_walk(_ast_parse(source)) if isinstance(n, _ast_stmt)]
+    except BaseException:  # noqa: BLE001 - compile() already accepted the source
+        return stmt_lines
+    traced = {n.lineno for n in nodes if not isinstance(n, (ast.Global, ast.Nonlocal))}
+    return frozenset(n for n in stmt_lines if n in traced)
+
+
+def _condition_lines(source):
+    """Lines of an `if`/`elif`/`while` condition wrapped below its keyword, mapped to the keyword's line.
+
+    CPython reports the line event of such a header on the line of the condition's
+    first instruction (`if (` on line 2, `a > 3` on line 3: the event says 3), so
+    without this the header would look skipped although it ran.
+    """
+    try:
+        nodes = [n for n in _ast_walk(_ast_parse(source)) if isinstance(n, (ast.If, ast.While))]
+    except BaseException:  # noqa: BLE001 - compile() already accepted the source
+        return {}
+    owners = {}
+    for n in nodes:
+        for line in range(n.lineno + 1, (n.test.end_lineno or n.lineno) + 1):
+            owners[line] = n.lineno
+    return owners
+
+
 def _clip(text, limit):
     return text if _len(text) <= limit else text[:limit] + "…"
 
@@ -555,7 +588,9 @@ class _VarHistory:
 
 
 def _run_one(
-    code, lines, stmt_lines, inputs, objectives, expected, tol, limits, expected_output=None, trace_vars=False, stdin=None
+    code, lines, stmt_lines, inputs, objectives, expected, tol, limits, expected_output=None, trace_vars=False, stdin=None,
+    skippable=frozenset(),
+    condition_owner=None,
 ):
     ns = {"__builtins__": _make_builtins(), "__name__": "__main__"}
     ns.update(inputs)
@@ -579,6 +614,8 @@ def _run_one(
     state = {"events": 0, "count": 0, "budget_hit": False}
     _budget["hit"] = False
     last_seen = {}
+    # Statement lines that started at least once: the rest are branches this test never took.
+    executed = set()
 
     # Note: CPython unsets the tracer after it raises. A bare `except:` around an
     # outer infinite loop therefore escapes the line budget; the worker's
@@ -596,7 +633,10 @@ def _run_one(
                 hist.record()
                 if lineno in stmt_lines:
                     hist.stmt_line = lineno
+            if condition_owner and lineno in condition_owner:
+                executed.add(condition_owner[lineno])
             if lineno in stmt_lines:
+                executed.add(lineno)
                 lasti = frame.f_lasti
                 prev = last_seen.get(frame)
                 # Re-entering the same line counts again only after a backward jump
@@ -671,6 +711,11 @@ def _run_one(
         if expected_output is None
         else _grade_output(out.getvalue(), out.truncated, expected_output, limits["preview_chars"]),
     }
+    if status == "ok":
+        # Only for a run that went to the end: a failed run's traceback already points at a line.
+        skipped = sorted(skippable - executed)[: limits["skipped_lines_max"]]
+        if skipped:
+            result["skipped_lines"] = skipped
     if channel is not None:
         result["stdin_read"] = channel["read"]
         result["prompts"] = channel["prompts"]
@@ -738,6 +783,8 @@ def run_level(config_json, source, phase="all"):
         return _json_dumps(report, ensure_ascii=False)
 
     stmt_lines = _statement_lines(source)
+    skippable = _skippable_lines(source, stmt_lines)
+    condition_owner = _condition_lines(source)
 
     def run_suite(kind, tests):
         results = []
@@ -754,6 +801,8 @@ def run_level(config_json, source, phase="all"):
                 test.get("expected_output"),
                 trace_vars,
                 test.get("stdin"),
+                skippable,
+                condition_owner,
             )
             result["kind"] = kind
             result["index"] = index
