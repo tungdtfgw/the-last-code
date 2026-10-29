@@ -20,6 +20,12 @@ export const BACKDROPS = [
   "tram-tham-van",
   "cong-kiem-soat",
   "tram-sentinel",
+  "duong-ong",
+  "hang-rao-ngoai",
+  "bai-container",
+  "thap-den-pha",
+  "nga-tu-tuan-tra",
+  "tram-sac",
 ] as const;
 export type Backdrop = (typeof BACKDROPS)[number];
 
