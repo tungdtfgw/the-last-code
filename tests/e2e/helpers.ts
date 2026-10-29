@@ -170,7 +170,7 @@ export const L13_SOLUTION_3_STARS = [
   "chieu_cao = 1.72",
   "da_tiem = True",
   "",
-  "# Hỏi hình dạng của một giá trị",
+  "# Hỏi kiểu của một giá trị",
   "print(type(ho_ten))",
   "",
   "# Máy quét đòi khuôn của mã phiên",

@@ -21,7 +21,7 @@ Briefing không nêu tên toán tử nào, không viết ký hiệu `**`, `//`, 
 
 Câu chữ: `task_steps` (D1, `level:1.5`) (4 bước). Giọng hướng dẫn, chủ ngữ là người chơi, không chứa giá trị kỳ vọng nào (kể cả của lượt phản công). Bốn bước lần lượt nói:
 
-1. bốn số đo ở dòng khóa đã là số, không cần đổi hình dạng; không sửa dòng khóa;
+1. bốn số đo ở dòng khóa đã là số, không cần đổi kiểu; không sửa dòng khóa;
 2. tính `nang_luong` đúng công thức ở ô Mục tiêu (số đoạn nhân bình phương điện áp, trừ phần dự trữ);
 3. từ `nang_luong`, tính `so_pin` là số pin đầy (số nguyên) và `phan_le` là phần còn lại rút từ pin kế tiếp; đừng gõ tay kết quả, OMNI sẽ đổi số đo;
 4. bấm CHẠY; xong khi cả 3 mục tiêu chuyển xanh; không quá 4 câu lệnh và qua lượt OMNI đổi số đo thì được thêm sao.
@@ -80,13 +80,13 @@ Nhãn hiển thị: `objectives[].label` (D1, `level:1.5`). Nhãn ghi công th�
 - Pin trượt vào giá từng chiếc, mỗi chiếc một tiếng tách; đồng hồ nhích theo. Pin lẻ hiện là một ô pin đổ đầy đúng `phan_le / capacity`.
 - **Đúng:** kim dừng đúng vạch, các cột rào tắt dần từ trái sang, trạng thái "RÀO TẮT MỘT NỬA" (như cổng mở một nửa của 1.4). Cue `gate_open`.
 - **Thiếu:** kim dừng dưới vạch, rào vẫn sáng, nhãn "THIẾU n ĐƠN VỊ". **Thừa:** kim vượt vạch, tia lửa, rào phóng điện, nhãn "THỪA n ĐƠN VỊ". Cue `scan_reject`.
-- **Sai hình dạng** (ví dụ `so_pin` là số thực): ô pin hiện màu `float` (tím) và bị cắt ngang, nhãn "PIN KHÔNG CẮT ĐƯỢC"; giá từ chối. Màu theo bảng `design/gdd.md` mục 5.2.
+- **Sai kiểu** (ví dụ `so_pin` là số thực): ô pin hiện màu `float` (tím) và bị cắt ngang, nhãn "PIN KHÔNG CẮT ĐƯỢC"; giá từ chối. Màu theo bảng `design/gdd.md` mục 5.2.
 - **Giá trị âm:** kim quay ngược quá vạch 0, nhãn "NĂNG LƯỢNG ÂM".
 - **Lỗi lúc chạy, lỗi cú pháp, quá thời gian:** như các mô phỏng khác (đèn đỏ, nhãn lỗi, "TRÌNH DỊCH TỪ CHỐI").
 - **Phản công:** dòng cảnh báo `counter_attack_banner`, màn rung, rào đổi số cột, đồng hồ hiện số đo mới, đợt pin thứ hai chạy. Qua: rào tắt hẳn, "RÀO TẮT HOÀN TOÀN", `gate_open` rồi `star`.
 - Đèn SENTINEL, giảm chuyển động, nút "Bỏ qua hoạt cảnh (Esc)", vùng `aria-live` (ví dụ "Rào nhận 828 trên 828 đơn vị. Rào tắt một nửa.") và bố cục điện thoại theo khuôn các mô phỏng đã có.
 
-**Terminal** (lượt 1, ví dụ): dòng mở theo `sim-vocabulary`, từng biến với hình dạng và giá trị (`nang_luong: int -106`, `so_pin: float -1.06`…), mức cảnh báo, trạng thái rào.
+**Terminal** (lượt 1, ví dụ): dòng mở theo `sim-vocabulary`, từng biến với kiểu và giá trị (`nang_luong: int -106`, `so_pin: float -1.06`…), mức cảnh báo, trạng thái rào.
 
 ## 6. Lời giải tham khảo (đạt 2 sao, trượt phản công)
 
@@ -140,7 +140,7 @@ Câu chữ: `hints`, `reactions`, `reaction_variants` (D1, `level:1.5`).
 | `entry` | Đặt cảnh: Vành Đai Điện, rào chỉ tắt khi nhận đúng lượng năng lượng; bảo chạy một lần và nhìn đồng hồ |
 | `wrong_value` (thường gặp sau khi sửa dòng 11, năng lượng vẫn âm) | Đồng hồ đọc được một con số mà không rào nào cần; một ký hiệu trên dòng tính `{vars}` không phải phép tính người viết định làm |
 | `type_mismatch` (code gốc) | Pin ở dạng số lẻ thập phân; giá pin chỉ nhận pin nguyên |
-| `type_mismatch_value_match` | Con số đúng mà hình dạng sai (ví dụ `8.0`): giá pin vẫn từ chối |
+| `type_mismatch_value_match` | Con số đúng mà kiểu sai (ví dụ `8.0`): giá pin vẫn từ chối |
 | `TypeError`, `ZeroDivisionError`, `NameError` | Nói lỗi bằng từ ngữ của đồng hồ và pin |
 | `alert_exceeded` | Rào tắt nhưng quá nhiều câu lệnh; Sentinel đo được nhịp nạp |
 | `wrong_value_counter` | Viết cứng hoặc làm tròn: tải đổi mà số pin không đổi theo đúng cách, rào nhận thiếu hoặc thừa |
@@ -155,7 +155,7 @@ Khóa lỗi chung theo khuôn 1.4. `reaction_variants` có câu thay thế cho `
 
 | Sao | Điều kiện |
 |---|---|
-| ⭐ | Ba biến đúng hình dạng và giá trị |
+| ⭐ | Ba biến đúng kiểu và giá trị |
 | ⭐⭐ | Thêm: ≤ 4 câu lệnh (≤ 40%) |
 | ⭐⭐⭐ | Thêm: vượt phản công |
 | 0 sao | Trên 10 câu lệnh (> 100%) |
@@ -165,12 +165,12 @@ Không đổi `compute-stars.ts`.
 ## 10. Người chơi lần lượt làm gì
 
 1. Vào màn, briefing gõ chữ, ba mục tiêu khóa vào, ECHO nói `entry`.
-2. **Lượt 1, code gốc:** kim quay ngược, `nang_luong: int -106`, hai pin tím bị cắt. Khóa `type_mismatch` (sai hình dạng đứng trước sai giá trị) cho `so_pin`, `phan_le`.
+2. **Lượt 1, code gốc:** kim quay ngược, `nang_luong: int -106`, hai pin tím bị cắt. Khóa `type_mismatch` (sai kiểu đứng trước sai giá trị) cho `so_pin`, `phan_le`.
 3. **Rẽ sai thường gặp:**
    - Sửa dòng 11 thành `round(...)` hoặc `int(...)`: giá nhận pin, nhưng năng lượng vẫn âm → `wrong_value`.
    - Sửa `^` thành `* 2`: `108`, rào thiếu 720 đơn vị.
    - `(so_doan * dien_ap) ** 2 - du_tru`: `5148`, rào phóng điện vì thừa. Bài học thứ tự tính.
-   - `phan_le = nang_luong / dung_luong`: số thực, sai hình dạng.
+   - `phan_le = nang_luong / dung_luong`: số thực, sai kiểu.
 4. **Lời giải 2 sao** (`round` hoặc viết cứng) → phản công: `so_pin` 14 thay vì 13, rào phóng điện, `wrong_value_counter`.
 5. **Lời giải 3 sao** → rào tắt hẳn. Hộp kết quả: "Đã thu: Năng lượng tín hiệu".
 6. TIẾP TỤC → Tổng kết kiến thức → `after-1.5` → "VÀO NHIỆM VỤ" của 1.6.
@@ -216,7 +216,7 @@ Lỗi thường gặp (`mistakes`): `dien_ap ^ 2`; `/` ra số thực ở chỗ 
 | `import math` và `math.floor(...)` | Được phép, đạt nếu giá trị đúng | Không |
 | 5–10 lệnh, đúng | 1 sao, `alert_exceeded` | Không (đã có) |
 | Lời ECHO trong `reactions`, `reaction_variants`, `outro_beats` | Không chứa từ cấm, giá trị kỳ vọng | **Có** (test từ cấm theo level) |
-| Timeline `fence`: đúng, thiếu, thừa, âm, sai hình dạng, lỗi, phản công | Khung hình đúng thứ tự, đúng cue | **Có** (`fence-timeline.test.ts`) |
+| Timeline `fence`: đúng, thiếu, thừa, âm, sai kiểu, lỗi, phản công | Khung hình đúng thứ tự, đúng cue | **Có** (`fence-timeline.test.ts`) |
 | Đi trọn đường: code gốc → 3 sao | e2e `level-1-5.spec.ts` | **Có** (viết, chạy khi người dùng yêu cầu) |
 
 ## 13. Dữ liệu level

@@ -3,7 +3,7 @@
 > Chương 1 – Vùng Tối · Độ khó: Easy · Khái niệm: bốn kiểu cơ bản `str`, `int`, `float`, `bool` và `type()`
 > Câu đố: `src/levels/level-1-3.json`. Câu chữ người chơi đọc: tài liệu `level:1.3` ở D1 (câu ban đầu trong `db/migrations/0004_content_chapter_1.sql`, sửa trên `#/admin`); GDD chỉ ghi ý đồ (xem `design/quyet-dinh/nguon-duy-nhat-cho-cau-chu.md`). Thiết kế tổng: `design/gdd.md`. Trục truyện: `design/gdd-mo-dau.md` mục 6.3. Brainstorm: `design/quyet-dinh/level-1-3-bon-loai-tin-hieu.md`.
 
-Khác với 1.4: ở 1.4 dữ liệu đến dưới dạng chuỗi và người chơi **chuyển** nó sang hình dạng khác bằng hàm. Ở 1.3 không có hàm chuyển nào; người chơi **nhận ra** hình dạng của một giá trị và **viết lại** giá trị đó cho đúng hình dạng ngay từ cách viết, rồi dùng `type()` để hỏi hình dạng thay vì đoán.
+Khác với 1.4: ở 1.4 dữ liệu đến dưới dạng chuỗi và người chơi **chuyển** nó sang kiểu khác bằng hàm. Ở 1.3 không có hàm chuyển nào; người chơi **nhận ra** kiểu của một giá trị và **viết lại** giá trị đó cho đúng kiểu ngay từ cách viết, rồi dùng `type()` để hỏi kiểu thay vì đoán.
 
 ## 1. Briefing
 
@@ -42,7 +42,7 @@ tuoi = "27"
 chieu_cao = 1,72
 da_tiem = "có"
 
-# Hỏi hình dạng của một giá trị
+# Hỏi kiểu của một giá trị
 print(type(ho_ten))
 
 # Máy quét đòi khuôn của mã phiên
@@ -56,15 +56,15 @@ Dòng 2 bị khóa; engine nạp `ma_phien` vào trước khi chạy. Mỗi lỗ
 | 5 | (không lỗi) | `str` | Làn vàng nhận ngay lần đầu: người chơi thấy một gói qua trót lọt |
 | 6 | `"27"` | Chuỗi hai ký tự, in ra trông như số | Dấu nháy làm nên chuỗi, không phải nội dung bên trong |
 | 7 | `1,72` | Tuple `(1, 72)`, **không báo lỗi** | Người Việt viết thập phân bằng dấu phẩy; Python dùng dấu chấm. Dấu phẩy ghép hai giá trị |
-| 8 | `"có"` | Chuỗi | Đúng/sai có hình dạng riêng, chỉ có hai giá trị `True`, `False` |
-| 11 | (công cụ) | In `<class 'str'>` | `type()` trả lời "hình dạng của giá trị này là gì" |
-| 14 | `= ma_phien` | `khuon_phien` giữ con số 4096 | Một giá trị khác với hình dạng của nó |
+| 8 | `"có"` | Chuỗi | Đúng/sai có kiểu riêng, chỉ có hai giá trị `True`, `False` |
+| 11 | (công cụ) | In `<class 'str'>` | `type()` trả lời "kiểu của giá trị này là gì" |
+| 14 | `= ma_phien` | `khuon_phien` giữ con số 4096 | Một giá trị khác với kiểu của nó |
 
 ## 4. Mục tiêu
 
-Nhãn hiển thị: `objectives[].label` (D1, `level:1.3`). Nhãn gọi tên trường hồ sơ bằng lời thường; nhãn chiều cao ghi đơn vị mét, nhãn `da_tiem` nói rõ đây là câu hỏi có hay không, nhãn `khuon_phien` nói nó là hình dạng của mã phiên. Hình dạng cần đã hiện ở chip màu cạnh mỗi mục, nên nhãn không nhắc lại.
+Nhãn hiển thị: `objectives[].label` (D1, `level:1.3`). Nhãn gọi tên trường hồ sơ bằng lời thường; nhãn chiều cao ghi đơn vị mét, nhãn `da_tiem` nói rõ đây là câu hỏi có hay không, nhãn `khuon_phien` nói nó là kiểu của mã phiên. Kiểu cần đã hiện ở chip màu cạnh mỗi mục, nên nhãn không nhắc lại.
 
-| Biến | Hình dạng | Giá trị đúng |
+| Biến | Kiểu | Giá trị đúng |
 |---|---|---|
 | `ho_ten` | `str` | `"ĐỖ MINH AN"` |
 | `tuoi` | `int` | `27` |
@@ -80,9 +80,9 @@ Nhãn hiển thị: `objectives[].label` (D1, `level:1.3`). Nhãn gọi tên tr�
 Khung SVG 420 × 470, cùng cơ chế phát lại với máy quét 1.4 (timeline thuần dữ liệu, chạy sau khi có kết quả, nút "Bỏ qua hoạt cảnh" và `Esc`).
 
 - **Băng chuyền** (cột trái): các gói xếp hàng theo thứ tự mục tiêu. Trước khi chạy, gói là khối xám mang tên biến.
-- **Cổng quét** (giữa): mỗi gói đi qua, tia quét nhuộm gói theo **hình dạng thật** của nó (`toneOf(type)`), nhãn nhỏ hiện tên kiểu thật (`str`, `int`, `tuple`…).
+- **Cổng quét** (giữa): mỗi gói đi qua, tia quét nhuộm gói theo **kiểu thật** của nó (`toneOf(type)`), nhãn nhỏ hiện tên kiểu thật (`str`, `int`, `tuple`…).
 - **Bốn làn** (phải, xếp dọc từ trên xuống): vàng `str`, xanh dương `int`, tím `float`, đỏ `bool`. Cuối mỗi làn là các khe có tên những biến được đòi ở làn đó (làn xanh: `tuoi`; làn vàng: `ho_ten`…). Làn luôn đủ bốn, kể cả khi level không có mục tiêu ở làn đó (khi đó làn không có khe).
-- **Thẻ mã phiên và khe khuôn** (dải trên cùng): thẻ `ma_phien` tô theo hình dạng của mã phiên của lượt đó (xanh ở lượt thường, vàng ở phản công). Bên cạnh là khe "KHUÔN".
+- **Thẻ mã phiên và khe khuôn** (dải trên cùng): thẻ `ma_phien` tô theo kiểu của mã phiên của lượt đó (xanh ở lượt thường, vàng ở phản công). Bên cạnh là khe "KHUÔN".
 - **Thùng giữ lại** (đáy, vạch cảnh báo chéo): nơi gói sai rơi xuống, hình ảnh của câu "sai loại là bị giữ lại" trong briefing.
 - **Rào sân ga** (mép phải): đóng, mở nửa (1–2 sao), mở hẳn (3 sao); dùng lại `GateState`.
 
@@ -90,16 +90,16 @@ Khung SVG 420 × 470, cùng cơ chế phát lại với máy quét 1.4 (timeline
 
 | Tình huống | Đường đi | Nhãn |
 |---|---|---|
-| Đúng hình dạng, đúng giá trị | Vào làn của nó, khóa vào khe, viền sáng | HỢP LỆ |
-| Đúng hình dạng, sai giá trị | Vào đúng làn, dừng ở khe, viền hổ phách | LỆCH MẪU |
-| Sai hình dạng, một trong bốn loại | Vào làn **của hình dạng thật** (`tuoi = "27"` chạy vào làn vàng), không có khe cho nó, trượt xuống thùng | SAI LÀN: str ≠ int |
-| Hình dạng ngoài bốn loại (`tuple`, `NoneType`) | Gói xám, cổng quét nháy đỏ, rơi thẳng xuống thùng | KHÔNG RÕ HÌNH DẠNG |
+| Đúng kiểu, đúng giá trị | Vào làn của nó, khóa vào khe, viền sáng | HỢP LỆ |
+| Đúng kiểu, sai giá trị | Vào đúng làn, dừng ở khe, viền hổ phách | LỆCH MẪU |
+| Sai kiểu, một trong bốn loại | Vào làn **của kiểu thật** (`tuoi = "27"` chạy vào làn vàng), không có khe cho nó, trượt xuống thùng | SAI LÀN: str ≠ int |
+| Kiểu ngoài bốn loại (`tuple`, `NoneType`) | Gói xám, cổng quét nháy đỏ, rơi thẳng xuống thùng | KHÔNG RÕ HÌNH DẠNG |
 | Mục tiêu `type`, giá trị là một kiểu | Gói dạng con dấu lục giác, viền theo màu của kiểu nó mang tên (`int` viền xanh), bay lên khe khuôn; khớp màu thẻ mã phiên thì khóa | KHỚP KHUÔN / LỆCH KHUÔN |
-| Mục tiêu `type`, giá trị không phải kiểu | Như một gói thường: vào làn của hình dạng thật, không có khe, xuống thùng | SAI LÀN: int ≠ type |
+| Mục tiêu `type`, giá trị không phải kiểu | Như một gói thường: vào làn của kiểu thật, không có khe, xuống thùng | SAI LÀN: int ≠ type |
 | Biến không tồn tại | Khung nét đứt trên băng chuyền | KHÔNG CÓ TÍN HIỆU |
 | Lỗi Python, quá thời gian | Gói không rời băng chuyền, cổng quét báo động | TRUY VẾT: dòng n |
 
-Phản công: banner đỏ, thẻ mã phiên đổi màu (xanh sang vàng, cue `siren`), các gói chạy lại nhanh (mỗi gói 300 ms), con dấu khuôn chạy cuối và giữ lâu hơn. Con dấu `int` viền xanh đặt cạnh thẻ vàng là hình ảnh của lỗi "giả định hình dạng".
+Phản công: banner đỏ, thẻ mã phiên đổi màu (xanh sang vàng, cue `siren`), các gói chạy lại nhanh (mỗi gói 300 ms), con dấu khuôn chạy cuối và giữ lâu hơn. Con dấu `int` viền xanh đặt cạnh thẻ vàng là hình ảnh của lỗi "giả định kiểu".
 
 Âm thanh dùng lại cue có sẵn: `scan_pass` khi khóa khe, `scan_reject` khi rơi thùng, `alarm`, `siren`, `gate_open`, `star`. Không thêm recipe. Giảm chuyển động: hiện ngay khung cuối. Điện thoại: khung co theo bề rộng, chữ nhãn tối thiểu 16 đơn vị khung (khoảng 12 px ở 360 px), nhãn dài được cắt bằng dấu "…". Câu tóm tắt cho trình đọc màn hình: "Máy phân loại: 4/5 trường vào đúng làn. Rào mở một nửa."
 
@@ -128,49 +128,49 @@ khuon_phien = int
 
 Dòng cảnh báo là `counter_attack_banner` (D1, `level:1.3`): OMNI cấp lại mã phiên. Ngay sau đó terminal hiện giá trị mới `ma_phien = "7351"`.
 
-Mã phiên mới trông vẫn như một con số nhưng là chuỗi. Kỳ vọng: `khuon_phien` là `str`; các trường hồ sơ không đổi. Bắt được lỗi **giả định hình dạng**: người chơi nhìn thấy `4096`, kết luận "là số nguyên" và chép tay `khuon_phien = int`. Người hỏi thẳng giá trị (`type(ma_phien)`) qua. Người viết `type(ma_phien + 0)` hay dùng `ma_phien` trong phép tính số thì vỡ ở phản công (`counter_error`), giữ 2 sao.
+Mã phiên mới trông vẫn như một con số nhưng là chuỗi. Kỳ vọng: `khuon_phien` là `str`; các trường hồ sơ không đổi. Bắt được lỗi **giả định kiểu**: người chơi nhìn thấy `4096`, kết luận "là số nguyên" và chép tay `khuon_phien = int`. Người hỏi thẳng giá trị (`type(ma_phien)`) qua. Người viết `type(ma_phien + 0)` hay dùng `ma_phien` trong phép tính số thì vỡ ở phản công (`counter_error`), giữ 2 sao.
 
 ## 9. Gợi ý và phản ứng của ECHO
 
 Câu chữ: `hints`, `reactions`, `reaction_variants` (D1, `level:1.3`).
 
-**Từ cấm của 1.3** (`forbidden_terms` trong JSON, cộng danh sách chung `int|float|round` và mọi giá trị `expected` tự động, kể cả `"int"`/`"str"` của mục tiêu `type`; áp cho mọi phản ứng miễn phí, kể cả `entry`, và nhịp `echo` trong `outro_beats`; so theo ranh giới từ, không phân biệt hoa thường; không áp cho gợi ý). Danh sách gồm hai loại từ: tên các kiểu Python (bốn kiểu của level, `type`, `tuple`) cùng hai giá trị đúng/sai, và những từ gọi tên cách viết làm đổi hình dạng (dấu chấm, dấu phẩy, dấu nháy, chữ hoa…). Lý do: ô Mục tiêu đã cho biết hình dạng mỗi trường cần, nên thứ lộ cách sửa ở level này là **cách viết** (dấu câu, chữ hoa) và **tên kiểu gắn với một biến**. ECHO nói "hình dạng", "làn", "khuôn", "cách viết"; tên kiểu chỉ xuất hiện ở máy quét, terminal, ô Mục tiêu và gợi ý 3.
+**Từ cấm của 1.3** (`forbidden_terms` trong JSON, cộng danh sách chung `int|float|round` và mọi giá trị `expected` tự động, kể cả `"int"`/`"str"` của mục tiêu `type`; áp cho mọi phản ứng miễn phí, kể cả `entry`, và nhịp `echo` trong `outro_beats`; so theo ranh giới từ, không phân biệt hoa thường; không áp cho gợi ý). Danh sách gồm hai loại từ: tên các kiểu Python (bốn kiểu của level, `type`, `tuple`) cùng hai giá trị đúng/sai, và những từ gọi tên cách viết làm đổi kiểu (dấu chấm, dấu phẩy, dấu nháy, chữ hoa…). Lý do: ô Mục tiêu đã cho biết kiểu mỗi trường cần, nên thứ lộ cách sửa ở level này là **cách viết** (dấu câu, chữ hoa) và **tên kiểu gắn với một biến**. ECHO nói "kiểu", "làn", "khuôn", "cách viết"; tên kiểu chỉ xuất hiện ở máy quét, terminal, ô Mục tiêu và gợi ý 3.
 
 **Gợi ý** (mở dần, giọng ECHO):
 
 | Mức | Ý đồ |
 |---|---|
-| 1 (`hints[0]`) | Hình dạng của một giá trị nằm ở cách viết ra nó; máy quét đọc cách viết, không đọc ý nghĩa. Không chỉ trường nào sai |
-| 2 (`hints[1]`) | Quy trình: lần lượt từng trường, hỏi hình dạng hiện giờ, so với làn máy quét đòi, viết lại theo cách viết của làn đó. Nói thêm khuôn phiên không chép tay được, vì nó là hình dạng của mã phiên và mỗi lượt phải hỏi lại (gieo cho phản công) |
-| 3 (`hints[2]`) | "Mảnh tài liệu Python còn đọc được": `type()` với bốn ví dụ khác đáp án, cách viết của từng kiểu, `x = 2, 5` là hai giá trị ghép lại chứ không phải hai rưỡi, `k = type(x)` giữ chính hình dạng của `x` lúc dòng đó chạy |
+| 1 (`hints[0]`) | Kiểu của một giá trị nằm ở cách viết ra nó; máy quét đọc cách viết, không đọc ý nghĩa. Không chỉ trường nào sai |
+| 2 (`hints[1]`) | Quy trình: lần lượt từng trường, hỏi kiểu hiện giờ, so với làn máy quét đòi, viết lại theo cách viết của làn đó. Nói thêm khuôn phiên không chép tay được, vì nó là kiểu của mã phiên và mỗi lượt phải hỏi lại (gieo cho phản công) |
+| 3 (`hints[2]`) | "Mảnh tài liệu Python còn đọc được": `type()` với bốn ví dụ khác đáp án, cách viết của từng kiểu, `x = 2, 5` là hai giá trị ghép lại chứ không phải hai rưỡi, `k = type(x)` giữ chính kiểu của `x` lúc dòng đó chạy |
 
 **Phản ứng miễn phí** của ECHO: giọng cụt, nói bằng từ ngữ của máy quét (làn, thùng giữ lại, khuôn), chỉ chỗ nhìn, không nói cách sửa và không gọi tên kiểu. Các khóa chính:
 
 | Khóa | Ý đồ |
 |---|---|
-| `entry` | Đặt cảnh Ga Ngầm Số 3: máy quét chia hồ sơ vào bốn làn màu, không đọc nội dung mà chỉ đọc hình dạng |
-| `type_mismatch` | Máy quét giữ lại những trường nào ({vars}), sai làn; nó xếp làn theo hình dạng, ý nghĩa không tính |
-| `type_mismatch_value_match` | Nội dung khớp mà hình dạng thì không; in ra trông giống nhau nhưng với máy quét là hai vật khác nhau |
-| `type_mismatch_unknown_shape` (mới) | Trường mang hình dạng không thuộc bốn làn, máy quét không có chỗ cho nó; bảo nhìn lại từng ký tự trên dòng đó, vì một ký tự có thể đổi cả hình dạng (chỉ về dấu phẩy mà không gọi tên) |
-| `wrong_value` | Đúng hình dạng, vào đúng làn, nhưng nội dung không khớp hồ sơ |
+| `entry` | Đặt cảnh Ga Ngầm Số 3: máy quét chia hồ sơ vào bốn làn màu, không đọc nội dung mà chỉ đọc kiểu |
+| `type_mismatch` | Máy quét giữ lại những trường nào ({vars}), sai làn; nó xếp làn theo kiểu, ý nghĩa không tính |
+| `type_mismatch_value_match` | Nội dung khớp mà kiểu thì không; in ra trông giống nhau nhưng với máy quét là hai vật khác nhau |
+| `type_mismatch_unknown_shape` (mới) | Trường mang kiểu không thuộc bốn làn, máy quét không có chỗ cho nó; bảo nhìn lại từng ký tự trên dòng đó, vì một ký tự có thể đổi cả kiểu (chỉ về dấu phẩy mà không gọi tên) |
+| `wrong_value` | Đúng kiểu, vào đúng làn, nhưng nội dung không khớp hồ sơ |
 | `NameError` | Python không biết cái tên này; với nó mỗi ký tự đều tính (chỉ về chữ hoa mà không gọi tên) |
 | `alert_exceeded` | Mọi trường đã vào đúng làn, nhưng {count} câu lệnh là quá nhiều; mỗi lần hỏi là một lần OMNI nghe thấy |
-| `wrong_value_counter` | Chép tay khuôn, trượt phản công: OMNI cấp lại mã phiên, hình dạng đã đổi mà khuôn đứng yên, khắc cho mã phiên cũ |
-| `three_stars` | OMNI đổi hình dạng mã phiên và khuôn đổi theo; ECHO ghi nhận, ngắn |
+| `wrong_value_counter` | Chép tay khuôn, trượt phản công: OMNI cấp lại mã phiên, kiểu đã đổi mà khuôn đứng yên, khắc cho mã phiên cũ |
+| `three_stars` | OMNI đổi kiểu mã phiên và khuôn đổi theo; ECHO ghi nhận, ngắn |
 
 Các khóa lỗi chung (`SyntaxError`, `TypeError`, `timeout`, `blocked_import`, `input_unsupported`…) nói lỗi bằng từ ngữ của sân ga, máy quét và mã phiên nằm sẵn trong bộ đệm.
 
 `reaction_variants` (25/10/2026) có câu thay thế cho `type_mismatch` và `wrong_value` khi cùng khóa lặp ở lượt kế tiếp: nói trường "vẫn" sai và chỉ thêm một chỗ để nhìn (máy quét xếp làn theo đúng cách giá trị viết ra; so từng ký tự với thứ máy quét chờ).
 
-Terminal ghi kèm nghĩa cho hình dạng ngoài bốn làn, ví dụ `tuple (nhiều giá trị ghép lại bằng dấu phẩy)`; ô Mục tiêu và chú giải màu có tooltip một dòng cho từng tên kiểu.
+Terminal ghi kèm nghĩa cho kiểu ngoài bốn làn, ví dụ `tuple (nhiều giá trị ghép lại bằng dấu phẩy)`; ô Mục tiêu và chú giải màu có tooltip một dòng cho từng tên kiểu.
 
-Khóa mới `type_mismatch_unknown_shape`: dùng khi **mọi** biến sai kiểu đều mang hình dạng ngoài `int/float/str/bool/type`. Lần chạy 1 vì vậy vẫn nhận câu `type_mismatch` tổng quát. Level không định nghĩa khóa này rơi về `type_mismatch`.
+Khóa mới `type_mismatch_unknown_shape`: dùng khi **mọi** biến sai kiểu đều mang kiểu ngoài `int/float/str/bool/type`. Lần chạy 1 vì vậy vẫn nhận câu `type_mismatch` tổng quát. Level không định nghĩa khóa này rơi về `type_mismatch`.
 
 ## 10. Chấm sao
 
 | Sao | Điều kiện |
 |---|---|
-| ⭐ | Năm trường đúng hình dạng, đúng giá trị |
+| ⭐ | Năm trường đúng kiểu, đúng giá trị |
 | ⭐⭐ | Thêm: ≤ 7 câu lệnh (≤ 40%) |
 | ⭐⭐⭐ | Thêm: qua phản công (khuôn đổi theo mã phiên) |
 | 0 sao | > 17 câu lệnh: bị Sentinel bắt, không chạy phản công |
@@ -255,10 +255,10 @@ Ghi chú cho người làm: giá trị kỳ vọng `"int"`/`"str"` của mục t
 
 Câu chữ: `task_steps` (D1, `level:1.3`) (3 bước).
 
-Giọng hướng dẫn, gọi người chơi là "bạn". Không chứa giá trị kỳ vọng (test so cả từ, không phân biệt hoa thường), nên hình dạng được tả bằng lời: "chuỗi", "số nguyên", "số thực", "đúng/sai". Được nhắc `type()` (từ cấm không áp cho `task_steps`). Ba bước lần lượt nói:
+Giọng hướng dẫn, gọi người chơi là "bạn". Không chứa giá trị kỳ vọng (test so cả từ, không phân biệt hoa thường), nên kiểu được tả bằng lời: "chuỗi", "số nguyên", "số thực", "đúng/sai". Được nhắc `type()` (từ cấm không áp cho `task_steps`). Ba bước lần lượt nói:
 
-1. mỗi trường hồ sơ có một làn riêng ghi ở ô Mục tiêu (bốn hình dạng gọi bằng lời); viết lại giá trị cho hình dạng khớp với làn, giữ nguyên nội dung hồ sơ;
-2. `khuon_phien` phải là hình dạng của `ma_phien`, không phải con số bên trong; đừng đoán mà hỏi Python bằng `type()`;
+1. mỗi trường hồ sơ có một làn riêng ghi ở ô Mục tiêu (bốn kiểu gọi bằng lời); viết lại giá trị cho kiểu khớp với làn, giữ nguyên nội dung hồ sơ;
+2. `khuon_phien` phải là kiểu của `ma_phien`, không phải con số bên trong; đừng đoán mà hỏi Python bằng `type()`;
 3. không sửa dòng khóa vì mã phiên do máy quét cấp; bấm CHẠY; xong khi cả 5 trường vào đúng làn và ô Mục tiêu chuyển xanh.
 
 ## 16. Tổng kết kiến thức (`knowledge_summary`)

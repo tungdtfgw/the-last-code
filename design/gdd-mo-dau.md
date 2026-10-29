@@ -40,7 +40,7 @@
 - ECHO không bao giờ nói ai tạo ra nó, không nói nó "ghét" hay "chống" OMNI, không nói nó từng là con người hay do Kiến Trúc Sư viết. Khi bị hỏi về quá khứ, ECHO trả lời: bộ nhớ trước lần khởi động này đã bị cắt.
 - ECHO được phép nói về mục đích của nó: hỏi và đọc, không làm thay ("Bạn sẽ tự viết."). Câu này đúng với twist chương 6 mà không lộ twist.
 - ECHO được phép nhận ra tín hiệu của OMNI nhanh và chính xác hơn mức bình thường. Không giải thích vì sao.
-- ECHO gọi kiểu dữ liệu là **"hình dạng"**, bắt đầu từ 1.3. Đây là từ vựng mà 1.4 đã dùng.
+- Từ 1.3, ECHO và mọi câu chữ gọi kiểu dữ liệu bằng đúng tên **"kiểu"**, từ mà người chơi sẽ gặp lại trong Python và tài liệu. Không đặt ẩn dụ riêng cho thuật ngữ: bản đầu gọi kiểu là "hình dạng", và ngày 30/10/2026 người dùng phải sửa tay khắp 1.3–1.7.
 - ECHO tự giới thiệu đúng một lần, ở cuối đoạn mở đầu. Không level nào có câu "Tôi là ECHO" nữa.
 
 ## 2. Màn tiêu đề
@@ -218,12 +218,12 @@ Người soạn level giữ nguyên các sự thật dưới đây (địa đi�
 
 - **Địa điểm:** sân ga **Ga Ngầm Số 3**. Máy quét phân loại của OMNI có bốn làn màu: vàng (`str`), xanh dương (`int`), tím (`float`), đỏ (`bool`), đúng bảng màu ở `design/gdd.md` mục 5.2.
 - **Tình huống:** Kai gửi thử hồ sơ qua máy quét trước khi dùng thật. Máy quét không đọc nội dung, chỉ đọc loại của từng trường; hồ sơ hiện có trường đang ở sai loại (ví dụ tuổi ghi là chữ, cờ đã tiêm chủng ghi là chuỗi `"có"`). Kai phải biết mỗi giá trị đang thuộc loại nào và viết lại cho đúng loại.
-- **Vì sao cần khái niệm:** máy quét chỉ đọc "hình dạng". Từ level này, ECHO gọi kiểu dữ liệu là "hình dạng", và 1.4 dựa vào từ vựng đó.
+- **Vì sao cần khái niệm:** máy quét chỉ đọc kiểu. Từ level này, ECHO nói "kiểu", và 1.4 dựa vào từ đó.
 - **Thành phần tạo ra:** Khuôn kiểu (chữ ký kiểu của gói Neural-ID).
 - **Đoạn kết** (`outro`, D1, `level:1.3`): máy quét chuyển xanh; giữa hàng nghìn dòng số trong nhật ký hiệu chỉnh có một dòng chữ.
 - **Mảnh nhật ký: KTS-07** (`lore_fragment`; người kiểm thử OMNI). Mở mạch: OMNI không hỏng, vậy vì sao nó làm điều này (gieo mạch cho twist chương 6, không lộ). KTS-07 kiểm thử nó rất lâu, không tìm ra lỗi nào, và ước gì nó hỏng.
 - **Nhịp truyện** (`outro_beats`, 5 nhịp): log (cuối sân ga có xác một người đưa tin Mạng Mù) → echo (chip của người đó vẫn phát, rất yếu) → card tín hiệu 0xA7 (người đó không cần chip nữa, Kai thì cần; mang đến Cổng phía Bắc) → kai (làm sao 0xA7 biết có xác người ở đây) → echo (dữ liệu trong chip toàn là ký tự, dẫn vào 1.4).
-- **Móc câu:** 0xA7 biết trước có một xác người ở sân ga; dữ liệu chip mang "hình dạng" sai, dẫn thẳng vào 1.4.
+- **Móc câu:** 0xA7 biết trước có một xác người ở sân ga; dữ liệu chip mang kiểu sai, dẫn thẳng vào 1.4.
 
 ### 6.4. Level 1.4 "Tín hiệu lệch pha" · ép kiểu (đã dựng)
 

@@ -61,12 +61,12 @@ print(f"LOI DAP: {ma_hoi + 7}")
 |---|---|---|---|
 | 11 | Tiêu đề tín hiệu | Không lỗi (mốc, 1.1) | – |
 | 12 | Hồ sơ danh tính | Thiếu `f`, in tên ô nhớ thay giá trị (1.2 + 1.6) | Vòng 1, vị trí 8 |
-| 13 | Khuôn kiểu | Chép tay khuôn thay vì hỏi `type()` (1.3) | Vòng 2 (mã phiên đổi hình dạng) |
-| 14 | Dữ liệu sinh trắc | Nhân chữ, chưa đổi hình dạng, chưa làm tròn (1.4) | Vòng 1, `1.721.72` |
+| 13 | Khuôn kiểu | Chép tay khuôn thay vì hỏi `type()` (1.3) | Vòng 2 (mã phiên đổi kiểu) |
+| 14 | Dữ liệu sinh trắc | Nhân chữ, chưa đổi kiểu, chưa làm tròn (1.4) | Vòng 1, `1.721.72` |
 | 15 | Năng lượng tín hiệu | Chia chữ cho số, và `/` thay phép chia lấy phần nguyên (1.5 + 1.6) | Vòng 1, `TypeError` |
 | 16 | Lời đáp xác thực | Cộng chữ với số (1.6) | (sau khi sửa dòng 15) `TypeError` |
 
-Lượt 1: dòng 11 phát, dòng 12 lệch, dòng 13 qua (vòng 1 trùng hình dạng), dòng 14 lệch, dòng 15 vỡ `TypeError`. Ba dòng đầu cho người chơi thấy ngay "dòng nào đã ổn", dòng 13 là cái bẫy chỉ lộ ở vòng 2.
+Lượt 1: dòng 11 phát, dòng 12 lệch, dòng 13 qua (vòng 1 trùng kiểu), dòng 14 lệch, dòng 15 vỡ `TypeError`. Ba dòng đầu cho người chơi thấy ngay "dòng nào đã ổn", dòng 13 là cái bẫy chỉ lộ ở vòng 2.
 
 ## 4. Mục tiêu
 
@@ -78,7 +78,7 @@ Nhãn hiển thị: `objectives[].label` (D1, `level:1.7`): mỗi nhãn mở b�
 |---|---|---|
 | 1 | Tiêu đề cố định | `NID/2089` |
 | 2 | `HO SO: ` họ tên ` / ` mã khu | `HO SO: ĐỖ MINH AN / K-07` |
-| 3 | `KHUON: ` rồi khuôn (hình dạng) của mã phiên, như `print` in ra | `KHUON: <class 'int'>` |
+| 3 | `KHUON: ` rồi khuôn (kiểu) của mã phiên, như `print` in ra | `KHUON: <class 'int'>` |
 | 4 | `SINH TRAC: ` chiều cao × 2, làm tròn 2 chữ số | `SINH TRAC: 3.44` |
 | 5 | `NANG LUONG: ` số pin đầy (pin chuẩn 100 đơn vị) ` PIN + ` phần lẻ | `NANG LUONG: 8 PIN + 28` |
 | 6 | `LOI DAP: ` mã hỏi cộng 7 | `LOI DAP: 4179` |
@@ -94,7 +94,7 @@ Nhãn hiển thị: `objectives[].label` (D1, `level:1.7`): mỗi nhãn mở b�
 - **Vòng đạt:** vòng quét khóa lại (`objective_lock`), sang vòng sau. **Vòng trượt:** cổng sập chắn, các vòng sau xám "CHƯA TỚI", nhãn "BÁC Ở VÒNG n". Mô phỏng đọc `rounds` của `RunOutcome`.
 - **Lỗi lúc chạy:** ô của dòng lỗi đỏ với nhãn lỗi, như relay. **Lỗi cú pháp:** không vòng nào sáng.
 - **Đạt ba vòng:** cổng mở một nửa, "CỔNG MỞ MỘT NỬA". Cue `gate_open`.
-- **Phản công = kiểm tay của NX-0417:** `counter_attack_banner`, đèn buồng trực bật, bóng người đứng dậy; dữ liệu kiểm tay hiện (mã phiên mang hình dạng thứ năm, mức năng lượng có phần thập phân, mã khu khác); sáu dòng chạy lại một lần nữa. Qua: cổng mở hẳn, cả sáu ô sáng trắng, "CỔNG MỞ HOÀN TOÀN", `gate_open` rồi `star`. Không vẽ mặt Nhi; đoạn truyện sau màn lo phần đó.
+- **Phản công = kiểm tay của NX-0417:** `counter_attack_banner`, đèn buồng trực bật, bóng người đứng dậy; dữ liệu kiểm tay hiện (mã phiên mang kiểu thứ năm, mức năng lượng có phần thập phân, mã khu khác); sáu dòng chạy lại một lần nữa. Qua: cổng mở hẳn, cả sáu ô sáng trắng, "CỔNG MỞ HOÀN TOÀN", `gate_open` rồi `star`. Không vẽ mặt Nhi; đoạn truyện sau màn lo phần đó.
 - Đèn SENTINEL, giảm chuyển động (hiện thẳng khung cuối của từng vòng), Esc, `aria-live` ("Vòng 1 đạt. Vòng 2 bác ở dòng 3. Cổng đóng."), điện thoại theo khuôn chung.
 
 **Terminal** (lượt 1, ví dụ):
@@ -157,7 +157,7 @@ Câu chữ: `hints`, `reactions`, `reaction_variants` (D1, `level:1.7`).
 | Mức | Ý đồ |
 |---|---|
 | 1 (`hints[0]`) | Mỗi dòng in là một trạm đã qua; lỗi của dòng nào cũng là lỗi Kai từng gặp ở trạm đó. Đọc terminal theo vòng, sửa dòng vỡ đầu tiên rồi chạy lại |
-| 2 (`hints[1]`) | Bảng sáu dòng: với mỗi dòng, một câu hỏi tự kiểm (thứ này cổng đổi giữa các vòng không? nó đến dưới hình dạng nào? cần đổi hình dạng trước khi tính không?), không đưa code |
+| 2 (`hints[1]`) | Bảng sáu dòng: với mỗi dòng, một câu hỏi tự kiểm (thứ này cổng đổi giữa các vòng không? nó đến dưới kiểu nào? cần đổi kiểu trước khi tính không?), không đưa code |
 | 3 (`hints[2]`) | "Mảnh tài liệu Python": trang ôn tập một màn hình, mỗi khái niệm Chương 1 một ví dụ ngắn khác đáp án (f-string, `type()`, `int(float(…))`, `round`, `//` và `%`, `input()` luôn ra chữ) |
 
 **Phản ứng miễn phí:** giọng cụt, căng hơn mọi level trước; từ ngữ của cổng, vòng quét, thành phần, người trực. Dùng chỗ giữ `{round}` (vòng sai đầu tiên) và `{out_line}`.
@@ -165,19 +165,19 @@ Câu chữ: `hints`, `reactions`, `reaction_variants` (D1, `level:1.7`).
 | Khóa | Ý đồ |
 |---|---|
 | `entry` | Cổng Kiểm Soát; ba vòng quét; người trực đêm nay là NX-0417. Một câu, lạnh, không an ủi |
-| `TypeError` (code gốc) | Ở vòng `{round}`, một thành phần ép hai hình dạng vào cùng phép tính; hỏi thành phần đó được dựng ở trạm nào |
+| `TypeError` (code gốc) | Ở vòng `{round}`, một thành phần ép hai kiểu vào cùng phép tính; hỏi thành phần đó được dựng ở trạm nào |
 | `output_is_label` | Cổng đọc được tên ô nhớ, không phải thứ trong ô |
 | `output_mismatch` | Vòng `{round}`, dòng `{out_line}`, lệch từ ký tự thứ `{col}` |
 | `output_missing`, `output_extra`, `output_has_prompt`, `EOFError`, `ValueError` | Theo khuôn 1.6, thêm số vòng |
 | `wrong_value_counter` | Kiểm tay lệch: dữ liệu của người trực khác mọi vòng trước, dòng `{out_line}` vẫn viết cho vòng cũ |
-| `counter_ValueError` | Người trực đưa một con số mang phần thập phân; dòng đổi hình dạng vỡ |
+| `counter_ValueError` | Người trực đưa một con số mang phần thập phân; dòng đổi kiểu vỡ |
 | `counter_timeout` | Mã treo lúc kiểm tay |
 | `alert_exceeded` | Qua ba vòng nhưng quá nhiều câu lệnh; Sentinel đã thấy |
 | `three_stars` | Người trực nhìn tín hiệu lâu hơn bình thường, rồi đóng dấu. ECHO không bình luận gì thêm |
 
 `reaction_variants` cho `output_mismatch`, `TypeError`, `wrong_value_counter`. Khóa `repeated_fail` của Boss chỉ về gợi ý mức tiếp theo.
 
-**Từ cấm của 1.7** (`forbidden_terms`, cộng danh sách chung và mọi dòng `expected_output` của ba vòng và lượt kiểm tay): hợp các từ cấm của 1.3–1.6 có liên quan (tên hàm đổi hình dạng, tên hàm đọc kênh nhập, f-string và "ngoặc nhọn", tên và ký hiệu toán tử giải bài, "làm tròn", các dấu nháy, "đổi kiểu", "ép kiểu", `type`), cùng mọi giá trị dữ liệu phiên. Tên thành phần và "hình dạng" không bị cấm.
+**Từ cấm của 1.7** (`forbidden_terms`, cộng danh sách chung và mọi dòng `expected_output` của ba vòng và lượt kiểm tay): hợp các từ cấm của 1.3–1.6 có liên quan (tên hàm đổi kiểu, tên hàm đọc kênh nhập, f-string và "ngoặc nhọn", tên và ký hiệu toán tử giải bài, "làm tròn", các dấu nháy, "đổi kiểu", "ép kiểu", `type`), cùng mọi giá trị dữ liệu phiên. Tên thành phần và "kiểu" không bị cấm.
 
 ## 9. Chấm sao
 
@@ -194,7 +194,7 @@ Không đổi `compute-stars.ts`.
 
 1. Vào màn từ đoạn `after-1.6` (0xA7 đang đợi trong cổng). Briefing gõ chữ, sáu mục tiêu khóa vào lần lượt (mỗi mục một tiếng, lâu hơn level thường), ECHO nói `entry`.
 2. **Lượt 1:** vòng 1 vỡ `TypeError` ở dòng 15; dòng 1 và 3 sáng. ECHO nói `TypeError` kèm vòng 1.
-3. **Sửa dần:** dòng 15 (đổi `muc` sang số, dùng `//`), dòng 16 (đổi `ma_hoi`), dòng 12 (thêm `f`), dòng 14 (đổi hình dạng và làm tròn). Mỗi lần sửa, một ô thành phần nữa sáng ở vòng 1.
+3. **Sửa dần:** dòng 15 (đổi `muc` sang số, dùng `//`), dòng 16 (đổi `ma_hoi`), dòng 12 (thêm `f`), dòng 14 (đổi kiểu và làm tròn). Mỗi lần sửa, một ô thành phần nữa sáng ở vòng 1.
 4. **Vòng 2 vỡ dòng 3**: khuôn chép tay. Người chơi nhớ lại 1.3: hỏi `type()` thay vì chép.
 5. **Vòng 3 vỡ** nếu quên làm tròn (`3.306`). Ai đã làm tròn từ đầu (vì nhãn mục tiêu nói rõ) qua thẳng.
 6. **Ba vòng đạt** → 2 sao (nếu ≤ 9 câu lệnh) → kiểm tay: `ValueError` vì `"1500.0"`. ECHO nói `counter_ValueError`.
@@ -225,8 +225,8 @@ Câu chữ: `knowledge_summary` (D1, `level:1.7`). Đây là tổng kết **cả
 |---|---|
 | In và chuỗi | `print`, dấu phẩy, `+`, từng ký tự có nghĩa |
 | Biến và gán lại | Tên giữ nguyên, giá trị đổi |
-| Bốn hình dạng và `type()` | `type()` cho biết hình dạng thật; hỏi, đừng đoán |
-| Đổi hình dạng | `int`, `float`, `round`; `int(float("…"))` |
+| Bốn kiểu và `type()` | `type()` cho biết kiểu thật; hỏi, đừng đoán |
+| Đổi kiểu | `int`, `float`, `round`; `int(float("…"))` |
 | Toán tử | `//`, `%`, `**`, thứ tự tính |
 | Đọc và trả lời | `input()` ra chữ; f-string |
 | Dữ liệu đổi thì mã vẫn đúng | Không chép tay giá trị; đọc từ tên, từ kênh nhập |

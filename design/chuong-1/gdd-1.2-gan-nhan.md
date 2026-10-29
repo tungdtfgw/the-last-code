@@ -176,7 +176,7 @@ Câu chữ: `hints` (D1, `level:1.2`) (mở dần, không bị kiểm từ cấm
 
 Câu chữ: `reactions` và `reaction_variants` (D1, `level:1.2`).
 
-Giọng ECHO: cụt, dùng từ ngữ của ki-ốt (ô nhớ, nhãn, bộ đệm, hồ sơ, drone), chỉ chỗ nhìn, không bao giờ nói cách sửa hay giá trị đúng. Kiểu sai được gọi là "không phải chữ" (chưa dùng "hình dạng", bắt đầu từ 1.3).
+Giọng ECHO: cụt, dùng từ ngữ của ki-ốt (ô nhớ, nhãn, bộ đệm, hồ sơ, drone), chỉ chỗ nhìn, không bao giờ nói cách sửa hay giá trị đúng. Kiểu sai được gọi là "không phải chữ" (chưa dùng "kiểu", bắt đầu từ 1.3).
 
 | Khóa | Ý đồ |
 |---|---|

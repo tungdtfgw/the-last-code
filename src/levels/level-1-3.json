@@ -11,7 +11,7 @@
   "simulation": {
     "kind": "sorter"
   },
-  "starter_code": "# Mã phiên máy quét cấp cho lượt gửi này (KHÔNG sửa dòng này)\nma_phien = 4096\n\n# Hồ sơ ĐỖ MINH AN, chép tay từ bản tin của 0xA7\nho_ten = \"ĐỖ MINH AN\"\ntuoi = \"27\"\nchieu_cao = 1,72\nda_tiem = \"có\"\n\n# Hỏi hình dạng của một giá trị\nprint(type(ho_ten))\n\n# Máy quét đòi khuôn của mã phiên\nkhuon_phien = ma_phien\n",
+  "starter_code": "# Mã phiên máy quét cấp cho lượt gửi này (KHÔNG sửa dòng này)\nma_phien = 4096\n\n# Hồ sơ ĐỖ MINH AN, chép tay từ bản tin của 0xA7\nho_ten = \"ĐỖ MINH AN\"\ntuoi = \"27\"\nchieu_cao = 1,72\nda_tiem = \"có\"\n\n# Hỏi kiểu của một giá trị\nprint(type(ho_ten))\n\n# Máy quét đòi khuôn của mã phiên\nkhuon_phien = ma_phien\n",
   "locked_lines": [
     2
   ],

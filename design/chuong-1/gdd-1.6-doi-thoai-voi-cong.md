@@ -52,7 +52,7 @@ Dòng 2–3 khóa, nạp qua `inputs` (`so_khu` là số nguyên). Kênh nhập 
 |---|---|---|---|
 | 6 | Không lỗi | Đọc `"4172"` | Mẫu: `input()` trả về chữ |
 | 7 | Thiếu `f` trước dấu nháy | Trạm nhận `DANH TINH: {ho_ten}`, lệch ở vị trí 12 | Không có `f` thì ngoặc nhọn chỉ là chữ |
-| 8 | Cộng chữ với số | `TypeError: can only concatenate str (not "int") to str` | `input()` luôn trả `str`; đổi hình dạng trước khi tính (nối lại bài 1.4) |
+| 8 | Cộng chữ với số | `TypeError: can only concatenate str (not "int") to str` | `input()` luôn trả `str`; đổi kiểu trước khi tính (nối lại bài 1.4) |
 | 9 | Viết cứng tên ca | Lượt cơ bản đúng, phản công sai | Dòng thứ hai của trạm phải được đọc, không đoán |
 
 ## 4. Mục tiêu
@@ -128,7 +128,7 @@ Câu chữ: `hints`, `reactions`, `reaction_variants` (D1, `level:1.6`).
 | Mức | Ý đồ |
 |---|---|
 | 1 (`hints[0]`) | So dòng 7 và dòng 8: cả hai có ngoặc nhọn, chỉ một dòng có thứ đứng trước dấu nháy. Và thứ trạm gửi qua kênh nhập luôn đến dưới dạng chữ, dù trông như số |
-| 2 (`hints[1]`) | Hướng tiếp cận: mỗi lần đọc kênh nhập lấy đúng một dòng, theo thứ tự trạm gửi; đọc hết những gì cần trước, đổi hình dạng thứ cần tính, rồi mới in. Pseudocode năm dòng, chưa có code |
+| 2 (`hints[1]`) | Hướng tiếp cận: mỗi lần đọc kênh nhập lấy đúng một dòng, theo thứ tự trạm gửi; đọc hết những gì cần trước, đổi kiểu thứ cần tính, rồi mới in. Pseudocode năm dòng, chưa có code |
 | 3 (`hints[2]`) | "Mảnh tài liệu Python": `input()` với ví dụ khác đáp án, `int(input())`, f-string đặt biến và biểu thức trong ngoặc nhọn, lời nhắc của `input()` được in ra không xuống dòng, `EOFError` khi đọc quá số dòng |
 
 **Phản ứng miễn phí:** giọng cụt, từ ngữ của trạm, kênh nhập, câu hỏi; không nêu tên hàm hay ký hiệu cần dùng, không trích dòng đầu ra mong đợi.
@@ -136,7 +136,7 @@ Câu chữ: `hints`, `reactions`, `reaction_variants` (D1, `level:1.6`).
 | Khóa | Ý đồ |
 |---|---|
 | `entry` | Trạm Thẩm Vấn; trạm hỏi qua kênh nhập và đọc mọi thứ được in ra như câu trả lời; bảo chạy một lần |
-| `TypeError` (code gốc) | Hai thứ khác hình dạng bị ghép vào một phép tính; thứ từ kênh nhập trông như số nhưng không phải |
+| `TypeError` (code gốc) | Hai thứ khác kiểu bị ghép vào một phép tính; thứ từ kênh nhập trông như số nhưng không phải |
 | `output_is_label` (thiếu `f`) | Trạm nhận được tên của một ô nhớ trong ngoặc, không phải thứ cất trong ô đó |
 | `output_has_prompt` | Lời nhắc chương trình tự in ra cũng đi vào câu trả lời; trạm đọc nó như một phần dòng `{out_line}` |
 | `output_mismatch`, `output_missing`, `output_extra` | Theo khuôn 1.1: dòng nào, ký tự thứ mấy |

@@ -120,7 +120,7 @@ Lỗi Python thật được lồng vào thế giới game để sinh viên vẫ
 > MỨC CẢNH BÁO: 65%
 ```
 
-Lưu ý: lỗi Python thật chỉ xuất hiện khi code thật sự lỗi. Code chạy được nhưng sai kiểu (ví dụ nối chuỗi thay vì cộng số) không có traceback; máy quét từ chối và báo sai hình dạng cho từng biến.
+Lưu ý: lỗi Python thật chỉ xuất hiện khi code thật sự lỗi. Code chạy được nhưng sai kiểu (ví dụ nối chuỗi thay vì cộng số) không có traceback; máy quét từ chối và báo sai kiểu cho từng biến.
 
 ### 4.3. Yếu tố giữ chân khác
 

@@ -34,7 +34,7 @@ Câu chữ: `task_steps` (D1, `level:1.1`) (4 bước).
 |---|---|---|
 | Nhiệm vụ, Mục tiêu (3 dòng đầu ra); ECHO, Việc cần làm (mục 1.1) và Gợi ý nằm trong khung chat nổi | Editor `neural_id.py`, nút CHẠY, terminal | Mô phỏng trạm R-17 (mục 5) |
 
-Trên điện thoại vẫn là 3 tab. Ô Mục tiêu có dòng phụ "trạm chỉ nhận đúng từng ký tự" thay cho "máy quét chỉ đọc hình dạng".
+Trên điện thoại vẫn là 3 tab. Ô Mục tiêu có dòng phụ "trạm chỉ nhận đúng từng ký tự" thay cho "máy quét chỉ đọc kiểu".
 
 ## 3. Code khởi đầu (có lỗi cài sẵn)
 

@@ -51,7 +51,7 @@ Nhãn hiển thị: `objectives[].label` (D1, `level:1.4`). Hai nhãn đầu ghi
 ## 5. Diễn biến khi chạy
 
 - 3 gói dữ liệu **vàng** (`str`) trượt về máy quét
-- Với code gốc: code **chạy không lỗi**, vì `"27" * 100 + "3"` là phép nối chuỗi hợp lệ. `ma_xac_thuc` thành chuỗi 201 ký tự → gói vàng phình to → máy quét chuyển đỏ và báo sai hình dạng cho cả 3 biến. **Không có traceback** ở bước này; bài học là "chạy được chưa chắc đã đúng".
+- Với code gốc: code **chạy không lỗi**, vì `"27" * 100 + "3"` là phép nối chuỗi hợp lệ. `ma_xac_thuc` thành chuỗi 201 ký tự → gói vàng phình to → máy quét chuyển đỏ và báo sai kiểu cho cả 3 biến. **Không có traceback** ở bước này; bài học là "chạy được chưa chắc đã đúng".
 - Lỗi Python thật xuất hiện ở các bước sửa dở, ví dụ `int(tuoi) * 100 + cap_do` gây `TypeError` ở dòng 7 → traceback trong bối cảnh (`design/gdd.md` mục 4.2), dòng lỗi được tô trong editor.
 - Với code đúng: gói dữ liệu đổi màu sang xanh/tím/đỏ → qua máy quét → cổng mở một nửa
 - Dữ liệu đầu vào được engine nạp sẵn trước khi chạy; 3 dòng khóa chỉ để hiển thị. Nhờ vậy OMNI phản công thay được dữ liệu mà không sửa code người chơi.
@@ -96,20 +96,20 @@ Câu chữ: `hints`, `reactions`, `reaction_variants` (D1, `level:1.4`).
 | Mức | Ý đồ |
 |---|---|
 | 1 (`hints[0]`) | Bảo người chơi nhìn mô phỏng sau khi chạy. Dữ liệu chip là chữ dù trông như số; nhân chữ với 100 không ra phép tính mà chép chữ đó nối đuôi 100 lần. Không nói cách sửa |
-| 2 (`hints[1]`) | Hướng tiếp cận: Python có sẵn công cụ đổi hình dạng, mỗi công cụ mang tên hình dạng nó tạo ra (cũng là tên làn máy quét đòi); đổi dữ liệu chip trước rồi mới tính; chip có thể ghi số kèm phần thập phân nên thứ tự đổi quan trọng (gieo trước cho phản công). Không viết tên hàm |
+| 2 (`hints[1]`) | Hướng tiếp cận: Python có sẵn công cụ đổi kiểu, mỗi công cụ mang tên kiểu nó tạo ra (cũng là tên làn máy quét đòi); đổi dữ liệu chip trước rồi mới tính; chip có thể ghi số kèm phần thập phân nên thứ tự đổi quan trọng (gieo trước cho phản công). Không viết tên hàm |
 | 3 (`hints[2]`) | "Mảnh tài liệu Python": `int()`, `float()`, `round()` với ví dụ khác đáp án, có ví dụ `int()` cắt phần thập phân; mỗi hàm trả về giá trị mới, giá trị gốc không đổi |
 
-**Phản ứng miễn phí** của ECHO: giọng cụt, gọi kiểu dữ liệu là "hình dạng" (từ vựng có từ 1.3), chỉ chỗ nhìn, không bao giờ nói cách sửa. Các khóa chính (danh sách đầy đủ trong `reactions`, D1, `level:1.4`):
+**Phản ứng miễn phí** của ECHO: giọng cụt, gọi kiểu dữ liệu đúng tên là "kiểu" (từ 1.3), chỉ chỗ nhìn, không bao giờ nói cách sửa. Các khóa chính (danh sách đầy đủ trong `reactions`, D1, `level:1.4`):
 
 | Khóa | Ý đồ |
 |---|---|
 | `entry` | Đặt cảnh: Cổng phía Bắc, chip của người đưa tin vẫn phát, máy quét phía trước chỉ nhận số. ECHO không tự giới thiệu (đã làm ở đoạn mở đầu game, xem mục 11) |
-| `type_mismatch` (code gốc) | Máy quét từ chối các biến nêu tên vì sai hình dạng; nó không đọc nội dung, chỉ đọc hình dạng |
-| `type_mismatch_value_match` | Giá trị khớp mà sai kiểu (ví dụ `2703.0`): con số khớp nhưng hình dạng thì không, với máy quét vẫn là vật lạ |
+| `type_mismatch` (code gốc) | Máy quét từ chối các biến nêu tên vì sai kiểu; nó không đọc nội dung, chỉ đọc kiểu |
+| `type_mismatch_value_match` | Giá trị khớp mà sai kiểu (ví dụ `2703.0`): con số khớp nhưng kiểu thì không, với máy quét vẫn là vật lạ |
 | `string_repeated` (25/10/2026) | Chữ bị nhân thành chuỗi lặp: bảo nhìn chữ số trong mô phỏng, chúng bị chép nối đuôi; nhân chữ với một con số chỉ lặp chữ đó. Không nhắc tên hàm chuyển đổi |
-| `TypeError` | Hai thứ khác hình dạng bị ép vào cùng một phép toán |
+| `TypeError` | Hai thứ khác kiểu bị ép vào cùng một phép toán |
 | `alert_exceeded` | Qua máy quét nhưng quá nhiều câu lệnh; Sentinel đã ghi nhận tín hiệu, phải chạy gọn hơn |
-| `counter_ValueError` | Phản công gây `ValueError`: OMNI đổi định dạng chip, dòng lỗi vỡ vì dữ liệu mới mang hình dạng chưa lường |
+| `counter_ValueError` | Phản công gây `ValueError`: OMNI đổi định dạng chip, dòng lỗi vỡ vì dữ liệu mới mang kiểu chưa lường |
 | `wrong_value_counter` | Viết cứng đáp án, trượt phản công: dữ liệu chip đổi mà kết quả không đổi theo, nó viết cho một con chip đã chết |
 | `counter_timeout` | Mã treo trên dữ liệu mới; ECHO cắt kết nối, cổng chỉ mở một nửa |
 | `three_stars` | Cổng mở hoàn toàn, OMNI đổi dữ liệu mà mã vẫn đứng vững; ECHO ghi nhận điều đó, ngắn |
@@ -118,9 +118,9 @@ Các khóa lỗi chung (`SyntaxError`, `NameError`, `timeout`…) nói lỗi b�
 
 Khóa `string_repeated` dùng khi dấu vết của một đầu vào dạng chữ bị viết liền hai lần (`2727`, `1.721.72`) xuất hiện ở: thông báo `ValueError` (ví dụ `float(chieu_cao * 2)`), **mọi** biến sai kiểu đều là chữ lặp (code gốc đã sửa `hop_le`), hoặc **mọi** biến sai giá trị đều mang chữ số lặp (`int(tuoi * 100 + cap_do)`). Code gốc vẫn nhận câu `type_mismatch` vì `hop_le = "True"` không phải chữ lặp.
 
-`reaction_variants` có câu thay thế cho `type_mismatch`, `string_repeated` và `ValueError` khi cùng khóa lặp ở lượt kế tiếp: nói "vẫn" sai và chỉ thêm một chỗ để nhìn (máy quét mặc kệ con số trông ra sao; chữ nhân lên thì dài ra chứ không lớn lên; đọc phần cuối thông báo lỗi để thấy thứ Python đang cố đổi hình dạng).
+`reaction_variants` có câu thay thế cho `type_mismatch`, `string_repeated` và `ValueError` khi cùng khóa lặp ở lượt kế tiếp: nói "vẫn" sai và chỉ thêm một chỗ để nhìn (máy quét mặc kệ con số trông ra sao; chữ nhân lên thì dài ra chứ không lớn lên; đọc phần cuối thông báo lỗi để thấy thứ Python đang cố đổi kiểu).
 
-**Từ cấm của 1.4** (`forbidden_terms` trong JSON, thêm ngày 27/10/2026, cộng danh sách chung `int|float|round` và mọi giá trị `expected`, cả lượt phản công): những từ gọi tên cách giải, tức tên việc đổi hình dạng (ép kiểu, đổi kiểu…) và tên hình dạng chuỗi, cùng phép tính trong công thức đáp án (nhân 100). "Hình dạng" không bị cấm, vì đó là từ ECHO dùng thay cho "kiểu". Danh sách đầy đủ nằm trong JSON. Áp cho `reactions` và lời ECHO trong `outro_beats`; không áp cho gợi ý.
+**Từ cấm của 1.4** (`forbidden_terms` trong JSON, thêm ngày 27/10/2026, cộng danh sách chung `int|float|round` và mọi giá trị `expected`, cả lượt phản công): những từ gọi tên cách giải, tức tên việc đổi kiểu (ép kiểu, đổi kiểu…) và tên kiểu chuỗi, cùng phép tính trong công thức đáp án (nhân 100). "Kiểu" không bị cấm, vì đó là từ ECHO dùng thay cho "kiểu". Danh sách đầy đủ nằm trong JSON. Áp cho `reactions` và lời ECHO trong `outro_beats`; không áp cho gợi ý.
 
 ## 9. Chấm sao
 
