@@ -1,9 +1,17 @@
 import { describe, expect, test, vi } from "vitest";
-import { realChapter, realLevelJson, realRegistry, registryOf } from "../../tests/content-fixture";
+import fake1 from "../../tests/fixtures/chapters/chapter-test-1.json";
+import fake2 from "../../tests/fixtures/chapters/chapter-test-2.json";
+import { realChapter, realChapters, realLevelJson, realRegistry, registryOf } from "../../tests/content-fixture";
+import type { ChapterDefinition } from "./story-types";
 import type { StarCount } from "../storage/progress-repository";
 import {
-  buildChapterContext,
+  buildGameContext,
+  chapterNodes,
   chapterTotals,
+  componentSlot,
+  defaultMapChapter,
+  nextChapterAfterEnd,
+  seenStories,
   continueAfterLevel,
   guardRoute,
   learnEnd,
@@ -22,8 +30,9 @@ const asLevel = (id: string) => {
   return { ...rest, id };
 };
 const ctxWith = (ids: string[], extra: Record<string, unknown> = {}) =>
-  buildChapterContext(
-    chapter,
+  buildGameContext(
+    [chapter],
+    [],
     registryOf({ ...Object.fromEntries(ids.map((id) => [`./level-${id}.json`, asLevel(id)])), ...extra }),
   );
 const snap = (stars: Record<string, StarCount> = {}, seen: string[] = []): ProgressSnapshot => ({ stars, seen: new Set(seen) });
@@ -46,7 +55,7 @@ describe("only 1.4 built (today)", () => {
     expect(storyEnd(id, ctx, s)).toEqual(expected);
   });
   test("max stars count built levels only", () => {
-    expect(chapterTotals(ctx, snap({ "1.4": 2 }))).toMatchObject({
+    expect(chapterTotals(ctx, snap({ "1.4": 2 }), 1)).toMatchObject({
       stars: 2,
       maxStars: 3,
       components: [{ slot: 3, levelId: "1.4", name: "Dữ liệu sinh trắc" }],
@@ -81,9 +90,9 @@ describe("1.1, 1.2 and 1.4 built (1.3 missing)", () => {
   });
 });
 
-describe("the shipped chapter (src/levels)", () => {
+describe("the shipped chapters (src/levels)", () => {
   const registry = realRegistry();
-  const ctx = buildChapterContext(chapter, registry);
+  const ctx = buildGameContext(realChapters(), [], registry);
   // Whatever is built today, in chapter order (levels without a file are skipped).
   const built = chapter.levels.filter((id) => registry.getLevel(id));
   const seen = (...ids: string[]) => snap(Object.fromEntries(built.map((id) => [id, 3 as StarCount])), ids);
@@ -102,7 +111,7 @@ describe("the shipped chapter (src/levels)", () => {
   });
 
   test("the boss builds no component; every other built level fills its own slot", () => {
-    const totals = chapterTotals(ctx, seen());
+    const totals = chapterTotals(ctx, seen(), 1);
     expect(totals).toMatchObject({ stars: 3 * built.length, maxStars: 3 * built.length, slots: 6 });
     expect(registry.getLevel("1.7")?.component).toBeUndefined();
     expect(totals.components.map((c) => c.levelId)).toEqual(built.filter((id) => id !== "1.7"));
@@ -128,10 +137,10 @@ describe("the full chapter: seven levels, the boss last", () => {
   });
 
   test("21 stars at most; the Neural-ID is full (6/6) after 1.6, the boss takes no slot", () => {
-    const totals = chapterTotals(ctx, snap(stars(...ids)));
+    const totals = chapterTotals(ctx, snap(stars(...ids)), 1);
     expect(totals).toMatchObject({ stars: 18, maxStars: 21, slots: 6 });
     expect(totals.components.map((c) => c.slot)).toEqual([0, 1, 2, 3, 4, 5]);
-    expect(chapterTotals(ctx, snap(stars(...ids, "1.7"))).components).toHaveLength(6);
+    expect(chapterTotals(ctx, snap(stars(...ids, "1.7")), 1).components).toHaveLength(6);
   });
 });
 
@@ -181,5 +190,87 @@ describe("guardRoute", () => {
     const nodes = nodeStates(ctx, snap({ "1.1": 1, "1.2": 1 }));
     expect(nodes[2].status).toBe("broken");
     expect(nodes[3]).toMatchObject({ status: "open", next: true });
+  });
+});
+
+describe("two chapters (made-up chapter files)", () => {
+  vi.spyOn(console, "error").mockImplementation(() => {});
+  const [c1, c2] = [fake1, fake2] as unknown as ChapterDefinition[];
+  const levels = (ids: string[]) => Object.fromEntries(ids.map((id) => [`./level-${id}.json`, asLevel(id)]));
+  const all = ["9.1", "9.2", "9.3", "9.4"];
+  const ctx = buildGameContext([c2, c1], [], registryOf(levels(all)));
+  const stars = (...ids: string[]) => Object.fromEntries(ids.map((id) => [id, 2 as StarCount]));
+  const chapter1Seen = ["prologue", "after-9.1", "after-9.2"];
+
+  test("the first level of chapter 2 opens once the last level of chapter 1 has a star", () => {
+    expect(chapterNodes(ctx, snap(stars("9.1")), 2)[0]).toMatchObject({ id: "9.3", status: "locked", requires: "9.2" });
+    expect(chapterNodes(ctx, snap(stars("9.1", "9.2")), 2)[0]).toMatchObject({ id: "9.3", status: "open", next: true });
+    expect(chapterNodes(ctx, snap(stars("9.1", "9.2")), 1).some((n) => n.next)).toBe(false);
+  });
+
+  test.each([
+    ["after the last level of chapter 1 → its ending", "after-9.2", story("teaser")],
+    ["chapter 1's ending → chapter 2's opening", "teaser", story("prologue-2")],
+    ["chapter 2's opening → its first level", "prologue-2", level("9.3")],
+    ["inside chapter 2", "after-9.3", level("9.4")],
+    ["after the last level of chapter 2 → its ending", "after-9.4", story("teaser-2")],
+    ["chapter 2's ending → map", "teaser-2", MAP],
+  ])("%s", (_n, id, expected) => {
+    expect(storyEnd(id, ctx, snap(stars(...all)))).toEqual(expected);
+  });
+
+  test("a chapter ending leads on only when a later chapter has a built level", () => {
+    expect(nextChapterAfterEnd("teaser", ctx)).toBe(2);
+    expect(nextChapterAfterEnd("teaser-2", ctx)).toBeUndefined();
+    const only1 = buildGameContext([c1, c2], [], registryOf(levels(["9.1", "9.2"])));
+    expect(storyEnd("teaser", only1, snap())).toEqual(MAP);
+    expect(nextChapterAfterEnd("teaser", only1)).toBeUndefined();
+  });
+
+  test.each([
+    ["saw all of chapter 1, ending included (shipped before chapter 2)", [...chapter1Seen, "teaser"], story("prologue-2")],
+    ["also saw chapter 2's opening", [...chapter1Seen, "teaser", "prologue-2"], level("9.3")],
+    ["left during chapter 1's ending", chapter1Seen, story("teaser")],
+  ])("title TIẾP TỤC with chapter 1 cleared: %s", (_n, seen, expected) => {
+    expect(titleContinue(ctx, snap(stars("9.1", "9.2"), seen))).toEqual(expected);
+  });
+
+  test.each([
+    ["chapter 2's opening before chapter 1 is cleared", story("prologue-2"), snap(stars("9.1")), MAP],
+    ["chapter 2's opening once chapter 1's last level has a star", story("prologue-2"), snap(stars("9.2")), story("prologue-2")],
+    ["chapter 2's opening already seen", story("prologue-2"), snap({}, ["prologue-2"]), story("prologue-2")],
+    ["chapter 2's ending before its last level has a star", story("teaser-2"), snap(stars("9.1", "9.2", "9.3")), MAP],
+    ["chapter 2's ending once cleared", story("teaser-2"), snap(stars("9.4")), story("teaser-2")],
+    ["a transition of chapter 2 without a star", story("after-9.3"), snap(stars("9.1", "9.2")), MAP],
+    ["a chapter that does not exist", story("prologue-3"), snap(stars(...all)), MAP],
+    ["chapter 1 has no numbered ids", story("teaser-1"), snap(stars(...all)), MAP],
+    ["the map of a chapter that does not exist", { kind: "map", chapter: 9 } as const, snap(), MAP],
+    ["the map of chapter 2", { kind: "map", chapter: 2 } as const, snap(), { kind: "map", chapter: 2 }],
+  ])("guardRoute: %s", (_n, route, s, expected) => {
+    expect(guardRoute(route, ctx, s)).toEqual(expected);
+  });
+
+  test("slots, totals and seen stories are per chapter", () => {
+    expect(componentSlot(ctx, "9.3")).toBe(0);
+    expect(componentSlot(ctx, "9.4")).toBeUndefined(); // past chapter 2's single slot
+    const s = snap(stars(...all), [...chapter1Seen, "teaser", "prologue-2", "after-9.3", "teaser-2"]);
+    expect(chapterTotals(ctx, s, 2)).toMatchObject({ stars: 4, maxStars: 6, slots: 1, bar: { label: "Bộ luật thử", unit: "Luật" } });
+    expect(chapterTotals(ctx, s, 2).components.map((c) => c.levelId)).toEqual(["9.3"]);
+    expect(seenStories(ctx, s, 1)).toEqual([...chapter1Seen, "teaser"]);
+    expect(seenStories(ctx, s, 2)).toEqual(["prologue-2", "after-9.3", "teaser-2"]);
+  });
+
+  test("#/map opens the chapter with the next level, else the last chapter with a cleared level", () => {
+    expect(defaultMapChapter(ctx, snap())).toBe(1);
+    expect(defaultMapChapter(ctx, snap(stars("9.1", "9.2")))).toBe(2);
+    expect(defaultMapChapter(ctx, snap(stars(...all)))).toBe(2);
+  });
+
+  test("a broken chapter 2: its levels and stories are out of reach, chapter 1 still ends on the map", () => {
+    const broken = buildGameContext([c1], [2], registryOf(levels(all)));
+    expect(broken.order).toEqual(["9.1", "9.2"]);
+    expect(guardRoute(level("9.3"), broken, snap(stars("9.1", "9.2")))).toEqual(MAP);
+    expect(guardRoute(story("prologue-2"), broken, snap(stars("9.1", "9.2")))).toEqual(MAP);
+    expect(storyEnd("teaser", broken, snap(stars("9.1", "9.2"), ["teaser"]))).toEqual(MAP);
   });
 });

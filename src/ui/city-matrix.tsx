@@ -53,9 +53,11 @@ export const CITY_VIEWBOX = `0 0 ${COLS * STEP} ${ROWS * STEP}`;
  * Dot-matrix map of the city breathing with OMNI; the switched-off patch in the
  * top corner is the Dark Zone (kept in view on narrow screens). `zoom` closes in on it. Static for reduced motion (CSS).
  */
-export const CityMatrix = memo(function CityMatrix({ zoom = false, fx, trace }: {
+export const CityMatrix = memo(function CityMatrix({ zoom = false, fx, trace, found = 1 }: {
   zoom?: boolean;
   fx?: string;
+  /** `fragment_found`: how many of the eight fragments are found (lit in the signal colour). */
+  found?: number;
   /** Path of the `trace` effect, in percent of the map. */
   trace?: ScenePoint[];
 }) {
@@ -92,7 +94,14 @@ export const CityMatrix = memo(function CityMatrix({ zoom = false, fx, trace }: 
         {(fx === "eight_fragments" || fx === "fragment_found") && (
           <g className={`city-fragments${fx === "fragment_found" ? " is-found" : ""}`}>
             {FRAGMENTS.map(([c, r], i) => (
-              <circle key={i} cx={c * STEP + 5} cy={r * STEP + 5} r={3} style={{ ["--i" as string]: i }} />
+              <circle
+                key={i}
+                className={fx === "fragment_found" && i < found ? "is-lit" : undefined}
+                cx={c * STEP + 5}
+                cy={r * STEP + 5}
+                r={3}
+                style={{ ["--i" as string]: i }}
+              />
             ))}
           </g>
         )}

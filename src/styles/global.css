@@ -2089,8 +2089,8 @@ kbd {
   animation: fragment-flare 2.4s calc(var(--i) * 140ms) var(--ease-out) 1 both;
 }
 
-/* One fragment found: it stays lit in the signal colour while the other seven fade. */
-.city-fragments.is-found circle:first-child {
+/* The fragments found so far (one per chapter) stay lit in the signal colour while the others fade. */
+.city-fragments.is-found circle.is-lit {
   fill: var(--signal);
   animation: fragment-found 2.4s var(--ease-out) 1 both;
 }

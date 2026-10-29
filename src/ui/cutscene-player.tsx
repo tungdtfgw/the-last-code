@@ -18,6 +18,8 @@ export interface CutscenePlayerProps {
   /** 0-based Neural-ID slots already filled. */
   collected: readonly number[];
   slots: number;
+  /** How many algorithm fragments `fragment_found` lights (the chapter number). */
+  found?: number;
   /** Called once: when the last beat is passed, on skip, or (transcript) on TIẾP TỤC. */
   onFinish(reason: "end" | "skip"): void;
   /** Shown after the last beat instead of leaving (the teaser's VỀ BẢN ĐỒ). */
@@ -86,7 +88,7 @@ function BeatView({ beat, text, age, current, typing, collected, slots }: {
  * story's first backdrop, still.
  * Beat cues play the moment a beat starts; the JS timers here only move between beats.
  */
-export function CutscenePlayer({ beats, play, collected, slots, onFinish, endPanel, controls }: CutscenePlayerProps) {
+export function CutscenePlayer({ beats, play, collected, slots, found, onFinish, endPanel, controls }: CutscenePlayerProps) {
   const reduced = useReducedMotion();
   const reducer = useMemo(() => cutsceneReducer(beats), [beats]);
   const [state, dispatch] = useReducer(reducer, null, () => initCutscene(beats, reduced));
@@ -197,7 +199,7 @@ export function CutscenePlayer({ beats, play, collected, slots, onFinish, endPan
       tabIndex={-1}
       onPointerDown={transcript || ended ? undefined : onStagePointer}
     >
-      <StoryBackdrop backdrop={backdrop} fx={beat?.fx} fxKey={fxFrom} still={transcript} />
+      <StoryBackdrop backdrop={backdrop} fx={beat?.fx} fxKey={fxFrom} still={transcript} found={found} />
       <div className="story-controls">
         {controls}
         {!ended && (

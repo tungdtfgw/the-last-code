@@ -7,17 +7,19 @@ import { useHashRoute } from "./shell/use-hash-route";
 import { useProgressSnapshot } from "./shell/use-progress-snapshot";
 import { getChapters } from "./story/chapter";
 import {
-  buildChapterContext,
+  buildGameContext,
+  chapterNodes,
   chapterTotals,
   continueAfterLevel,
+  defaultMapChapter,
   guardRoute,
+  isChapterEnd,
   isReturning,
   learnEnd,
-  nodeStates,
   seenStories,
   storyEnd,
   titleContinue,
-  type ChapterContext,
+  type GameContext,
   type Route,
 } from "./story/progression";
 import { ChapterMap } from "./ui/chapter-map";
@@ -37,7 +39,7 @@ const ENTRY_GUARD_AFTER_STORY_MS = 400;
  * signed-in player. Audio lives here so one AudioContext lasts the session. Every
  * route passes `guardRoute`; all progression decisions come from `progression.ts`.
  */
-function Shell({ ctx, repository, user, onAccount }: { ctx: ChapterContext } & GameProps) {
+function Shell({ ctx, repository, user, onAccount }: { ctx: GameContext } & GameProps) {
   const audio = useAudio(repository);
   const { route, navigate } = useHashRoute();
   const key = routeHash(route);
@@ -83,7 +85,7 @@ function Shell({ ctx, repository, user, onAccount }: { ctx: ChapterContext } & G
     async (id: string) => {
       await repository.markStorySeen(id);
       const snap = await refresh();
-      if (id === "teaser") return; // its end panel leads to the map
+      if (isChapterEnd(id, ctx)) return; // its end panel leads on (TIẾP TỤC) or to the map
       // The player may have left (Back) while this was saving.
       if (window.location.hash !== routeHash({ kind: "story", id })) return;
       const replay = replaying.current === routeHash({ kind: "story", id });
@@ -116,21 +118,23 @@ function Shell({ ctx, repository, user, onAccount }: { ctx: ChapterContext } & G
         />
       );
     case "map": {
-      const totals = chapterTotals(ctx, snapshot);
-      const lore = [...ctx.built.values()]
+      const n = route.chapter ?? defaultMapChapter(ctx, snapshot);
+      const totals = chapterTotals(ctx, snapshot, n);
+      const levels = [...ctx.built.values()].filter((l) => ctx.chapterOf.get(l.id) === n);
+      const lore = levels
         .filter((l) => (snapshot.stars[l.id] ?? 0) > 0 && l.lore_fragment.trim())
         .map((l) => ({ levelId: l.id, text: l.lore_fragment }));
       return (
         <ChapterMap
-          nodes={nodeStates(ctx, snapshot)}
+          nodes={chapterNodes(ctx, snapshot, n)}
           levels={ctx.built}
           totals={totals}
-          seenStories={seenStories(ctx, snapshot)}
+          seenStories={seenStories(ctx, snapshot, n)}
           lore={lore}
           persistent={persistent}
           muted={audio.muted}
           onPlay={(id) => navigate({ kind: "level", id })}
-          knowledge={[...ctx.built.values()]
+          knowledge={levels
             .filter((l) => l.knowledge_summary && (snapshot.stars[l.id] ?? 0) > 0)
             .map((l) => ({ levelId: l.id, title: l.title }))}
           onReplay={(id) => {
@@ -154,7 +158,9 @@ function Shell({ ctx, repository, user, onAccount }: { ctx: ChapterContext } & G
           ctx={ctx}
           snapshot={snapshot}
           audio={audio}
+          replaying={replaying.current === key}
           onFinish={() => void finishStory(route.id)}
+          onContinue={() => navigate(storyEnd(route.id, ctx, snapshot), { replace: true })}
           onMap={() => navigate({ kind: "map" }, { replace: true })}
         />
       );
@@ -194,23 +200,27 @@ function Shell({ ctx, repository, user, onAccount }: { ctx: ChapterContext } & G
   }
 }
 
-/** Applies the D1 text to the bundled puzzle files and builds the chapter, then the shell. */
+/**
+ * Applies the D1 text to the bundled puzzle files and builds every chapter, then
+ * the shell. Chapter 1 broken is fatal; a later broken chapter only closes its
+ * own levels and stories.
+ */
 function GameRoot(game: GameProps) {
   const { texts } = game;
-  const chapter = useMemo(
-    () => getChapters(texts).find((c) => c.chapter === 1)?.result ?? { ok: false as const, errors: ["thiếu file chương 1"] },
-    [texts],
-  );
-  const ctx = useMemo(
-    () => (chapter.ok ? buildChapterContext(chapter.chapter, buildRegistry(bundledLevelModules(), texts)) : null),
-    [chapter, texts],
-  );
+  const chapters = useMemo(() => getChapters(texts), [texts]);
+  const first = chapters.find((c) => c.chapter === 1)?.result ?? { ok: false as const, errors: ["thiếu file chương 1"] };
+  const ctx = useMemo(() => {
+    if (!first.ok) return null;
+    const valid = chapters.flatMap((c) => (c.result.ok ? [c.result.chapter] : []));
+    const broken = chapters.filter((c) => !c.result.ok).map((c) => c.chapter);
+    return buildGameContext(valid, broken, buildRegistry(bundledLevelModules(), texts));
+  }, [chapters, first.ok, texts]);
   if (!ctx) {
     return (
       <FatalScreen
         title="DỮ LIỆU CHƯƠNG HỎNG"
         message="Không đọc được dữ liệu chương 1."
-        detail={chapter.ok ? [] : chapter.errors.slice(0, 8)}
+        detail={first.ok ? [] : first.errors.slice(0, 8)}
         action={{ label: "Tải lại", onClick: () => window.location.reload() }}
       />
     );
