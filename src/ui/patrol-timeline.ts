@@ -285,8 +285,11 @@ export function buildPatrolTimeline(outcome: RunOutcome, level: LevelDefinition)
         : outcome.error?.phase === "counter"
           ? `${outcome.error.type}: dòng ${outcome.error.line ?? "?"}`
           : CUT;
-    // The run was cut short: no verdict from the drone, the strip stays half open.
-    frames.push({ scene: { ...copy(c), kai: "still", drone: "idle", label: CUT, status: `LỐI QUA GIỮ MỘT NỬA · ${why}` }, hold: 0, cues: ["alarm"] });
+    // The run was cut short: no verdict from the drone, the strip stays half open. The stdin
+    // cards still say what was read before it stopped (an aborted phase reports nothing).
+    const label = outcome.error?.phase === "counter" ? `${outcome.error.type} · dòng ${outcome.error.line ?? "?"}` : CUT;
+    const sensors = outcome.counterAborted ? c.sensors : sensorCards(level, counterData.inputs, counterData.stdin, outcome.counterStdinRead);
+    frames.push({ scene: { ...copy(c), sensors, kai: "still", drone: "idle", label, status: `LỐI QUA GIỮ MỘT NỬA · ${why}` }, hold: 0, cues: ["alarm"] });
     return frames;
   }
   const after = situation(level, c, { ...counterData, result: { vars: outcome.counterVars, output: outcome.counterOutput } });
@@ -320,7 +323,13 @@ export function summarizePatrol(frames: PatrolFrame[]): string {
   });
   if (parts.length === 0) parts.push("Không tình huống nào chạy xong.");
   if (last.wave === "counter")
-    parts.push(last.label === CUT ? "OMNI đổi luật: tiến trình bị cắt." : last.label === "DRONE BỎ QUA" ? "OMNI đổi luật: drone vẫn bỏ qua." : "OMNI đổi luật: bị phát hiện.");
+    parts.push(
+      last.label === "DRONE BỎ QUA"
+        ? "OMNI đổi luật: drone vẫn bỏ qua."
+        : last.drone === "idle"
+          ? `OMNI đổi luật: ${last.label === CUT ? "tiến trình bị cắt" : `lỗi ${last.label}`}.`
+          : "OMNI đổi luật: bị phát hiện.",
+    );
   parts.push(last.gate === "open" ? "Lối qua mở hoàn toàn." : last.gate === "half" ? "Lối qua mở một nửa." : "Lối qua đóng.");
   return parts.join(" ");
 }

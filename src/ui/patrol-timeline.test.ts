@@ -76,7 +76,7 @@ describe("patrol timeline", () => {
     ];
     test.each(cases)("%s", (_name, over) => {
       const last = end(buildPatrolTimeline({ ...passed, ...over, stars: 2 }, stdinLevel));
-      expect(last).toMatchObject({ wave: "counter", label: CUT, gate: "half" });
+      expect(last).toMatchObject({ wave: "counter", label: over.error ? "ValueError · dòng 5" : CUT, gate: "half", drone: "idle" });
       expect(last.drone).not.toBe("locked");
       expect(last.kai).not.toBe("caught");
     });
@@ -89,8 +89,12 @@ describe("patrol timeline", () => {
     const code = `${HEAD}tin = input()\na = 1\nb = 2\nif tin == "  ":\n${trap}if tin.strip():\n    print("NAP")\nelse:\n    print("DI")\n`;
     const outcome = outcomeOf(stdinLevel, code);
     expect(outcome).toMatchObject({ key: "alert_exceeded", stars: 1, basePassed: true, counterStopStatus: status });
-    const last = end(buildPatrolTimeline(outcome, stdinLevel));
-    expect(last).toMatchObject({ wave: "counter", label: CUT, gate: "half" });
+    const frames = buildPatrolTimeline(outcome, stdinLevel);
+    const last = end(frames);
+    expect(last).toMatchObject({ wave: "counter", label: status === "timeout" ? CUT : "ZeroDivisionError · dòng 8", gate: "half", drone: "idle" });
+    // The counter line was read before it stopped.
+    expect(last.sensors.find((card) => card.kind === "stdin")?.read).toBe(true);
+    expect(summarizePatrol(frames)).toContain(status === "timeout" ? "tiến trình bị cắt" : "lỗi ZeroDivisionError · dòng 8");
     expect(last.drone).not.toBe("locked");
     expect(last.kai).not.toBe("caught");
   });

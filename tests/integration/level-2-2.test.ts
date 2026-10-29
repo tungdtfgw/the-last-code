@@ -132,6 +132,9 @@ describe("level 2.2: the counter-attack", () => {
     const terminal = buildTerminalLines(outcome, level, 1).map((l) => l.text);
     expect(terminal.at(-2)).toBe("> KHÔNG CHẠY KHI OMNI PHẢN CÔNG: dòng 8");
     expect(terminal.some((t) => t.includes("Ở TÌNH HUỐNG"))).toBe(false);
+    // One statement more (one star, over the alert threshold): still the counter situation's lines.
+    const oneStar = classifyRun({ kind: "ok", data: runHarness(level, `${readFixture("2.2/two-star")}z = 0\n`) }, level);
+    expect(oneStar).toMatchObject({ key: "alert_exceeded", stars: 1, skippedLines: [8], skippedCounter: true });
     // Counter situation 3 takes the NAP branch: nothing to dim, even though a base situation skipped line 8.
     expect(run("hardcode-le-40").outcome.skippedLines).toBeUndefined();
   });
