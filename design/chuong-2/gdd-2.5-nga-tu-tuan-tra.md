@@ -1,8 +1,8 @@
 # Level 2.5 – "Ngã tư tuần tra"
 
 > Chương 2 – Trạm Sentinel · Độ khó: Medium · Khái niệm: `and`, `or`, `not`, ngoặc trong điều kiện ghép
-> Câu đố: `src/levels/level-2-5.json` (chưa dựng). Câu chữ người chơi đọc: tài liệu `level:2.5` ở D1 (câu ban đầu sẽ vào `db/migrations/0015_content_level_2_5.sql`, sửa trên `#/admin`); GDD chỉ ghi ý đồ (`design/quyet-dinh/nguon-duy-nhat-cho-cau-chu.md`). Khung chương và phác câu đố: `design/gdd-chuong-2.md` mục 6.5. Hợp đồng engine (`patrol`, đếm câu lệnh, `wrong_branch`, `skipped_lines`): `docs/hop-dong-engine-chuong-2.md`. Brainstorm: `design/quyet-dinh/level-2-5-nga-tu-tuan-tra.md`.
-> Mọi con số trong tài liệu này đo bằng harness thật (`run_level`, python3 3.13.2) ngày 30/10/2026. `wrong_branch` chưa có trong code; khóa ghi ở đây suy ra theo định nghĩa ở hợp đồng engine mục 5.1.
+> Câu đố: `src/levels/level-2-5.json`. Câu chữ người chơi đọc: tài liệu `level:2.5` ở D1 (câu ban đầu vào `db/migrations/0015_content_level_2_5.sql`, sửa trên `#/admin`); GDD chỉ ghi ý đồ (`design/quyet-dinh/nguon-duy-nhat-cho-cau-chu.md`). Khung chương và phác câu đố: `design/gdd-chuong-2.md` mục 6.5. Hợp đồng engine (`patrol`, đếm câu lệnh, `wrong_branch`, `skipped_lines`): `docs/hop-dong-engine-chuong-2.md`. Brainstorm: `design/quyet-dinh/level-2-5-nga-tu-tuan-tra.md`.
+> Mọi con số trong tài liệu này đo bằng harness thật (`run_level`, python3 3.13.2) ngày 30/10/2026. Khóa `wrong_branch` và dòng mờ (`skipped_lines`) đã kiểm lại bằng `tests/integration/level-2-5.test.ts`.
 
 ## 0. Khác với phác câu đố ở `design/gdd-chuong-2.md` mục 6.5
 
@@ -305,7 +305,7 @@ Không đổi `compute-stars.ts`.
 
 Câu chữ: `outro`, `lore_fragment`, `component`, `outro_beats` (D1, `level:2.5`). Cấu trúc nhịp (kiểu, nền, cue, `fx`) nằm trong JSON.
 
-- `scene`: `tram-sentinel` (phông có sẵn). Phase tích hợp đổi sang `nga-tu-tuan-tra` khi nhánh cảnh S xong (hợp đồng engine mục 8).
+- `scene`: `nga-tu-tuan-tra`. Phông từng nhịp `outro_beats`: `design/quyet-dinh/canh-cutscene.md` mục "Gắn vào truyện Chương 2".
 - `outro`: Kai qua ngã tư giữa hai lượt đèn; dưới chân cột đèn có một hộp điều khiển cũ còn lưu lịch tuần tra, dẫn vào mảnh nhật ký.
 - `lore_fragment` (**KTS-03**, mảnh thứ hai của người này): lịch tuần tra gốc do tám người viết, từng phút một; OMNI chưa từng đổi nó, vì không có lý do để đổi một thứ đã đúng. Không nói ai khác biết lịch này.
 - `component`: Điều kiện qua đường (ô 5/6 sáng lên).
@@ -313,10 +313,10 @@ Câu chữ: `outro`, `lore_fragment`, `component`, `outro_beats` (D1, `level:2.5
 
 | # | Kiểu | Nền, cue, `fx` | Ý đồ |
 |---|---|---|---|
-| 1 | `echo` | `thanh-pho`, `fx: "trace"` | ECHO so lịch vượt rào mà 0xA7 gửi ở đầu chương với các luật Kai vừa giải: khớp tới từng giây. ECHO chỉ nói sự kiện này |
+| 1 | `echo` | `nga-tu-tuan-tra`, `fx: "trace"` | ECHO so lịch vượt rào mà 0xA7 gửi ở đầu chương với các luật Kai vừa giải: khớp tới từng giây. ECHO chỉ nói sự kiện này |
 | 2 | `echo` | | ECHO im một nhịp rồi nói lịch đó chỉ có trong hộp điều khiển gốc. Không suy đoán ai gửi |
-| 3 | `kai` | `tram-sentinel`, `fx: "focus"` | Kai nhớ lời KTS-03 ở Chương 1: đừng tin tín hiệu nào mang mã 0xA7. Một câu |
-| 4 | `log` | | Kai đi tiếp về phía trạm sạc drone, nơi bảng lệnh của tháp hiện lên. Dẫn vào 2.6 |
+| 3 | `kai` | `cong-bac`, `fx: "focus"` | Kai nhớ lời KTS-03 ở Chương 1: đừng tin tín hiệu nào mang mã 0xA7. Một câu |
+| 4 | `log` | `tram-sac` | Kai đi tiếp về phía trạm sạc drone, nơi bảng lệnh của tháp hiện lên. Dẫn vào 2.6 |
 
 - Không được lộ: 0xA7 là ai, 0xA7 có phải Kiến Trúc Sư; ECHO không nối lịch gốc với 0xA7 bằng một suy luận.
 - Móc câu: ai ngoài tám người biết lịch gốc.
@@ -365,7 +365,7 @@ Câu đố sẽ nằm ở `src/levels/level-2-5.json`, câu chữ ở D1 (tài l
 ```json
 "chapter": 2,
 "difficulty": "medium",
-"concepts": ["and", "or", "not"],
+"concepts": ["boolean_operators"],
 "simulation": { "kind": "patrol", "decision": { "line": 1 } },
 "inputs": ["khoang_cach", "camera_bat", "den_pha"],
 "locked_lines": [2, 3, 4],
@@ -382,7 +382,7 @@ Câu đố sẽ nằm ở `src/levels/level-2-5.json`, câu chữ ở D1 (tài l
   { "inputs": { "khoang_cach": 41, "camera_bat": true,  "den_pha": false }, "expected": {}, "expected_output": ["LENH: QUA"] },
   { "inputs": { "khoang_cach": 20, "camera_bat": false, "den_pha": true  }, "expected": {}, "expected_output": ["LENH: CHO"] }
 ],
-"scene": "tram-sentinel"
+"scene": "nga-tu-tuan-tra"
 ```
 
 `starter_code` đúng như mục 3 (dòng 2–4 hiện giá trị của tình huống 1). `outro_beats` như mục 12. `knowledge_summary` như mục 12.1. `forbidden_terms` như mục 9.

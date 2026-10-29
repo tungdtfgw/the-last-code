@@ -1,7 +1,7 @@
 # Level 2.6 – "Bảng lệnh trạm sạc"
 
 > Chương 2 – Trạm Sentinel · Độ khó: Medium · Khái niệm: điều kiện lồng nhau; chuỗi rỗng được coi là sai
-> Câu đố: `src/levels/level-2-6.json`. Câu chữ người chơi đọc: tài liệu `level:2.6` ở D1 (câu ban đầu sẽ vào `db/migrations/0016_content_level_2_6.sql`, sửa trên `#/admin`); GDD chỉ ghi ý đồ (`design/quyet-dinh/nguon-duy-nhat-cho-cau-chu.md`). Khung chương và phác câu đố: `design/gdd-chuong-2.md` mục 6.6. Hợp đồng engine (`patrol`, đếm câu lệnh, `wrong_branch`, `skipped_lines`): `docs/hop-dong-engine-chuong-2.md`. Kênh nhập, lời nhắc, `EOFError`: `docs/hop-dong-engine-level-1-5-den-1-7.md` (dùng lại nguyên). Brainstorm: `design/quyet-dinh/level-2-6-bang-lenh-tram-sac.md`.
+> Câu đố: `src/levels/level-2-6.json`. Câu chữ người chơi đọc: tài liệu `level:2.6` ở D1 (câu ban đầu vào `db/migrations/0016_content_level_2_6.sql`, sửa trên `#/admin`); GDD chỉ ghi ý đồ (`design/quyet-dinh/nguon-duy-nhat-cho-cau-chu.md`). Khung chương và phác câu đố: `design/gdd-chuong-2.md` mục 6.6. Hợp đồng engine (`patrol`, đếm câu lệnh, `wrong_branch`, `skipped_lines`): `docs/hop-dong-engine-chuong-2.md`. Kênh nhập, lời nhắc, `EOFError`: `docs/hop-dong-engine-level-1-5-den-1-7.md` (dùng lại nguyên). Brainstorm: `design/quyet-dinh/level-2-6-bang-lenh-tram-sac.md`.
 > Mọi con số trong tài liệu này đo bằng harness thật (`run_level`, python3 3.13.2) ngày 30/10/2026. Khóa `wrong_branch` và `skipped_lines` đã kiểm lại bằng `tests/integration/level-2-6.test.ts`.
 
 ## 0. Khác với phác câu đố ở `design/gdd-chuong-2.md` mục 6.6
@@ -332,7 +332,7 @@ Câu chữ: `hints`, `reactions`, `reaction_variants`, `counter_attack_banner` (
 
 Câu chữ: `outro`, `lore_fragment`, `component`, `outro_beats` (D1, `level:2.6`). Cấu trúc nhịp trong JSON.
 
-- `scene`: `tram-sentinel` (phông có sẵn). Phase tích hợp đổi sang `tram-sac` khi nhánh cảnh S xong (hợp đồng engine mục 8).
+- `scene`: `tram-sac`. Phông từng nhịp `outro_beats`: `design/quyet-dinh/canh-cutscene.md` mục "Gắn vào truyện Chương 2".
 - `outro`: Kai đọc hết bảng lệnh mà không drone nào rời cột sạc. Cuối bảng còn một dòng ghi cũ, không thuộc lệnh tuần tra nào, dẫn vào mảnh nhật ký. Theo `design/gdd-chuong-2.md` mục 4, bảng lệnh là chỗ hiếm hoi có màu vàng ấm ở Chương 2.
 - `lore_fragment` (**KTS-0█**): một bản ghi bị xóa mã người viết, đề ngày sau khi tám người chia mảnh, chỉ nói đã nộp một thứ gì đó. Không nêu tên, không có chi tiết nhận dạng (không giới tính, không chức vụ, không cách viết riêng của KTS nào đã lộ).
 - `component`: Đọc bảng lệnh (ô 6/6 sáng lên; thanh Bộ luật né đủ sáu luật).
@@ -340,10 +340,10 @@ Câu chữ: `outro`, `lore_fragment`, `component`, `outro_beats` (D1, `level:2.6
 
 | # | Kiểu | Nền, cue, `fx` | Ý đồ |
 |---|---|---|---|
-| 1 | `log` | `tram-sentinel`, cue `siren`, `fx: "focus"` | Bảng lệnh đổi cùng lúc ở mọi cột sạc: tháp ra lệnh xuất kích tới một tín hiệu không định danh gần tháp |
+| 1 | `log` | `tram-sac`, cue `siren`, `fx: "focus"` | Bảng lệnh đổi cùng lúc ở mọi cột sạc: tháp ra lệnh xuất kích tới một tín hiệu không định danh gần tháp |
 | 2 | `echo` | `fx: "alert_tick"` | ECHO đọc lịch của tháp: đợt quét lớn đã dời sớm. ECHO chỉ nói giờ mới gần hơn, không nói Kai bị lộ |
 | 3 | `kai` | | Kai hiểu tín hiệu không định danh đó là mình. Phải lên tháp ngay. Một câu |
-| 4 | `echo` | `fx: "id_bar"` | ECHO: bộ luật né đã đủ sáu luật; từ đây Kai chạy cả sáu cùng lúc. Dẫn vào Boss 2.7 |
+| 4 | `echo` | `tram-sentinel`, `fx: "id_bar"` | ECHO: bộ luật né đã đủ sáu luật; từ đây Kai chạy cả sáu cùng lúc. Dẫn vào Boss 2.7 |
 
 - ECHO không suy đoán về KTS-0█, không nhắc 0xA7 ở màn này.
 - Móc câu: một Kiến Trúc Sư đã làm gì đó sau ngày chia mảnh; Sentinel biết có người trong dải.
@@ -411,7 +411,7 @@ Câu đố sẽ nằm ở `src/levels/level-2-6.json`, câu chữ ở D1 (tài l
   { "inputs": {}, "stdin": ["XUAT KICH", "3"],  "expected": {}, "expected_output": ["LENH: NAP"] },
   { "inputs": {}, "stdin": [" ", "10"],         "expected": {}, "expected_output": ["LENH: CHO"] }
 ],
-"scene": "tram-sentinel"
+"scene": "tram-sac"
 ```
 
 `starter_code` đúng như mục 3. `outro_beats` như mục 12. `knowledge_summary` như mục 12.1 (mục có `stdin` ghi chuỗi có `\n` cuối). `forbidden_terms` như mục 9.

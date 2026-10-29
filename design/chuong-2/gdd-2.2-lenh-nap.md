@@ -1,8 +1,8 @@
 # Level 2.2 – "Lệnh nấp"
 
 > Chương 2 – Trạm Sentinel · Độ khó: Easy · Khái niệm: `if`, khối lệnh, thụt lề
-> Câu đố: `src/levels/level-2-2.json` (chưa dựng). Câu chữ người chơi đọc: tài liệu `level:2.2` ở D1 (câu ban đầu sẽ vào `db/migrations/0012_content_level_2_2.sql`, sửa trên `#/admin`); GDD chỉ ghi ý đồ (`design/quyet-dinh/nguon-duy-nhat-cho-cau-chu.md`). Trục truyện và phác câu đố: `design/gdd-chuong-2.md` mục 6.2. Hợp đồng engine (thắng GDD này khi lệch): `docs/hop-dong-engine-chuong-2.md`. Brainstorm: `design/quyet-dinh/level-2-2-lenh-nap.md`.
-> Mọi con số trong tài liệu này đo bằng `run_level` thật (python3 3.13.2) ngày 30/10/2026. `wrong_branch` và `skipped_lines` chưa có trong mã; khóa và dòng mờ ghi ở đây suy ra theo hợp đồng engine mục 5.1 và 6.
+> Câu đố: `src/levels/level-2-2.json`. Câu chữ người chơi đọc: tài liệu `level:2.2` ở D1 (câu ban đầu vào `db/migrations/0012_content_level_2_2.sql`, sửa trên `#/admin`); GDD chỉ ghi ý đồ (`design/quyet-dinh/nguon-duy-nhat-cho-cau-chu.md`). Trục truyện và phác câu đố: `design/gdd-chuong-2.md` mục 6.2. Hợp đồng engine (thắng GDD này khi lệch): `docs/hop-dong-engine-chuong-2.md`. Brainstorm: `design/quyet-dinh/level-2-2-lenh-nap.md`.
+> Mọi con số trong tài liệu này đo bằng `run_level` thật (python3 3.13.2) ngày 30/10/2026. Khóa `wrong_branch` và dòng mờ (`skipped_lines`) đã kiểm lại bằng `tests/integration/level-2-2.test.ts`.
 
 ## 1. Bối cảnh
 
@@ -287,7 +287,7 @@ Hệ quả cần nhớ khi viết câu: `DI` bị cấm như một từ riêng, 
 
 Câu chữ: `outro`, `lore_fragment`, `component`, `outro_beats` (D1, `level:2.2`).
 
-- `scene`: `tram-sentinel` (phông có sẵn). Phase I đổi sang `hang-rao-ngoai`.
+- `scene`: `hang-rao-ngoai`. Phông từng nhịp `outro_beats`: `design/quyet-dinh/canh-cutscene.md` mục "Gắn vào truyện Chương 2".
 - `outro`: drone bay qua đầu Kai mà không quay đèn; trong bộ nhớ đệm của một trụ rào còn một tệp cũ không thuộc dữ liệu tuần tra. Dẫn vào mảnh nhật ký.
 - `lore_fragment` (**KTS-01**, mảnh thứ ba; người đề xuất chia công tắc): ý nghĩa của mảnh "Quyết định". Không có nó, công tắc biết cách tắt nhưng không biết khi nào được tắt. Không nói mảnh nằm ở đâu, ai giữ.
 - `component`: Lệnh nấp (ô 2/6).
@@ -295,8 +295,8 @@ Câu chữ: `outro`, `lore_fragment`, `component`, `outro_beats` (D1, `level:2.2
 
 | # | Kiểu, nền | Ý đồ | Cue, hiệu ứng |
 |---|---|---|---|
-| 1 | card, `tram-sentinel` | Tín hiệu 0xA7: Kai đi chậm quá; lịch của nó nhanh hơn | `glitch`, `fx: "signal_0xa7"` |
-| 2 | echo | ECHO không nhắc tới 0xA7. Chỉ đọc phía trước: Bãi Container, đèn pha quét qua lại hai phía. Dẫn vào 2.3 | |
+| 1 | card, `hang-rao-ngoai` | Tín hiệu 0xA7: Kai đi chậm quá; lịch của nó nhanh hơn | `glitch`, `fx: "signal_0xa7"` |
+| 2 | echo | ECHO không nhắc tới 0xA7. Chỉ đọc phía trước: Bãi Container, đèn pha quét qua lại hai phía. Dẫn vào 2.3 | `fx: "trace"` (dọc chân rào) |
 | 3 | kai | Một câu: Kai đi tiếp theo luật của mình | `fx: "focus"` |
 
 - Móc câu: công tắc cần một "quyết định"; 0xA7 sốt ruột.
@@ -342,7 +342,7 @@ Lỗi thường gặp (`mistakes`): thân không lùi vào → `IndentationError
 - `inputs`: `["khoang_cach", "tam_quet"]`; `locked_lines`: `[2, 3]`.
 - `objectives`: `lenh` kiểu `str`.
 - `tests`, `counter_attack_tests`: mục 8. `alert_limit_statements`: 3.
-- `scene`: `tram-sentinel`; `outro_beats`: ba nhịp mục 14.
+- `scene`: `hang-rao-ngoai`; `outro_beats`: ba nhịp mục 14.
 - `forbidden_terms`: mục 11.
 - Lời giải và đột biến: `tests/fixtures/solutions/2.2/` (`original.py`, `two-star.py`, `three-star.py`, các cách viết 3 sao, một file cho mỗi dòng mục 8.2); test `tests/integration/level-2-2.test.ts`.
 
