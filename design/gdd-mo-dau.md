@@ -65,7 +65,7 @@ Câu chữ: `prologue[].text` (D1, `chapter:1`; 23 nhịp, cấu trúc nhịp tr
 
 Có bốn kiểu nhịp: **log** (chữ hệ thống, mono, xanh nhạt), **kai** (lời Kai, nghiêng, trắng ấm), **echo** (chữ ECHO, nhiễu ký tự, có ô chân dung nhiễu sóng nhỏ, phát `echo_voice`), **card** (chữ lớn giữa màn, xóa các nhịp trước). Các nhịp log, kai, echo xếp chồng thành một cột như terminal; cột tự cuộn, nhịp cũ mờ dần.
 
-Phông nền (`backdrop`) chỉ có ba loại: `thanh-pho` (ma trận chấm như màn tiêu đề), `vung-toi` (thu gần vào khu chấm tắt), `terminal` (khung màn hình laptop, con trỏ nhấp nháy). Hiệu ứng (`fx`) là quyết định thiết kế, gắn vào đúng nhịp dưới đây: `city_blink`, `eight_fragments`, `alert_tick`, `id_bar`.
+Phông nền (`backdrop`) gồm ba góc nhìn hệ thống vẽ bằng code, `thanh-pho` (ma trận chấm như màn tiêu đề), `vung-toi` (thu gần vào khu chấm tắt), `terminal` (khung màn hình laptop, con trỏ nhấp nháy), và chín cảnh địa điểm vẽ bằng SVG cùng ngôn ngữ ma trận chấm. Hiệu ứng (`fx`) là quyết định thiết kế, gắn vào đúng nhịp. Danh sách cảnh, hiệu ứng và bảng gắn nhịp của mọi đoạn truyện nằm ở `design/quyet-dinh/canh-cutscene.md`; bảng dưới đây ghi ý đồ ban đầu.
 
 Ba thẻ (card) chia đoạn thành bốn phần: nhịp 1 (mở), nhịp 7 (Vùng Tối), nhịp 10 (thẻ của Nhi), nhịp 23 (đóng). Ý đồ từng nhóm nhịp:
 
@@ -128,7 +128,7 @@ Chọn cách nhỏ nhất mà người soạn level không phải sửa code, v�
 - **Trong JSON level** (mỗi người soạn chỉ sửa file của mình), thêm các trường tùy chọn:
   - `location`: tên địa điểm, dùng cho dòng trên màn "VÀO NHIỆM VỤ" và tiêu đề ô mô phỏng (hiện đang viết cứng "Cổng phía Bắc").
   - `component`: tên thành phần Neural-ID giả mà level tạo ra.
-  - `outro_beats`: mảng nhịp `{ "kind": "log" | "kai" | "echo" | "card", "text": "…", "cue"?: Cue, "backdrop"?: "thanh-pho" | "vung-toi" | "terminal", "fx"?: "city_blink" | "eight_fragments" | "alert_tick" | "id_bar", "hold_ms"?: 0–5000 }` (cùng định dạng với `prologue` và `teaser`, kiểm bởi `validate-beats.ts`).
+  - `outro_beats`: mảng nhịp `{ "kind": "log" | "kai" | "echo" | "card", "text": "…", "cue"?: Cue, "backdrop"?: Backdrop, "fx"?: BeatFx, "hold_ms"?: 0–5000 }` (cùng định dạng với `prologue` và `teaser`, kiểm bởi `validate-beats.ts`; danh sách `Backdrop`/`BeatFx` ở `src/story/story-types.ts`). Trường `scene` (tùy chọn) là cảnh của nhịp outro, tức cảnh mở đầu đoạn after-<id>.
 - **Một file chương** `src/story/chapter-1.json`: `levels` (thứ tự: `["1.1","1.2","1.3","1.4","1.5","1.6","1.7"]`), `prologue` (mảng nhịp ở mục 3), `teaser` (mảng nhịp ở mục 5.6). Level có trong `levels` mà chưa có file JSON được coi là "chưa dựng".
 - `validate-level.ts` kiểm các trường mới (kiểu nhịp hợp lệ, `cue` nằm trong danh sách `Cue`, chữ ECHO trong nhịp không chứa từ cấm của level đó). Một file kiểm tương tự cho file chương.
 - Âm thanh mới: thêm đúng hai recipe `pulse` và `glitch` vào `sound-recipes.ts`. Các nhịp chỉ phát cue ngay khi nhịp bắt đầu; mọi cue có độ trễ phải hẹn trên đồng hồ AudioContext.

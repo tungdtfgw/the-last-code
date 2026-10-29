@@ -129,6 +129,7 @@
     "K7Q2",
     "M4X8"
   ],
+  "scene": "tram-r17",
   "outro_beats": [
     {
       "kind": "log",
@@ -137,7 +138,8 @@
     },
     {
       "kind": "card",
-      "cue": "glitch"
+      "cue": "glitch",
+      "fx": "signal_0xa7"
     },
     {
       "kind": "echo"

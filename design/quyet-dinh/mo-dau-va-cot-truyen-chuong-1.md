@@ -33,7 +33,7 @@ Người chơi mở URL thấy màn tiêu đề, bấm BẮT ĐẦU, xem một �
 - Đăng nhập, lưu đám mây, bảng xếp hạng, số liệu cộng đồng.
 - Dựng level 1.5–1.7 hoặc đặc tả Boss. Chỉ có một dòng định hướng cho mỗi level.
 - Cơ chế của 1.1–1.3 (code khởi đầu, test, gợi ý, phản ứng ECHO, mô phỏng): thuộc người soạn level.
-- Lồng tiếng, nhạc nền có giai điệu, ảnh minh họa.
+- Lồng tiếng, nhạc nền có giai điệu, ảnh minh họa. (Cảnh vẽ cho cutscene đã được đưa vào sau, vẽ bằng SVG chứ không dùng ảnh minh họa: xem `design/quyet-dinh/canh-cutscene.md` và QĐ-18.)
 - Điểm giải mã, mở khóa chương bằng sao, Chương 2.
 - Viết code. Tài liệu này chỉ là thiết kế.
 

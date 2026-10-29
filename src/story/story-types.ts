@@ -3,11 +3,43 @@ import type { Cue } from "../audio/cue-names.js";
 export const BEAT_KINDS = ["log", "kai", "echo", "card"] as const;
 export type BeatKind = (typeof BEAT_KINDS)[number];
 
-export const BACKDROPS = ["thanh-pho", "vung-toi", "terminal"] as const;
+/**
+ * `thanh-pho`, `vung-toi` and `terminal` are the system's view (dot matrix, laptop);
+ * the rest are places on the ground, drawn as scenes (`src/ui/scene-art.tsx`).
+ */
+export const BACKDROPS = [
+  "thanh-pho",
+  "vung-toi",
+  "terminal",
+  "tang-ham",
+  "tram-r17",
+  "tram-khau-phan",
+  "ga-ngam",
+  "cong-bac",
+  "vanh-dai-dien",
+  "tram-tham-van",
+  "cong-kiem-soat",
+  "tram-sentinel",
+] as const;
 export type Backdrop = (typeof BACKDROPS)[number];
 
-/** Background effects a beat can trigger once while it is on screen. */
-export const BEAT_FX = ["city_blink", "eight_fragments", "alert_tick", "id_bar"] as const;
+/**
+ * Background effects a beat can trigger while it is on screen. `focus`, `trace` and
+ * the city effects only work on backdrops that support them (`src/story/scene-catalog.ts`);
+ * the rest draw over any backdrop.
+ */
+export const BEAT_FX = [
+  "city_blink",
+  "eight_fragments",
+  "fragment_found",
+  "alert_tick",
+  "id_bar",
+  "signal_0xa7",
+  "omni_layer",
+  "scan",
+  "focus",
+  "trace",
+] as const;
 export type BeatFx = (typeof BEAT_FX)[number];
 
 /** One beat as authored in JSON (chapter file or a level's `outro_beats`). */

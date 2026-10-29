@@ -71,6 +71,7 @@
     "nhân 100",
     "* 100"
   ],
+  "scene": "cong-bac",
   "outro_beats": [
     {
       "kind": "kai"
@@ -82,7 +83,8 @@
       "kind": "kai"
     },
     {
-      "kind": "echo"
+      "kind": "echo",
+      "fx": "omni_layer"
     }
   ],
   "knowledge_summary": {

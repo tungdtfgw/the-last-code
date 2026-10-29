@@ -86,17 +86,21 @@
     "chữ hoa",
     "viết hoa"
   ],
+  "scene": "ga-ngam",
   "outro_beats": [
     {
       "kind": "log",
-      "cue": "scan_reject"
+      "cue": "scan_reject",
+      "fx": "focus"
     },
     {
-      "kind": "echo"
+      "kind": "echo",
+      "fx": "focus"
     },
     {
       "kind": "card",
-      "cue": "glitch"
+      "cue": "glitch",
+      "fx": "signal_0xa7"
     },
     {
       "kind": "kai"

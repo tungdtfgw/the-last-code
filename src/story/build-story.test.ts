@@ -22,6 +22,13 @@ describe("buildStory", () => {
     });
   });
 
+  test("the outro carries the level's scene, which then holds until a beat changes it", () => {
+    const beats = buildStory("after-1.4", ctxOf({ ...level14, scene: "cong-bac" }))!;
+    expect(beats[0].backdrop).toBe("cong-bac");
+    const { scene: _s, ...noScene } = { ...level14, scene: undefined };
+    expect(buildStory("after-1.4", ctxOf(noScene))![0]).not.toHaveProperty("backdrop");
+  });
+
   test("a level without component or outro beats keeps only outro and lore", () => {
     const { component: _c, outro_beats: _b, ...bare } = level14;
     expect(buildStory("after-1.4", ctxOf(bare))!.map((b) => b.kind)).toEqual(["log", "lore"]);

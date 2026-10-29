@@ -157,3 +157,30 @@ Mẫu một mục: ngày · quyết định · các phương án đã xét · l�
 - **Lý do:** một nguồn duy nhất cho câu chữ; migration nằm trong git nên câu ban đầu vẫn theo commit, test vẫn ổn định, và D1 thật nhận câu qua đúng đường `wrangler d1 migrations apply` đang dùng cho schema.
 - **Phương án đã xét:** giữ bản chụp như QĐ-15 (bỏ: hai bản lệch nhau); seed câu bằng lệnh riêng lúc deploy (bỏ: thêm một bước dễ quên, e2e và dev phải tự seed); cho trang quản trị tạo tài liệu mới (bỏ: câu ban đầu cần review cùng câu đố trong một commit).
 - **Đánh đổi:** migration câu chữ phải áp lên D1 thật **trước** khi deploy code; deploy trước là mọi level hỏng. GDD không còn trỏ được tới câu trong repo; muốn đọc câu hiện hành thì mở trang quản trị. Câu admin sửa trên D1 chỉ nằm ở D1 (và bảng lịch sử), không về repo.
+
+## QĐ-17 · Cảnh cutscene là ảnh bitmap tạo bằng AI
+
+- **Ngày:** 28/10/2026 · **Trạng thái:** đã thay bằng QĐ-18 (cùng ngày, trước khi phát hành). Thay non-goal "ảnh minh họa" của `design/quyet-dinh/mo-dau-va-cot-truyen-chuong-1.md`.
+- **Vấn đề:** mở đầu và các đoạn chuyển cảnh chỉ có ba phông vẽ bằng code (ma trận chấm, khu chấm tắt, laptop). Nhịp outro do `build-story.ts` sinh không mang phông, nên 6/7 đoạn after-<id> và đoạn hết chương chạy trên cùng một ma trận, dù truyện đi qua bảy địa điểm.
+- **Quyết định:**
+  - Chín địa điểm (`tang-ham`, `tram-r17`, `tram-khau-phan`, `ga-ngam`, `cong-bac`, `vanh-dai-dien`, `tram-tham-van`, `cong-kiem-soat`, `tram-sentinel`) là ảnh WebP 1600×900 trong `src/assets/scenes/`, tạo bằng Gemini (model ảnh "Nano Banana") từ `design/canh-cutscene/prompts.json` qua `scripts/generate-scenes.mjs` (khóa `GEMINI_API_KEY` chỉ ở môi trường, không vào repo).
+  - `thanh-pho`, `vung-toi`, `terminal` vẫn vẽ bằng code: chúng là góc nhìn của hệ thống, còn ảnh là mặt đất.
+  - Chuyển động bằng CSS: crossfade 600 ms khi đổi phông, Ken Burns chậm, `focus`/`trace` theo bảng `src/story/scene-catalog.ts`, lớp phủ `signal_0xa7`/`omni_layer`/`scan`. Chỉ transform/opacity; dừng khi tab ẩn; giảm chuyển động thì tĩnh.
+  - Ảnh nạp bằng `import.meta.glob(..., { query: "?url" })`: ra `dist/assets` có hash, không vào bundle JS. Story nạp trước ảnh của nó khi mở (cả lúc cổng story chờ); ảnh lỗi thì nền tối, truyện vẫn chạy.
+  - Ảnh không có chữ, không có mặt người (QĐ-16 và tránh chữ giả AI sinh); người chơi đọc chữ ở cột dưới nên chủ thể nằm nửa trên.
+- **Lý do:** cảnh địa điểm cần chất tranh mà code SVG khó đạt; ảnh WebP nhỏ (vài chục KB mỗi ảnh) và chỉ tải theo story.
+- **Phương án đã xét:** cảnh SVG/CSS ghép lớp (bỏ: người dùng chọn ảnh); tái dùng hình mô phỏng của level (bỏ: trông như giao diện, không ra cảnh); canvas/WebGL (bỏ: tốn pin, khó làm giảm chuyển động).
+- **Đánh đổi:** phong cách phụ thuộc model; sửa một cảnh là tạo lại ảnh (`node scripts/generate-scenes.mjs --only <id>`) rồi xem bằng mắt. Ảnh chiếm dung lượng tĩnh của bản build.
+
+## QĐ-18 · Cảnh cutscene vẽ bằng SVG theo ngôn ngữ ma trận chấm
+
+- **Ngày:** 28/10/2026 · **Trạng thái:** đang áp dụng (chủ dự án chốt). Thay QĐ-17.
+- **Vấn đề:** ảnh AI của QĐ-17 ra chất "cyberpunk hậu tận thế", lệch với giao diện hiện có. Chủ dự án muốn cảnh giống phong cách đang có, chỉ thêm không khí ma mị.
+- **Quyết định:**
+  - Chín cảnh địa điểm vẽ bằng SVG trong `src/ui/scene-art.tsx`, khung 160×90: khối tô bằng cùng ma trận chấm của bản đồ thành phố (`<pattern>`), nét mảnh, chỉ ba thứ ánh sáng: xanh tín hiệu, đỏ OMNI, đèn vàng.
+  - Không khí ma mị bằng CSS: sương trôi, bụi lơ lửng, đèn chập chờn, viền tối, thỉnh thoảng cả cảnh "nhoè" một nhịp. Chỉ transform/opacity; giảm chuyển động thì tĩnh; tab ẩn thì dừng.
+  - Không có file ảnh, không nạp mạng, không cần chờ tải: crossfade 600 ms như mọi phông.
+  - `focus` và `trace` của mỗi cảnh (phần trăm của khung 160×90) ở `src/story/scene-catalog.ts`.
+- **Lý do:** đồng bộ với màn tiêu đề, bản đồ và mô phỏng; sửa một cảnh là sửa code, xem ngay trong dev.
+- **Phương án đã xét:** ảnh AI (QĐ-17, bỏ: lệch phong cách); canvas/WebGL (bỏ: tốn pin, khó làm giảm chuyển động).
+- **Đánh đổi:** cảnh đơn giản hơn tranh vẽ; chi tiết nhiều thì số node SVG tăng (giữ dưới khoảng 200 node mỗi cảnh).

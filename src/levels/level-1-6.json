@@ -149,19 +149,24 @@
     "4179",
     "9042"
   ],
+  "scene": "tram-tham-van",
   "outro_beats": [
     {
-      "kind": "echo"
+      "kind": "echo",
+      "backdrop": "cong-kiem-soat"
     },
     {
-      "kind": "kai"
+      "kind": "kai",
+      "fx": "focus"
     },
     {
       "kind": "card",
-      "cue": "glitch"
+      "cue": "glitch",
+      "fx": "signal_0xa7"
     },
     {
-      "kind": "echo"
+      "kind": "echo",
+      "fx": "trace"
     }
   ]
 }

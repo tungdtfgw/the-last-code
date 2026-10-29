@@ -43,21 +43,24 @@
       "cue": "pulse"
     },
     {
-      "kind": "kai"
+      "kind": "kai",
+      "backdrop": "tang-ham"
     },
     {
       "kind": "kai"
     },
     {
       "kind": "card",
-      "backdrop": "vung-toi",
-      "cue": "scan_pass"
+      "backdrop": "tang-ham",
+      "cue": "scan_pass",
+      "fx": "scan"
     },
     {
       "kind": "kai"
     },
     {
-      "kind": "kai"
+      "kind": "kai",
+      "fx": "focus"
     },
     {
       "kind": "log",
@@ -98,13 +101,14 @@
     {
       "kind": "card",
       "backdrop": "thanh-pho",
-      "cue": "pulse"
+      "cue": "pulse",
+      "fx": "trace"
     }
   ],
   "teaser": [
     {
       "kind": "log",
-      "backdrop": "thanh-pho",
+      "backdrop": "cong-kiem-soat",
       "cue": "gate_close_far"
     },
     {
@@ -113,29 +117,36 @@
     },
     {
       "kind": "log",
-      "fx": "eight_fragments"
+      "fx": "fragment_found",
+      "backdrop": "thanh-pho"
     },
     {
-      "kind": "log"
+      "kind": "log",
+      "backdrop": "tram-sentinel"
     },
     {
       "kind": "card",
-      "cue": "glitch"
+      "cue": "glitch",
+      "fx": "signal_0xa7"
     },
     {
       "kind": "echo"
     },
     {
       "kind": "log",
-      "cue": "scan_reject"
+      "cue": "scan_reject",
+      "backdrop": "cong-kiem-soat",
+      "fx": "focus"
     },
     {
       "kind": "kai",
-      "hold_ms": 2000
+      "hold_ms": 2000,
+      "fx": "focus"
     },
     {
       "kind": "card",
-      "cue": "pulse"
+      "cue": "pulse",
+      "backdrop": "tram-sentinel"
     }
   ]
 }

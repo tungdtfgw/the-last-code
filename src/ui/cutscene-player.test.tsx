@@ -80,4 +80,45 @@ describe("CutscenePlayer", () => {
     act(() => void fireEvent.click(next));
     expect(onFinish).toHaveBeenCalledWith("end");
   });
+
+  test("a new backdrop fades in over the old one, which then goes", () => {
+    const scenes = () => [...document.querySelectorAll<HTMLElement>(".scene-layer")].map((l) => l.dataset.scene);
+    render(
+      <CutscenePlayer
+        beats={[
+          { kind: "log", text: "Một.", backdrop: "tang-ham" },
+          { kind: "kai", text: "Hai.", backdrop: "ga-ngam" },
+        ]}
+        play={vi.fn()}
+        collected={[]}
+        slots={6}
+        onFinish={vi.fn()}
+      />,
+    );
+    expect(scenes()).toEqual(["tang-ham"]);
+    key(" ");
+    key(" ");
+    expect(scenes()).toEqual(["tang-ham", "ga-ngam"]);
+    act(() => void vi.advanceTimersByTime(600));
+    expect(scenes()).toEqual(["ga-ngam"]);
+  });
+
+  test("reduced motion: the transcript sits on the story's first backdrop, still", () => {
+    mockReducedMotion(true);
+    render(
+      <CutscenePlayer
+        beats={[
+          { kind: "log", text: "Một.", backdrop: "cong-bac", fx: "focus" },
+          { kind: "kai", text: "Hai.", backdrop: "terminal", fx: "signal_0xa7" },
+        ]}
+        play={vi.fn()}
+        collected={[]}
+        slots={6}
+        onFinish={vi.fn()}
+      />,
+    );
+    expect(document.querySelector(".story-backdrop.is-still")).toBeTruthy();
+    expect([...document.querySelectorAll<HTMLElement>(".scene-layer")].map((l) => l.dataset.scene)).toEqual(["cong-bac"]);
+    expect(document.querySelector(".is-focus, .fx-signal")).toBeNull();
+  });
 });

@@ -89,15 +89,19 @@
     "%",
     "làm tròn"
   ],
+  "scene": "vanh-dai-dien",
   "outro_beats": [
     {
-      "kind": "log"
+      "kind": "log",
+      "backdrop": "tram-tham-van"
     },
     {
       "kind": "echo"
     },
     {
-      "kind": "kai"
+      "kind": "kai",
+      "backdrop": "cong-kiem-soat",
+      "fx": "focus"
     }
   ],
   "knowledge_summary": {

@@ -1,4 +1,5 @@
 import { memo } from "react";
+import type { ScenePoint } from "../story/scene-catalog";
 
 const COLS = 48;
 const ROWS = 28;
@@ -52,7 +53,12 @@ export const CITY_VIEWBOX = `0 0 ${COLS * STEP} ${ROWS * STEP}`;
  * Dot-matrix map of the city breathing with OMNI; the switched-off patch in the
  * top corner is the Dark Zone (kept in view on narrow screens). `zoom` closes in on it. Static for reduced motion (CSS).
  */
-export const CityMatrix = memo(function CityMatrix({ zoom = false, fx }: { zoom?: boolean; fx?: string }) {
+export const CityMatrix = memo(function CityMatrix({ zoom = false, fx, trace }: {
+  zoom?: boolean;
+  fx?: string;
+  /** Path of the `trace` effect, in percent of the map. */
+  trace?: ScenePoint[];
+}) {
   return (
     <svg
       className={`city${zoom ? " is-zoomed" : ""}${fx ? ` fx-${fx}` : ""}`}
@@ -83,12 +89,19 @@ export const CityMatrix = memo(function CityMatrix({ zoom = false, fx }: { zoom?
           rx={ZONE.rx * STEP}
           ry={ZONE.ry * STEP}
         />
-        {fx === "eight_fragments" && (
-          <g className="city-fragments">
+        {(fx === "eight_fragments" || fx === "fragment_found") && (
+          <g className={`city-fragments${fx === "fragment_found" ? " is-found" : ""}`}>
             {FRAGMENTS.map(([c, r], i) => (
               <circle key={i} cx={c * STEP + 5} cy={r * STEP + 5} r={3} style={{ ["--i" as string]: i }} />
             ))}
           </g>
+        )}
+        {fx === "trace" && trace && (
+          <polyline
+            className="city-trace"
+            points={trace.map((p) => `${(p.x / 100) * COLS * STEP},${(p.y / 100) * ROWS * STEP}`).join(" ")}
+            pathLength={1}
+          />
         )}
       </g>
     </svg>

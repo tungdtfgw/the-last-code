@@ -82,7 +82,8 @@ function BeatView({ beat, text, age, current, typing, collected, slots }: {
 /**
  * Plays one story (prologue, `after-<id>`, teaser) from its beats. Click, tap,
  * Space or Enter advance one step; Esc or BỎ QUA skip it all. Beats move on by
- * themselves while the tab is visible. Reduced motion shows a transcript.
+ * themselves while the tab is visible. Reduced motion shows a transcript over the
+ * story's first backdrop, still.
  * Beat cues play the moment a beat starts; the JS timers here only move between beats.
  */
 export function CutscenePlayer({ beats, play, collected, slots, onFinish, endPanel, controls }: CutscenePlayerProps) {
@@ -183,16 +184,20 @@ export function CutscenePlayer({ beats, play, collected, slots, onFinish, endPan
   const shown = beats.slice(from, to + 1);
   const isCard = !transcript && beat?.kind === "card";
   const idBar = !transcript && !isCard && shown.some((b) => b.fx === "id_bar");
-  const backdrop = backdropAt(beats, index);
+  const backdrop = backdropAt(beats, transcript ? 0 : index);
+  // Beats in a row with the same effect keep it running instead of restarting it.
+  let fxFrom = index;
+  while (fxFrom > 0 && beat?.fx && beats[fxFrom - 1].fx === beat.fx) fxFrom--;
 
   return (
     <div
       ref={root}
       className={`story${transcript ? " is-transcript" : ""}${ended ? " is-ended" : ""}`}
+      data-hidden={hidden || undefined}
       tabIndex={-1}
       onPointerDown={transcript || ended ? undefined : onStagePointer}
     >
-      <StoryBackdrop backdrop={transcript ? "thanh-pho" : backdrop} fx={transcript ? undefined : beat?.fx} />
+      <StoryBackdrop backdrop={backdrop} fx={beat?.fx} fxKey={fxFrom} still={transcript} />
       <div className="story-controls">
         {controls}
         {!ended && (

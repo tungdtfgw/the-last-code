@@ -2089,6 +2089,18 @@ kbd {
   animation: fragment-flare 2.4s calc(var(--i) * 140ms) var(--ease-out) 1 both;
 }
 
+/* One fragment found: it stays lit in the signal colour while the other seven fade. */
+.city-fragments.is-found circle:first-child {
+  fill: var(--signal);
+  animation: fragment-found 2.4s var(--ease-out) 1 both;
+}
+
+@keyframes fragment-found {
+  0% { opacity: 0; r: 1; }
+  30% { opacity: 1; r: 5; }
+  100% { opacity: 1; r: 3.5; }
+}
+
 @keyframes city-breathe {
   0%, 100% { opacity: 0.55; }
   50% { opacity: 1; }
@@ -2120,12 +2132,863 @@ kbd {
 .story-backdrop {
   position: absolute;
   inset: 0;
+  overflow: hidden;
+  container-type: size;
   opacity: 0.55;
   transition: opacity var(--t-move) var(--ease-out);
 }
 
 .story-backdrop.is-terminal {
   opacity: 1;
+}
+
+.story-backdrop.is-place {
+  opacity: 0.9;
+}
+
+/* Transcript: one still backdrop, dimmer so the scrolling text stays easy to read. */
+.story-backdrop.is-still {
+  opacity: 0.35;
+}
+
+.story-backdrop.is-still * {
+  animation: none !important;
+  transition: none !important;
+}
+
+/* Each backdrop is a layer; a new one fades in over the one it replaces. */
+.scene-layer {
+  position: absolute;
+  inset: 0;
+  animation: scene-in 0.6s var(--ease-out) both;
+}
+
+.scene-layer.is-leaving {
+  animation: none;
+}
+
+/*
+ * A 16:9 frame that covers the screen. On narrow screens it slides so the
+ * scene's subject (--fx, in percent) stays in view instead of the centre.
+ */
+.scene-frame {
+  --fw: max(100cqw, 177.78cqh);
+  position: absolute;
+  top: 50%;
+  left: clamp(calc(100cqw - var(--fw)), calc(50cqw - var(--fw) * var(--fx, 50) / 100), 0px);
+  width: var(--fw);
+  aspect-ratio: 16 / 9;
+  translate: 0 -50%;
+  transform-origin: calc(var(--fx, 50) * 1%) calc(var(--fy, 50) * 1%);
+  transition: transform 2.2s var(--ease-out);
+}
+
+/*
+ * The camera pushes in on the scene's subject and lifts it to the upper third,
+ * clear of the text column, then eases back out after.
+ */
+.scene-frame.is-focus {
+  transform: translateY(calc((36 - var(--fy, 36)) * 1%)) scale(var(--fscale, 1.3));
+}
+
+/* A backdrop that arrives already focused still pushes in from the wide shot. */
+@starting-style {
+  .scene-frame.is-focus {
+    transform: none;
+  }
+}
+
+/* Slow Ken Burns drift: the place is never quite still. */
+.scene-drift {
+  position: absolute;
+  inset: 0;
+  animation: scene-drift 28s ease-in-out infinite alternate;
+}
+
+/* ---------- Drawn places (scene-art.tsx): the city's dots, thin edges, uneasy air ---------- */
+
+.sa {
+  display: block;
+  width: 100%;
+  height: 100%;
+  animation: scene-reveal 1.4s var(--ease-out) both;
+}
+
+.sa-dot {
+  fill: var(--city-dot);
+  opacity: 0.55;
+}
+
+.sa-dot.is-dim {
+  opacity: 0.22;
+}
+
+.sa-far {
+  opacity: 0.6;
+}
+
+.sa-edge,
+.sa-line {
+  fill: none;
+  stroke: var(--city-dot);
+  stroke-width: 0.18;
+  stroke-opacity: 0.35;
+}
+
+.sa-line {
+  stroke: var(--n-6);
+  stroke-opacity: 0.75;
+  stroke-width: 0.22;
+}
+
+.sa-line.is-strong {
+  stroke-width: 0.3;
+  stroke-opacity: 0.85;
+}
+
+.sa-tile-line {
+  fill: none;
+  stroke: var(--city-dot);
+  stroke-width: 0.1;
+  stroke-opacity: 0.22;
+}
+
+.sa-hatch-bar {
+  fill: var(--alarm);
+  fill-opacity: 0.35;
+}
+
+/* Metal: a dark body with a hairline edge. */
+.sa-metal {
+  fill: var(--n-2);
+  stroke: var(--n-6);
+  stroke-width: 0.15;
+}
+
+/* Edges near a warm light take its colour. */
+.sa-edge.is-warm {
+  stroke: var(--alarm);
+  stroke-opacity: 0.55;
+}
+
+.sa-glass {
+  fill: var(--n-9);
+  fill-opacity: 0.08;
+}
+
+.sa-rivets {
+  stroke: var(--city-dot);
+  stroke-width: 0.5;
+  stroke-linecap: round;
+  stroke-opacity: 0.5;
+}
+
+.sa-dash {
+  fill: none;
+  stroke: var(--n-6);
+  stroke-width: 0.3;
+  stroke-dasharray: 2 2.5;
+  stroke-opacity: 0.5;
+}
+
+/* Lights doubled in wet ground. */
+.sa-reflect {
+  fill: none;
+  stroke: var(--omni);
+  stroke-width: 0.5;
+  stroke-opacity: 0.18;
+  animation: sa-breathe 5s ease-in-out infinite;
+}
+
+.sa-crack {
+  fill: none;
+  stroke: var(--bg-deep);
+  stroke-width: 0.25;
+  stroke-opacity: 0.8;
+}
+
+.sa-seam {
+  fill: none;
+  stroke: var(--signal);
+  stroke-width: 0.3;
+  filter: drop-shadow(0 0 0.8px var(--signal));
+}
+
+.sa-hatch {
+  fill: var(--signal);
+  fill-opacity: 0.08;
+}
+
+.sa-doorlight {
+  stroke: var(--alarm);
+  stroke-width: 0.35;
+}
+
+.sa-drip {
+  fill: var(--n-8);
+  animation: sa-drip 3.6s ease-in infinite;
+}
+
+.sa-splash {
+  fill: none;
+  stroke: var(--n-7);
+  stroke-width: 0.12;
+  opacity: 0;
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: sa-splash 3.6s ease-out infinite;
+}
+
+.sa-cloth {
+  fill: var(--n-5);
+  fill-opacity: 0.8;
+}
+
+.sa-sway {
+  transform-box: fill-box;
+  transform-origin: top;
+  animation: sa-sway 5s ease-in-out infinite alternate;
+}
+
+.sa-swing {
+  transform-origin: 120px 11px;
+  animation: sa-swing 4.4s ease-in-out infinite alternate;
+}
+
+.sa-board {
+  fill: var(--n-2);
+  stroke: var(--n-6);
+  stroke-width: 0.15;
+}
+
+.sa-board.is-lit {
+  fill: var(--signal);
+  fill-opacity: 0.12;
+  stroke: var(--signal);
+  stroke-opacity: 0.5;
+}
+
+.sa-notice {
+  fill: var(--n-6);
+  fill-opacity: 0.35;
+}
+
+.sa-rope {
+  fill: none;
+  stroke: var(--omni);
+  stroke-width: 0.25;
+  stroke-opacity: 0.5;
+}
+
+.sa-floorglow {
+  fill: var(--signal);
+  fill-opacity: 0.06;
+}
+
+.sa-chip {
+  fill: var(--omni);
+  filter: drop-shadow(0 0 0.6px var(--omni));
+  animation: sa-blink 1.8s steps(1) infinite;
+}
+
+.sa-dash.is-warm {
+  stroke: var(--alarm);
+  stroke-opacity: 0.4;
+}
+
+.sa-wire {
+  fill: none;
+  stroke: var(--n-6);
+  stroke-width: 0.2;
+  stroke-opacity: 0.6;
+}
+
+.sa-hatchline {
+  fill: none;
+  stroke: var(--omni);
+  stroke-width: 0.35;
+  stroke-dasharray: 1 1;
+  stroke-opacity: 0.7;
+}
+
+.sa-plate {
+  fill: var(--alarm);
+  fill-opacity: 0.18;
+  stroke: var(--alarm);
+  stroke-width: 0.2;
+  stroke-opacity: 0.6;
+}
+
+.sa-bolt {
+  fill: none;
+  stroke: var(--alarm);
+  stroke-width: 0.3;
+}
+
+.sa-weeds {
+  fill: var(--bg-deep);
+  stroke: var(--n-5);
+  stroke-width: 0.15;
+}
+
+.sa-mirror {
+  fill: var(--n-1);
+  fill-opacity: 0.9;
+}
+
+.sa-rivet {
+  fill: var(--n-6);
+}
+
+.sa-look {
+  animation: sa-look 9s ease-in-out infinite;
+}
+
+.sa-walllamp {
+  fill: var(--alarm);
+  opacity: 0.2;
+  animation: sa-walllamp 6s ease-in-out calc(var(--i) * 0.5s) infinite;
+}
+
+/* The moon is no one's light: neutral, a halo of haze only. */
+.sa-moon {
+  fill: none;
+  stroke: var(--n-7);
+  stroke-width: 0.2;
+  stroke-opacity: 0.35;
+  filter: drop-shadow(0 0 2px var(--n-6));
+}
+
+@keyframes sa-drip {
+  0%, 55% { transform: translateY(0); opacity: 0; }
+  58% { opacity: 1; }
+  92% { transform: translateY(62px); opacity: 1; }
+  93%, 100% { transform: translateY(62px); opacity: 0; }
+}
+
+@keyframes sa-splash {
+  0%, 92% { opacity: 0; transform: scale(0.2); }
+  94% { opacity: 0.8; }
+  100% { opacity: 0; transform: scale(1.2); }
+}
+
+@keyframes sa-sway {
+  from { transform: skewX(-6deg); }
+  to { transform: skewX(6deg); }
+}
+
+@keyframes sa-swing {
+  from { transform: rotate(-7deg); }
+  to { transform: rotate(7deg); }
+}
+
+@keyframes sa-look {
+  0%, 30%, 100% { transform: translate(0, 0); }
+  40%, 55% { transform: translate(-1.4px, 0.4px); }
+  65%, 80% { transform: translate(1.2px, -0.3px); }
+}
+
+@keyframes sa-walllamp {
+  0%, 100% { opacity: 0.15; }
+  10% { opacity: 1; }
+  25% { opacity: 0.15; }
+}
+
+/* Figures: one dark silhouette fill, hairline folds, rim light from the scene's light. */
+.sa-figure {
+  fill: var(--n-3);
+  stroke: var(--n-5);
+  stroke-width: 0.12;
+}
+
+.sa-figure-line {
+  fill: none;
+  stroke: var(--n-5);
+  stroke-width: 0.18;
+}
+
+.sa-shadow {
+  fill: var(--bg-deep);
+  opacity: 0.8;
+}
+
+.sa-rim {
+  fill: none;
+  stroke: var(--n-7);
+  stroke-width: 0.22;
+  stroke-linecap: round;
+  stroke-opacity: 0.6;
+}
+
+.sa-rim.is-teal {
+  stroke: var(--signal);
+  stroke-opacity: 0.9;
+  stroke-width: 0.4;
+  filter: drop-shadow(0 0 0.6px var(--signal));
+}
+
+.sa-rim.is-warm {
+  stroke: var(--alarm);
+  stroke-opacity: 0.7;
+}
+
+.sa-lens {
+  fill: var(--bg-deep);
+  stroke: var(--n-6);
+  stroke-width: 0.15;
+}
+
+.sa-arm {
+  fill: none;
+  stroke: var(--n-5);
+  stroke-width: 0.9;
+  stroke-linecap: round;
+}
+
+/* Rotor discs: a faint blur, and a blade that flickers across it. */
+.sa-rotor {
+  fill: var(--n-8);
+  fill-opacity: 0.12;
+  stroke: var(--n-7);
+  stroke-width: 0.08;
+  stroke-opacity: 0.4;
+}
+
+.sa-blade {
+  fill: none;
+  stroke: var(--n-8);
+  stroke-width: 0.2;
+  stroke-opacity: 0.55;
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: sa-blade 0.18s linear calc(var(--i) * -0.05s) infinite;
+}
+
+@keyframes sa-blade {
+  0% { transform: scaleX(1); }
+  50% { transform: scaleX(0.15); }
+  100% { transform: scaleX(1); }
+}
+
+.sa-body {
+  fill: var(--bg-deep);
+  stroke: var(--n-6);
+  stroke-width: 0.15;
+}
+
+.sa-glow {
+  mix-blend-mode: screen;
+}
+
+.sa-bulb,
+.sa-lamp {
+  fill: var(--alarm);
+}
+
+.sa-slit,
+.sa-screen {
+  fill: var(--signal);
+}
+
+/* Lit shapes keep their strength in fill-opacity, so the flicker (opacity) multiplies it instead of replacing it. */
+.sa-window {
+  fill: var(--alarm);
+  fill-opacity: 0.55;
+}
+
+.sa-tube {
+  fill: var(--voice-kai);
+  fill-opacity: 0.7;
+}
+
+.sa-citylight {
+  fill: var(--signal);
+  animation: sa-twinkle 4s ease-in-out calc(var(--i) * -0.9s) infinite;
+}
+
+.sa-redlight {
+  fill: var(--omni);
+  animation: sa-blink 2.4s steps(1) calc(var(--i, 0) * -0.7s) infinite;
+}
+
+.sa-omni-strip {
+  fill: none;
+  stroke: var(--omni);
+  stroke-width: 0.4;
+  opacity: 0.75;
+  animation: sa-breathe 5s ease-in-out infinite;
+}
+
+.sa-ring {
+  fill: none;
+  stroke: var(--signal);
+  stroke-width: 0.25;
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: sa-ring 4.5s ease-out calc(var(--i) * 1.5s) infinite both;
+}
+
+.sa-curtain {
+  fill: var(--signal);
+  fill-opacity: 0.14;
+  animation: sa-breathe 3s ease-in-out infinite;
+}
+
+.sa-gate,
+.sa-gate-door {
+  fill: none;
+  stroke: var(--signal);
+  stroke-width: 0.3;
+}
+
+.sa-gate-door {
+  stroke: var(--n-6);
+  stroke-width: 0.2;
+}
+
+.sa-scanline {
+  stroke: var(--signal);
+  stroke-width: 0.35;
+  filter: drop-shadow(0 0 1px var(--signal));
+  animation: sa-scan 5s ease-in-out infinite alternate;
+}
+
+.sa-arc {
+  fill: none;
+  stroke: var(--signal);
+  stroke-width: 0.3;
+  opacity: 0;
+  filter: drop-shadow(0 0 1px var(--signal));
+  animation: sa-arc 3.2s steps(1) calc(var(--i) * 1.1s) infinite;
+}
+
+.sa-cone {
+  fill: var(--alarm);
+  fill-opacity: 0.1;
+}
+
+.sa-cone.is-red {
+  fill: var(--omni);
+  fill-opacity: 0.12;
+}
+
+.sa-beam {
+  transform-origin: 110px 14px;
+  animation: sa-sweep 9s ease-in-out infinite alternate;
+}
+
+.sa-beam.is-other {
+  animation-duration: 11s;
+  animation-direction: alternate-reverse;
+}
+
+.sa-patrol {
+  fill: var(--omni);
+  animation: sa-patrol 14s ease-in-out calc(var(--i) * -3.5s) infinite alternate;
+}
+
+.sa-drone {
+  animation: sa-drone 26s linear infinite;
+}
+
+.sa-eye-ring {
+  fill: var(--bg-deep);
+  stroke: var(--signal);
+  stroke-width: 0.25;
+}
+
+.sa-eye-iris {
+  fill: var(--omni);
+  opacity: 0.85;
+}
+
+.sa-eye-pupil {
+  fill: var(--bg-deep);
+}
+
+.sa-eye {
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: sa-eye 7s ease-in-out infinite;
+}
+
+.sa-booth-light {
+  fill: var(--alarm);
+  fill-opacity: 0.2;
+}
+
+.sa-fog-stop {
+  stop-color: var(--n-7);
+}
+
+.sa-fog {
+  opacity: 0.5;
+  animation: sa-fog 22s ease-in-out infinite alternate;
+}
+
+.sa-fog.is-slow {
+  opacity: 0.35;
+  animation-duration: 34s;
+  animation-direction: alternate-reverse;
+}
+
+.sa-mote {
+  fill: var(--n-8);
+  opacity: 0;
+  animation: sa-mote 9s ease-in-out calc(var(--i) * -1.3s) infinite;
+}
+
+.sa-flicker {
+  animation: sa-flicker 6s steps(1) infinite;
+}
+
+.sa-flicker.is-slow {
+  animation-duration: 11s;
+}
+
+.sa-breathe {
+  animation: sa-breathe 4s ease-in-out infinite;
+}
+
+/* Every so often the whole place loses hold for a breath. */
+.sa-haunt {
+  animation: sa-haunt 13s steps(1) infinite;
+}
+
+@keyframes sa-flicker {
+  0%, 100% { opacity: 1; }
+  41% { opacity: 0.35; }
+  43% { opacity: 1; }
+  44% { opacity: 0.15; }
+  47% { opacity: 0.9; }
+  78% { opacity: 0.6; }
+  80% { opacity: 1; }
+}
+
+@keyframes sa-breathe {
+  0%, 100% { opacity: 0.55; }
+  50% { opacity: 1; }
+}
+
+@keyframes sa-blink {
+  0%, 60% { opacity: 1; }
+  61%, 100% { opacity: 0.15; }
+}
+
+@keyframes sa-twinkle {
+  0%, 100% { opacity: 0.25; }
+  50% { opacity: 0.9; }
+}
+
+@keyframes sa-ring {
+  from { transform: scale(0.05); opacity: 0.9; }
+  to { transform: scale(1); opacity: 0; }
+}
+
+@keyframes sa-scan {
+  from { transform: translateY(0); }
+  to { transform: translateY(40px); }
+}
+
+@keyframes sa-arc {
+  0%, 100% { opacity: 0; }
+  12% { opacity: 1; }
+  15% { opacity: 0; }
+  18% { opacity: 0.8; }
+  22% { opacity: 0; }
+}
+
+@keyframes sa-sweep {
+  from { transform: rotate(-9deg); }
+  to { transform: rotate(9deg); }
+}
+
+@keyframes sa-patrol {
+  from { transform: translate(0, 0); }
+  to { transform: translate(14px, -3px); }
+}
+
+@keyframes sa-drone {
+  0% { transform: translate(-10px, 0); }
+  50% { transform: translate(85px, 2px); }
+  100% { transform: translate(180px, -1px); }
+}
+
+@keyframes sa-eye {
+  0%, 44%, 52%, 100% { transform: scaleY(1); }
+  48% { transform: scaleY(0.08); }
+}
+
+@keyframes sa-fog {
+  from { transform: translateX(-12px); }
+  to { transform: translateX(12px); }
+}
+
+@keyframes sa-mote {
+  0% { opacity: 0; transform: translate(0, 0); }
+  30% { opacity: 0.7; }
+  100% { opacity: 0; transform: translate(3px, -6px); }
+}
+
+@keyframes sa-haunt {
+  0%, 100% { opacity: 1; transform: none; }
+  91% { opacity: 0.55; transform: translateX(0.4px); }
+  92% { opacity: 1; transform: none; }
+  93% { opacity: 0.7; transform: translateX(-0.3px); }
+  94% { opacity: 1; transform: none; }
+}
+
+.scene-trace {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+}
+
+.scene-trace polyline,
+.city-trace {
+  fill: none;
+  stroke: var(--omni);
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  stroke-dasharray: 1;
+  animation: trace-draw 2.6s var(--ease-out) both;
+}
+
+/* The frame is 16:9 in a 100×100 box: a thin stroke reads as about 4 px either way. */
+.scene-trace polyline {
+  stroke: color-mix(in oklch, var(--omni) 70%, white);
+  stroke-width: 0.8;
+  filter: drop-shadow(0 0 4px var(--omni)) drop-shadow(0 0 14px var(--omni));
+}
+
+.city-trace {
+  stroke: var(--signal);
+  stroke-width: 2;
+  filter: drop-shadow(0 0 3px var(--signal));
+}
+
+@keyframes scene-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes scene-reveal {
+  from { opacity: 0; scale: 1.05; }
+  to { opacity: 1; scale: 1; }
+}
+
+@keyframes scene-drift {
+  from { transform: scale(1.04) translate(0, 0); }
+  to { transform: scale(1.12) translate(-1.8%, -1.2%); }
+}
+
+@keyframes trace-draw {
+  from { stroke-dashoffset: 1; }
+  to { stroke-dashoffset: 0; }
+}
+
+/* Effects sit above the scrim (the backdrop's ::after). */
+.fx-signal,
+.fx-omni,
+.fx-scan,
+.story-alert {
+  z-index: 1;
+}
+
+/* The 0xA7 signal: the frame tears for a moment and the hex surfaces under it. */
+.fx-signal {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+
+.fx-signal-hex {
+  position: absolute;
+  top: 18%;
+  left: 50%;
+  translate: -50% 0;
+  font-family: var(--font-display);
+  font-size: clamp(3.5rem, 14cqw, 9rem);
+  letter-spacing: 0.08em;
+  color: var(--signal);
+  opacity: 0;
+  text-shadow: -3px 0 var(--omni), 3px 0 var(--type-int);
+  animation: signal-hex 2.6s steps(1) 1 both;
+}
+
+.fx-signal-bar {
+  position: absolute;
+  left: 0;
+  right: 0;
+  height: 3%;
+  background: color-mix(in oklch, var(--signal) 35%, transparent);
+  mix-blend-mode: screen;
+  opacity: 0;
+  animation: signal-bar 1.2s steps(2) 2 both;
+}
+
+.fx-signal-bar:nth-child(2) { top: 22%; }
+.fx-signal-bar:nth-child(3) { top: 31%; height: 1.5%; animation-delay: 0.15s; }
+.fx-signal-bar:nth-child(4) { top: 47%; height: 5%; animation-delay: 0.3s; }
+
+@keyframes signal-hex {
+  0% { opacity: 0; }
+  8% { opacity: 0.9; translate: -52% 0; }
+  12% { opacity: 0.2; }
+  18% { opacity: 0.75; translate: -49% 0; }
+  70% { opacity: 0.45; translate: -50% 0; }
+  100% { opacity: 0.18; }
+}
+
+@keyframes signal-bar {
+  0% { opacity: 0; translate: 0 0; }
+  50% { opacity: 1; translate: 3% 0; }
+  100% { opacity: 0; translate: -2% 0; }
+}
+
+/* OMNI's own layer: a red grid settling over the sky. */
+.fx-omni {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background:
+    repeating-linear-gradient(to right, color-mix(in oklch, var(--omni) 45%, transparent) 0 1px, transparent 1px 48px),
+    repeating-linear-gradient(to bottom, color-mix(in oklch, var(--omni) 45%, transparent) 0 1px, transparent 1px 48px);
+  mask-image: linear-gradient(to bottom, black 0%, black 35%, transparent 70%);
+  animation: omni-settle 2.4s var(--ease-out) both;
+}
+
+@keyframes omni-settle {
+  0% { opacity: 0; transform: scale(1.15); }
+  40% { opacity: 1; }
+  100% { opacity: 0.7; transform: scale(1); }
+}
+
+/* A scanner line sweeping down the frame, twice. */
+.fx-scan {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 0;
+  height: 2px;
+  pointer-events: none;
+  background: var(--signal);
+  box-shadow: 0 0 18px 4px color-mix(in oklch, var(--signal) 60%, transparent);
+  animation: scan-sweep 1.5s ease-in-out 2 both;
+}
+
+@keyframes scan-sweep {
+  from { translate: 0 0; opacity: 1; }
+  to { translate: 0 75cqh; opacity: 0.2; }
+}
+
+/* Animations stop while the tab is hidden; they pick up where they were. */
+.story[data-hidden] *,
+.story[data-hidden] *::before,
+.story[data-hidden] *::after {
+  animation-play-state: paused !important;
 }
 
 /* Scrim: beats stay readable over the city. */
@@ -3023,6 +3886,14 @@ kbd {
 }
 
 @media (prefers-reduced-motion: reduce) {
+  .scene-layer,
+  .scene-frame,
+  .scene-drift,
+  .sa,
+  .sa *,
+  .fx-signal,
+  .fx-omni,
+  .fx-scan,
   .city-pan,
   .city-band,
   .city-fragments,
@@ -3039,6 +3910,8 @@ kbd {
 
   .city-fragments,
   .story-alert,
+  .fx-signal,
+  .fx-scan,
   .beat-echo .beat-text::after {
     display: none;
   }

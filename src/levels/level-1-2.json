@@ -105,6 +105,7 @@
       }
     }
   ],
+  "scene": "tram-khau-phan",
   "outro_beats": [
     {
       "kind": "kai"
@@ -114,7 +115,8 @@
     },
     {
       "kind": "card",
-      "cue": "glitch"
+      "cue": "glitch",
+      "fx": "signal_0xa7"
     }
   ],
   "knowledge_summary": {

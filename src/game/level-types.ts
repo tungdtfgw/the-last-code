@@ -1,4 +1,4 @@
-import type { StoryBeat } from "../story/story-types.js";
+import type { Backdrop, StoryBeat } from "../story/story-types.js";
 
 /** The four coloured shapes (GDD 5.2); also the values a `type` objective may expect. */
 export const BASE_TYPES = ["int", "float", "str", "bool"] as const;
@@ -142,6 +142,8 @@ export interface LevelDefinition {
   location?: string;
   /** Fake Neural-ID component this level builds, shown on the transition card. */
   component?: string;
+  /** Backdrop of `after-<id>` from its first beat (the outro). */
+  scene?: Backdrop;
   /** Story beats played after the lore fragment in `after-<id>`. */
   outro_beats?: StoryBeat[];
   /** Which simulation plays the run back (default: scanner). */

@@ -8,6 +8,7 @@ import {
   type LevelDefinition,
   type ValueType,
 } from "./level-types.js";
+import { BACKDROPS } from "../story/story-types.js";
 import { validateBeats } from "../story/validate-beats.js";
 import { findEchoLeak, levelLeaks, type LeakSet } from "./echo-leaks.js";
 
@@ -325,6 +326,8 @@ export function validateLevel(raw: unknown): ValidationResult {
     if (v !== undefined && (!isString(v) || v.trim() === "" || v.length > 60))
       errors.push(`${key} phải là chuỗi không rỗng ≤ 60 ký tự`);
   }
+  if (r.scene !== undefined && !(isString(r.scene) && (BACKDROPS as readonly string[]).includes(r.scene)))
+    errors.push(`scene "${String(r.scene)}" không hợp lệ (${BACKDROPS.join("|")})`);
   const wellFormed = (v: unknown) =>
     Array.isArray(v) &&
     v.every((t) => isObject(t) && isObject(t.expected) && (t.expected_output === undefined || isStringArray(t.expected_output)));

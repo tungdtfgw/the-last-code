@@ -44,6 +44,7 @@ describe("validateLevel", () => {
     ["ECHO outro beat leaking the answer", (l) => (l.outro_beats[3].text = "Mã là 2703."), /outro_beats\[3\]\.text: lời ECHO chứa "2703"/],
     ["id the router cannot open", (l) => (l.id = "1 4"), /id chỉ gồm chữ, số/],
     ["empty location", (l) => (l.location = " "), /location phải là chuỗi không rỗng/],
+    ["unknown scene", (l) => (l.scene = "mat-trang"), /scene "mat-trang" không hợp lệ/],
   ];
   test.each(cases)("rejects %s", (_name, mutate, message) => {
     const l = clone();
