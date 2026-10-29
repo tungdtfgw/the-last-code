@@ -51,7 +51,15 @@ test("the migrated teaser is the end of chapter 1 and fits the chapter file", ()
   const chapter = realChapter();
   expect(chapter.teaser).toHaveLength(9);
   expect(chapter.teaser.at(-1)!.text).toMatch(/^HẾT CHƯƠNG 1/);
-  expect(migratedTexts()["chapter:1"].revision).toBe(2);
+  expect(migratedTexts()["chapter:1"].revision).toBe(3);
+});
+
+test("the last card of chapter 1 leads into chapter 2 instead of a signal still being decoded", () => {
+  const last = realChapter().teaser.at(-1)!;
+  expect(last.kind).toBe("card");
+  expect(last.text.split("\n").slice(0, 2)).toEqual(["HẾT CHƯƠNG 1 · VÙNG TỐI", "Chương 2: Trạm Sentinel"]);
+  expect(last.text).not.toMatch(/đang giải mã/);
+  expect(validateChapterText(chapterFile(), migratedTexts()["chapter:1"].text).ok).toBe(true);
 });
 
 test("the patched teaser text also fits the chapter file as it was before the chapter ending", () => {
