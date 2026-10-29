@@ -6473,6 +6473,27 @@ body:has(.learn-screen)::before {
   font-style: italic;
 }
 
+.patrol-sensor-state {
+  font-size: var(--text-2xs);
+  letter-spacing: 0.06em;
+}
+
+.patrol-sensor.is-read {
+  border-left: 2px solid var(--signal);
+}
+
+.patrol-sensor.is-read .patrol-sensor-state {
+  color: var(--signal);
+}
+
+.patrol-sensor.is-unread {
+  opacity: 0.55;
+}
+
+.patrol-sensor.is-unread .patrol-sensor-state {
+  color: var(--text-faint);
+}
+
 .patrol-readout {
   display: flex;
   flex-wrap: wrap;

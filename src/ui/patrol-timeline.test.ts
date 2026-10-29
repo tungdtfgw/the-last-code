@@ -92,6 +92,19 @@ describe("patrol timeline", () => {
     expect(sensorsOf(3)[1]).toEqual({ kind: "stdin", name: "kênh nhập 1", text: "·", empty: false });
   });
 
+  test("once Kai moves, each stdin card says whether the program read it; before that it says nothing", () => {
+    const stdinState = (frames: ReturnType<typeof buildPatrolTimeline>) => frames.map((f) => f.scene.sensors.find((c) => c.kind === "stdin")?.read);
+    const unread = timeline(stdinLevel, `${HEAD}print("DI")\n`);
+    expect(end(unread).situations[0]).toBe("caught");
+    expect(stdinState(unread).at(-1)).toBe(false);
+    expect(stdinState(unread).find((r) => r !== undefined)).toBe(false);
+    const read = timeline(stdinLevel, SOLVED);
+    // The sensors are shown unmarked first in every situation, then marked; the counter situation too.
+    expect(read.find((f) => f.scene.round === 1)!.scene.sensors[1].read).toBeUndefined();
+    expect(end(read).sensors[1]).toMatchObject({ kind: "stdin", read: true });
+    expect(end(read).sensors[0].read).toBeUndefined();
+  });
+
   test("without a decision every objective is a drone lamp; a level with no inputs and no locked lines plays", () => {
     const last = end(timeline(bareLevel, 'tin = input()\nnap = tin == "DRONE"\nhuong = "TRAI"\n'));
     expect(last.decision).toBeNull();
@@ -100,7 +113,7 @@ describe("patrol timeline", () => {
       { name: "nap", label: "Có nấp không", value: "False", state: "ok" },
       { name: "huong", label: "Hướng đi", value: "'TRAI'", state: "bad" },
     ]);
-    expect(last.sensors).toEqual([{ kind: "stdin", name: "kênh nhập 1", text: "(dòng trống)", empty: true }]);
+    expect(last.sensors).toEqual([{ kind: "stdin", name: "kênh nhập 1", text: "(dòng trống)", empty: true, read: true }]);
   });
 
   test("a right decision with another objective wrong is still caught", () => {

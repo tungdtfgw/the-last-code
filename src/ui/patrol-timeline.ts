@@ -18,6 +18,8 @@ export interface SensorCard {
   text: string;
   /** An empty stdin line: drawn as an empty, labelled card, never hidden. */
   empty: boolean;
+  /** Stdin lines once Kai has moved: whether the program read this line. Absent on input chips and before the move. */
+  read?: boolean;
 }
 
 /** Kai's move: the value the `decision` objective got. */
@@ -82,7 +84,12 @@ const decisionLabel = (level: LevelDefinition, d: PatrolDecision | undefined): s
   return o?.label ?? null;
 };
 
-export function sensorCards(level: LevelDefinition, inputs: Record<string, InputValue> | undefined, stdin: string[] | undefined): SensorCard[] {
+export function sensorCards(
+  level: LevelDefinition,
+  inputs: Record<string, InputValue> | undefined,
+  stdin: string[] | undefined,
+  stdinRead?: number,
+): SensorCard[] {
   const cards: SensorCard[] = level.inputs.map((name) => ({
     kind: "input",
     name,
@@ -90,7 +97,13 @@ export function sensorCards(level: LevelDefinition, inputs: Record<string, Input
     empty: false,
   }));
   (stdin ?? []).forEach((line, i) =>
-    cards.push({ kind: "stdin", name: `kênh nhập ${i + 1}`, text: line === "" ? "(dòng trống)" : visible(line), empty: line === "" }),
+    cards.push({
+      kind: "stdin",
+      name: `kênh nhập ${i + 1}`,
+      text: line === "" ? "(dòng trống)" : visible(line),
+      empty: line === "",
+      ...(stdinRead !== undefined && { read: i < stdinRead }),
+    }),
   );
   return cards;
 }
@@ -157,6 +170,8 @@ const copy = (s: PatrolScene): PatrolScene => ({ ...s, situations: [...s.situati
 interface SituationData {
   inputs?: Record<string, InputValue>;
   stdin?: string[];
+  /** Lines the program read, known once the situation ran. */
+  stdinRead?: number;
   expected: string[];
   /** Absent while the sensors are read, before Kai moves. */
   result?: { vars?: VarVerdict[]; output?: OutputReport };
@@ -168,7 +183,7 @@ function situation(level: LevelDefinition, base: PatrolScene, r: SituationData, 
   const shown = r.result !== undefined;
   return {
     ...copy(base),
-    sensors: sensorCards(level, r.inputs, r.stdin),
+    sensors: sensorCards(level, r.inputs, r.stdin, shown ? r.stdinRead : undefined),
     decision: chipOf(level, d, r.result?.vars, r.result?.output, shown),
     lamps: lampsOf(level, d, r.result?.vars, shown),
     ...slotsOf(d, r.result?.output, r.expected, failed),
@@ -201,7 +216,7 @@ export function buildPatrolTimeline(outcome: RunOutcome, level: LevelDefinition)
     const n = r.index + 1;
     const expected = level.tests[r.index]?.expected_output ?? [];
     s.situations[r.index] = "active";
-    const data: SituationData = { inputs: r.inputs, stdin: r.stdin, expected };
+    const data: SituationData = { inputs: r.inputs, stdin: r.stdin, stdinRead: r.stdinRead, expected };
     s = { ...situation(level, s, data), round: n, kai: "waiting", drone: "sweep", label: null, status: `TÌNH HUỐNG ${n}/${s.situations.length}` };
     frames.push({ scene: copy(s), hold: STEP, cues: [] });
     const failedHere = !r.passed && stopped;
@@ -244,6 +259,7 @@ export function buildPatrolTimeline(outcome: RunOutcome, level: LevelDefinition)
   const counterData: SituationData = {
     inputs: outcome.counterInputs,
     stdin: outcome.counterStdin,
+    stdinRead: outcome.counterStdinRead,
     expected: level.counter_attack_tests[0]?.expected_output ?? [],
   };
   const c: PatrolScene = {

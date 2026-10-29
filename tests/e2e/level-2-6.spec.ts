@@ -106,13 +106,13 @@ test("2.6: no locked line, starter TypeError, situation 4 caught with dimmed lin
   }).toPass({ timeout: 30_000 });
 });
 
-// The GDD (§5) asks the sensor board to mark each stdin card read / unread from
-// `stdinRead`, like the interrogation scene. The patrol scene does not draw that state yet;
-// enable this once the shared simulation does.
-test.fixme("2.6: stdin cards show read and unread", async ({ page }) => {
+// The sensor board marks each stdin card read / unread from `stdinRead`, like the
+// interrogation scene: the starter code reads both lines before its TypeError.
+test("2.6: stdin cards show read and unread", async ({ page }) => {
   await gotoLevel(page, "2.6");
   await waitForPythonReady(page);
   await runAndWait(page);
   await showTab(page, "Mô phỏng");
+  await expect(page.locator(".patrol-sensor.is-stdin.is-read")).toHaveCount(2);
   await expect(page.locator(".patrol-sensors")).toContainText("ĐÃ ĐỌC");
 });

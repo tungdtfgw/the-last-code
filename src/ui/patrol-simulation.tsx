@@ -87,15 +87,20 @@ function Strip({ scene, place }: { scene: PatrolScene; place: string }) {
   );
 }
 
-/** The sensor board of the situation on screen: input chips and stdin lines (an empty line is a labelled empty card). */
+/** The sensor board of the situation on screen: input chips and stdin lines (an empty line is a labelled empty card);
+ * once Kai has moved, each stdin line says whether the program read it. */
 function Sensors({ scene }: { scene: PatrolScene }) {
   if (scene.sensors.length === 0) return null;
   return (
     <ul className="patrol-sensors" aria-label="Bảng cảm biến">
       {scene.sensors.map((c, i) => (
-        <li key={`${c.kind}-${i}`} className={`patrol-sensor is-${c.kind}${c.empty ? " is-empty" : ""}`}>
+        <li
+          key={`${c.kind}-${i}`}
+          className={`patrol-sensor is-${c.kind}${c.empty ? " is-empty" : ""}${c.read === undefined ? "" : c.read ? " is-read" : " is-unread"}`}
+        >
           <span className="patrol-sensor-name">{c.name}</span>
           <span className="patrol-sensor-value">{c.text}</span>
+          {c.read !== undefined && <span className="patrol-sensor-state">{c.read ? "ĐÃ ĐỌC" : "CHƯA ĐỌC"}</span>}
         </li>
       ))}
     </ul>
