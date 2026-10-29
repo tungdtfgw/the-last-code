@@ -1,0 +1,188 @@
+{
+  "schema_version": 1,
+  "id": "2.1",
+  "chapter": 2,
+  "title": "Đọc luật tuần tra",
+  "difficulty": "easy",
+  "concepts": [
+    "comparison",
+    "bool"
+  ],
+  "starter_code": "# Cảm biến của D-31 (KHÔNG được sửa 4 dòng này)\nkhoang_cach = 30\ntam_quet = 30\nche_do = \"QUET\"\npin = 20\n\n# Ba cờ D-31 tính trước khi quyết định\ntrong_tam = khoang_cach < tam_quet\ndang_quet = che_do = \"QUET\"\nhet_pin = pin < \"20\"\n",
+  "locked_lines": [
+    2,
+    3,
+    4,
+    5
+  ],
+  "inputs": [
+    "khoang_cach",
+    "tam_quet",
+    "che_do",
+    "pin"
+  ],
+  "objectives": [
+    {
+      "var": "trong_tam",
+      "type": "bool"
+    },
+    {
+      "var": "dang_quet",
+      "type": "bool"
+    },
+    {
+      "var": "het_pin",
+      "type": "bool"
+    }
+  ],
+  "alert_limit_statements": 3,
+  "float_abs_tolerance": 1e-09,
+  "tests": [
+    {
+      "inputs": {
+        "khoang_cach": 30,
+        "tam_quet": 30,
+        "che_do": "QUET",
+        "pin": 20
+      },
+      "expected": {
+        "trong_tam": true,
+        "dang_quet": true,
+        "het_pin": false
+      }
+    },
+    {
+      "inputs": {
+        "khoang_cach": 45,
+        "tam_quet": 40,
+        "che_do": "SAC",
+        "pin": 7
+      },
+      "expected": {
+        "trong_tam": false,
+        "dang_quet": false,
+        "het_pin": true
+      }
+    }
+  ],
+  "counter_attack_tests": [
+    {
+      "inputs": {
+        "khoang_cach": 50,
+        "tam_quet": 50,
+        "che_do": "TUAN TRA",
+        "pin": 19
+      },
+      "expected": {
+        "trong_tam": true,
+        "dang_quet": false,
+        "het_pin": true
+      }
+    },
+    {
+      "inputs": {
+        "khoang_cach": 51,
+        "tam_quet": 50,
+        "che_do": "QUET",
+        "pin": 21
+      },
+      "expected": {
+        "trong_tam": false,
+        "dang_quet": true,
+        "het_pin": false
+      }
+    }
+  ],
+  "simulation": {
+    "kind": "patrol"
+  },
+  "forbidden_terms": [
+    "==",
+    "!=",
+    "<=",
+    ">=",
+    "<",
+    ">",
+    "nhỏ hơn hoặc bằng",
+    "lớn hơn hoặc bằng",
+    "không vượt quá",
+    "bằng nhau",
+    "hai dấu bằng",
+    "dấu bằng",
+    "khoang_cach",
+    "tam_quet",
+    "che_do",
+    "QUET",
+    "SAC",
+    "TUAN TRA",
+    "30",
+    "45",
+    "40",
+    "50",
+    "51",
+    "20",
+    "19",
+    "21",
+    "7"
+  ],
+  "scene": "tram-sentinel",
+  "outro_beats": [
+    {
+      "kind": "log",
+      "backdrop": "tram-sentinel",
+      "cue": "scan_reject"
+    },
+    {
+      "kind": "echo"
+    },
+    {
+      "kind": "kai",
+      "fx": "focus"
+    },
+    {
+      "kind": "log"
+    }
+  ],
+  "knowledge_summary": {
+    "sections": [
+      {
+        "code": "a = 12\nb = 8\nprint(a == b)\nprint(a != b)\nprint(a < b)\nprint(a > b)\nprint(a <= b)\nprint(a >= b)",
+        "output": "False\nTrue\nFalse\nTrue\nFalse\nTrue"
+      },
+      {
+        "code": "print(type(3 < 5))\nmo_cua = 3 < 5\nprint(mo_cua)",
+        "output": "<class 'bool'>\nTrue"
+      },
+      {
+        "code": "print(5 < 5)\nprint(5 <= 5)\nprint(5 > 5)\nprint(5 >= 5)",
+        "output": "False\nTrue\nFalse\nTrue"
+      },
+      {
+        "code": "ten = \"An\"\nkhop = ten == \"An\"\nprint(khop)\na = b = \"X\"\nprint(a, b)",
+        "output": "True\nX X"
+      },
+      {
+        "code": "print(\"Lan\" == \"Lan\")\nprint(\"Lan\" == \"lan\")\nprint(\"Lan\" != \"Lan \")",
+        "output": "True\nFalse\nTrue"
+      }
+    ],
+    "mistakes": [
+      {
+        "code": "8 < \"9\"",
+        "error": "TypeError: '<' not supported between instances of 'int' and 'str'"
+      },
+      {
+        "code": "x = (y = 1)",
+        "error": "SyntaxError: invalid syntax. Maybe you meant '==' or ':=' instead of '='?"
+      },
+      {
+        "code": "co = \"True\"",
+        "error": "Không báo lỗi, nhưng `co` có kiểu `str`, không phải `bool`"
+      },
+      {
+        "code": "a <= b == True",
+        "error": "Không báo lỗi, nhưng với a = 3, b = 5 kết quả là False"
+      }
+    ]
+  }
+}
