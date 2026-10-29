@@ -84,7 +84,26 @@ const SIM_KEYS: Record<SimulationKind, readonly string[]> = {
   fence: ["kind", "energy", "cells", "remainder", "capacity"],
   interrogation: ["kind"],
   checkpoint: ["kind"],
+  patrol: ["kind", "decision"],
 };
+
+/**
+ * Patrol strip: every base test is a situation, so it needs two or more; `decision`,
+ * when present, names exactly one real objective: an output line or a str variable.
+ */
+function checkPatrol(sim: Record<string, unknown>, tests: unknown, objectives: { var: string; type: ValueType }[], outputLines: number[], errors: string[]) {
+  if (!Array.isArray(tests) || tests.length < 2) errors.push("simulation: dải tuần tra cần ít nhất 2 test cơ bản (mỗi test là một tình huống)");
+  if (sim.decision === undefined) return;
+  const d = sim.decision;
+  if (!isObject(d) || Object.keys(d).length !== 1 || !("line" in d || "var" in d)) {
+    errors.push('simulation.decision phải là object có đúng một khóa "line" hoặc "var"');
+    return;
+  }
+  if ("line" in d && !(Number.isInteger(d.line) && outputLines.includes(d.line as number)))
+    errors.push(`simulation.decision.line ${String(d.line)} không phải một mục tiêu output_line`);
+  if ("var" in d && !objectives.some((o) => o.var === d.var && o.type === "str"))
+    errors.push(`simulation.decision.var "${String(d.var)}" phải là tên một mục tiêu biến kiểu str`);
+}
 
 /**
  * Keys whose run details never carry `round`, or not always (`wrong_branch` and
@@ -353,6 +372,7 @@ export function validateLevel(raw: unknown): ValidationResult {
       if (sim.kind === "fence") checkFence(sim, objectives, inputs, errors);
       if (sim.kind === "checkpoint" && (outputCount === 0 || objectives.length > 0 || !Array.isArray(r.tests) || r.tests.length < 2))
         errors.push("simulation: cổng kiểm soát cần chỉ mục tiêu output_line và ít nhất 2 test cơ bản (mỗi test là một vòng quét)");
+      if (sim.kind === "patrol") checkPatrol(sim, r.tests, objectives, outputLines, errors);
     }
   }
 

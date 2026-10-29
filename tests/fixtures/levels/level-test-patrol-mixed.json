@@ -1,0 +1,85 @@
+{
+  "schema_version": 1,
+  "chapter": 9,
+  "difficulty": "easy",
+  "concepts": [
+    "if"
+  ],
+  "float_abs_tolerance": 1e-09,
+  "hints": [
+    "Gợi ý một.",
+    "Gợi ý hai.",
+    "Gợi ý ba."
+  ],
+  "outro": "Kai qua dải tuần tra giả.",
+  "lore_fragment": "",
+  "id": "9.23",
+  "title": "Tuần tra thử trộn biến và dòng in",
+  "briefing": "Level giả chỉ dùng trong test: quyết định là một biến, kèm một dòng báo.",
+  "starter_code": "# Cảm biến (KHÔNG được sửa dòng này):\ngoc = 30\n\nhuong = \"TRAI\"\nprint(\"GOC\", goc)\n",
+  "locked_lines": [
+    2
+  ],
+  "inputs": [
+    "goc"
+  ],
+  "objectives": [
+    {
+      "var": "huong",
+      "type": "str",
+      "label": "Hướng đi"
+    },
+    {
+      "kind": "output_line",
+      "line": 1,
+      "label": "Dòng báo"
+    }
+  ],
+  "alert_limit_statements": 4,
+  "tests": [
+    {
+      "inputs": {
+        "goc": 30
+      },
+      "expected": {
+        "huong": "TRAI"
+      },
+      "expected_output": [
+        "GOC 30"
+      ]
+    },
+    {
+      "inputs": {
+        "goc": 120
+      },
+      "expected": {
+        "huong": "PHAI"
+      },
+      "expected_output": [
+        "GOC 120"
+      ]
+    }
+  ],
+  "counter_attack_tests": [
+    {
+      "inputs": {
+        "goc": 90
+      },
+      "expected": {
+        "huong": "PHAI"
+      },
+      "expected_output": [
+        "GOC 90"
+      ]
+    }
+  ],
+  "simulation": {
+    "kind": "patrol",
+    "decision": {
+      "var": "huong"
+    }
+  },
+  "reactions": {
+    "generic": "Drone vẫn đang quét."
+  }
+}

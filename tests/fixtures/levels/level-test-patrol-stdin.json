@@ -1,0 +1,95 @@
+{
+  "schema_version": 1,
+  "chapter": 9,
+  "difficulty": "easy",
+  "concepts": [
+    "if"
+  ],
+  "float_abs_tolerance": 1e-09,
+  "hints": [
+    "Gợi ý một.",
+    "Gợi ý hai.",
+    "Gợi ý ba."
+  ],
+  "outro": "Kai qua dải tuần tra giả.",
+  "lore_fragment": "",
+  "id": "9.21",
+  "title": "Tuần tra thử có kênh nhập",
+  "briefing": "Level giả chỉ dùng trong test: cảm biến gửi một dòng, Kai in lệnh.",
+  "starter_code": "# Cảm biến (KHÔNG được sửa dòng này):\nmuc = 5\n\ntin = input()\nif tin:\n    print(\"NAP\")\nelse:\n    print(\"DI\")\n",
+  "locked_lines": [
+    2
+  ],
+  "inputs": [
+    "muc"
+  ],
+  "objectives": [
+    {
+      "kind": "output_line",
+      "line": 1,
+      "label": "Lệnh của Kai"
+    }
+  ],
+  "alert_limit_statements": 4,
+  "tests": [
+    {
+      "inputs": {
+        "muc": 5
+      },
+      "stdin": [
+        "CO"
+      ],
+      "expected": {},
+      "expected_output": [
+        "NAP"
+      ]
+    },
+    {
+      "inputs": {
+        "muc": 3
+      },
+      "stdin": [
+        ""
+      ],
+      "expected": {},
+      "expected_output": [
+        "DI"
+      ]
+    },
+    {
+      "inputs": {
+        "muc": 9
+      },
+      "stdin": [
+        " "
+      ],
+      "expected": {},
+      "expected_output": [
+        "DI"
+      ]
+    }
+  ],
+  "counter_attack_tests": [
+    {
+      "inputs": {
+        "muc": 1
+      },
+      "stdin": [
+        "  "
+      ],
+      "expected": {},
+      "expected_output": [
+        "DI"
+      ]
+    }
+  ],
+  "simulation": {
+    "kind": "patrol",
+    "decision": {
+      "line": 1
+    }
+  },
+  "reactions": {
+    "generic": "Drone vẫn đang quét."
+  }
+}

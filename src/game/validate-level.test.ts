@@ -2,6 +2,9 @@ import { describe, expect, test } from "vitest";
 import sample from "../../tests/fixtures/levels/level-test-sample.json";
 import knowledgeSample from "../../tests/fixtures/levels/level-test-knowledge.json";
 import stdinSample from "../../tests/fixtures/levels/level-test-stdin.json";
+import patrolBare from "../../tests/fixtures/levels/level-test-patrol-bare.json";
+import patrolMixed from "../../tests/fixtures/levels/level-test-patrol-mixed.json";
+import patrolStdin from "../../tests/fixtures/levels/level-test-patrol-stdin.json";
 import { realLevelJson } from "../../tests/content-fixture";
 import { echoLineLeaks } from "./echo-line-check";
 import { validateLevel } from "./validate-level";
@@ -246,5 +249,38 @@ describe("text rules from chapter 2 on", () => {
 
   test("placeholder samples never collide with data: a level forbidding 7 can still say {line}", () => {
     expect(leaksOf({ ...level, forbidden_terms: ["7", "12", "2"], reactions: { ...level.reactions, TypeError: "Dòng {line} lỗi, lần {count}." } })).toEqual([]);
+  });
+});
+
+describe("patrol simulation", () => {
+  const fixture = (doc: unknown) => JSON.parse(JSON.stringify(doc));
+  const errorsOf = (doc: unknown) => {
+    const r = validateLevel(doc);
+    return r.ok ? [] : r.errors;
+  };
+
+  test("the fixtures are valid, including a level with no inputs and no locked lines", () => {
+    for (const doc of [patrolStdin, patrolBare, patrolMixed]) expect(errorsOf(doc)).toEqual([]);
+  });
+
+  const cases: [string, (l: any) => void, RegExp][] = [
+    ["one base test", (l) => l.tests.splice(1), /dải tuần tra cần ít nhất 2 test cơ bản/],
+    ["a decision line with no output objective", (l) => (l.simulation.decision = { line: 2 }), /decision\.line 2 không phải một mục tiêu output_line/],
+    ["a decision with two keys", (l) => (l.simulation.decision = { line: 1, var: "x" }), /đúng một khóa "line" hoặc "var"/],
+    ["an unknown key in decision", (l) => (l.simulation.decision = { lane: 1 }), /đúng một khóa "line" hoặc "var"/],
+    ["an unknown key in simulation", (l) => (l.simulation.drone = "D-31"), /khóa lạ "drone" cho kind "patrol"/],
+  ];
+  test.each(cases)("rejects %s", (_name, mutate, message) => {
+    const l = fixture(patrolStdin);
+    mutate(l);
+    expect(errorsOf(l).join("\n")).toMatch(message);
+  });
+
+  test("a decision variable must be a str objective", () => {
+    const l = fixture(patrolBare);
+    l.simulation.decision = { var: "nap" };
+    expect(errorsOf(l).join("\n")).toMatch(/decision\.var "nap" phải là tên một mục tiêu biến kiểu str/);
+    l.simulation.decision = { var: "huong" };
+    expect(errorsOf(l)).toEqual([]);
   });
 });
