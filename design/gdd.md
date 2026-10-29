@@ -339,7 +339,7 @@ Trình duyệt mục tiêu của prototype: Chrome. Safari/iOS chưa được ki
 - [x] Dựng level 1.5–1.7 và đoạn hết Chương 1 theo `docs/hop-dong-engine-level-1-5-den-1-7.md` (28/10/2026)
 - [x] Khung Chương 2: trục truyện, bảy màn, hạ tầng đa chương (30/10/2026)
 - [x] Đặc tả chi tiết level 2.1–2.7 theo `design/gdd-chuong-2.md` (30/10/2026)
-- [ ] Dựng Chương 2 theo `docs/hop-dong-engine-chuong-2.md`
+- [x] Dựng Chương 2 theo `docs/hop-dong-engine-chuong-2.md` (30/10/2026)
 - [ ] Phác thảo chương 3–8 ở mức level
 - [ ] Thiết kế hồ sơ 8 Kiến Trúc Sư (tên, khu vực, nhật ký); đã lộ: KTS-01, 03, 05, 07 (Chương 1), KTS-02 và một bản ghi KTS-0█ chưa rõ người viết (Chương 2)
 - [ ] Thiết kế cơ chế ghép kill switch ở Boss cuối

@@ -117,10 +117,10 @@ Log của API xem ở Vercel (Project → Logs). Log của Worker: `cd workers/d
 
 ## 9. Câu chữ và trang quản lý
 
-Câu chữ người chơi đọc chỉ nằm ở D1 (bảng `content_text`, QĐ-16). `src/levels/*.json` và `src/story/chapter-1.json` chỉ giữ câu đố. Câu ban đầu của mỗi level hay chương vào D1 bằng một migration `db/migrations/*_content_*.sql`; câu của chương 1 và level 1.1–1.4 nằm trong `0004_content_chapter_1.sql`.
+Câu chữ người chơi đọc chỉ nằm ở D1 (bảng `content_text`, QĐ-16). `src/levels/*.json` và `src/story/chapter-<n>.json` chỉ giữ câu đố. Câu ban đầu của mỗi level hay chương vào D1 bằng một migration `db/migrations/*_content_*.sql`; câu của chương 1 và level 1.1–1.4 nằm trong `0004_content_chapter_1.sql`.
 
 - **Sửa câu:** dùng trang `#/admin`. Mỗi lần lưu thành một bản mới; nút "Lịch sử" trên trang cho nạp một bản cũ vào form (bản 1 là câu từ migration), bấm Lưu để khôi phục bản đó. Trang chỉ sửa tài liệu đã có câu trong D1; tài liệu chưa có hiện lỗi "chưa có câu chữ: thêm migration".
-- **Level mới:** thêm file JSON câu đố vào `src/levels/` và id vào `chapter-1.json`, rồi viết một tài liệu câu chữ (cùng hình dạng trường như `src/content/text-fields.ts` mô tả, thường để trong `plans/`) và sinh migration:
+- **Level mới:** thêm file JSON câu đố vào `src/levels/` và id vào `levels` của file chương mà trường `chapter` của level chỉ tới (`chapter-<n>.json`), rồi viết một tài liệu câu chữ (cùng hình dạng trường như `src/content/text-fields.ts` mô tả, thường để trong `plans/`) và sinh migration:
 
   ```bash
   npm run content:migration -- plans/<thư-mục>/cau-chu-level-1-5.json --doc level:1.5
