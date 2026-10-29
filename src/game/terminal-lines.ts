@@ -1,5 +1,5 @@
 import { formatAlertPercent } from "./alert";
-import type { OutputReport, RunOutcome, VarVerdict } from "./classify-run";
+import { counterTimedOut, type OutputReport, type RunOutcome, type VarVerdict } from "./classify-run";
 import { BASE_TYPES, type LevelDefinition } from "./level-types";
 import { formatPyLiteral } from "./python-literal";
 import { describeLine } from "./output-diff";
@@ -218,7 +218,7 @@ export function buildTerminalLines(outcome: RunOutcome, level: LevelDefinition, 
       out.push({ tone: "ok", text: `> ${vocab.counterSurvived}` });
     } else if (outcome.error?.phase === "counter") {
       out.push(...traceLines(outcome));
-    } else if (outcome.key === "timeout") {
+    } else if (counterTimedOut(outcome)) {
       out.push({ tone: "alarm", text: STOP_TEXT.timeout });
     } else {
       out.push(

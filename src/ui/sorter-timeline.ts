@@ -1,5 +1,5 @@
 import type { Cue } from "../audio/sound-recipes";
-import type { RunOutcome, VarVerdict } from "../game/classify-run";
+import { counterTimedOut, type RunOutcome, type VarVerdict } from "../game/classify-run";
 import { varObjectives, type BaseType, type InputValue, type LevelDefinition } from "../game/level-types";
 import { pyTypeOf } from "../game/python-literal";
 import { gateFor, type GateState } from "../game/terminal-lines";
@@ -207,11 +207,11 @@ export function buildSorterTimeline(outcome: RunOutcome, level: LevelDefinition)
   };
   frames.push({ scene: { ...counter, status: "OMNI PHẢN CÔNG", shake: true }, hold: 1200, cues: ["siren"] });
 
-  if (outcome.counterAborted || outcome.error?.phase === "counter" || outcome.key === "timeout") {
+  if (outcome.counterAborted || outcome.error?.phase === "counter" || counterTimedOut(outcome)) {
     const why =
       outcome.counterAborted === "engine_error"
         ? "LÕI PYTHON KHÔNG PHẢN HỒI"
-        : outcome.counterAborted || outcome.key === "timeout"
+        : outcome.counterAborted || counterTimedOut(outcome)
           ? "TIẾN TRÌNH BỊ CẮT"
           : `${outcome.error?.type ?? "LỖI"}: dòng ${outcome.error?.line ?? "?"}`;
     frames.push({ scene: { ...counter, scanner: "alarm", status: `RÀO SẬP VỀ NỬA · ${why}` }, hold: 0, cues: ["alarm"] });

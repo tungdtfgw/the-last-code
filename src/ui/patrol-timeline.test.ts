@@ -82,6 +82,19 @@ describe("patrol timeline", () => {
     });
   });
 
+  test.each([
+    ["runs out of time", "    while True:\n        pass\n", "timeout"],
+    ["raises", "    x = 1 / 0\n", "runtime_error"],
+  ])("one star (over the alert threshold) and the counter-attack %s: cut short, not caught", (_name, trap, status) => {
+    const code = `${HEAD}tin = input()\na = 1\nb = 2\nif tin == "  ":\n${trap}if tin.strip():\n    print("NAP")\nelse:\n    print("DI")\n`;
+    const outcome = outcomeOf(stdinLevel, code);
+    expect(outcome).toMatchObject({ key: "alert_exceeded", stars: 1, basePassed: true, counterStopStatus: status });
+    const last = end(buildPatrolTimeline(outcome, stdinLevel));
+    expect(last).toMatchObject({ wave: "counter", label: CUT, gate: "half" });
+    expect(last.drone).not.toBe("locked");
+    expect(last.kai).not.toBe("caught");
+  });
+
   test("the sensor board tells an empty stdin line from a space; neither is hidden", () => {
     const t = timeline(stdinLevel, SOLVED);
     const sensorsOf = (round: number) => t.find((f) => f.scene.round === round)!.scene.sensors;

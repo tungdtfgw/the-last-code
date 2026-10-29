@@ -1,5 +1,5 @@
 import type { Cue } from "../audio/sound-recipes";
-import type { OutputReport, RunOutcome } from "../game/classify-run";
+import { counterTimedOut, type OutputReport, type RunOutcome } from "../game/classify-run";
 import { outputObjectives, type InputValue, type LevelDefinition } from "../game/level-types";
 import { formatPyLiteral } from "../game/python-literal";
 import { gateFor, type GateState } from "../game/terminal-lines";
@@ -214,7 +214,7 @@ export function buildCheckpointTimeline(outcome: RunOutcome, level: LevelDefinit
     return frames;
   }
   const counterError = outcome.error?.phase === "counter";
-  const after = playLines(frames, c, outcome.counterOutput, counterError || outcome.key === "timeout" ? { label: breakLabel } : null);
+  const after = playLines(frames, c, outcome.counterOutput, counterError || counterTimedOut(outcome) ? { label: breakLabel } : null);
   const gate = gateFor(outcome);
   if (outcome.counterSurvived) {
     const open = gate === "open";
@@ -235,7 +235,7 @@ export function buildCheckpointTimeline(outcome: RunOutcome, level: LevelDefinit
   const bad = firstProblem(after.slots, after.extra);
   const reason = counterError
     ? `${outcome.error?.type ?? "LỖI"}: dòng ${outcome.error?.line ?? "?"}`
-    : outcome.key === "timeout"
+    : counterTimedOut(outcome)
       ? "TIẾN TRÌNH BỊ CẮT"
       : (bad?.label ?? "LỆCH MẪU");
   frames.push({

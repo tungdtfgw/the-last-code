@@ -1,5 +1,5 @@
 import type { Cue } from "../audio/sound-recipes";
-import type { RunOutcome, VarVerdict } from "../game/classify-run";
+import { counterTimedOut, type RunOutcome, type VarVerdict } from "../game/classify-run";
 import { simulationOf, type InputValue, type LevelDefinition } from "../game/level-types";
 import { errorStatus, inputsLabel } from "./scanner-timeline";
 import { toneOf, type TypeTone } from "./type-colors";
@@ -252,11 +252,11 @@ export function buildFenceTimeline(outcome: RunOutcome, level: LevelDefinition):
   };
   frames.push({ scene: { ...counter, status: "OMNI PHẢN CÔNG", shake: true }, hold: 1200, cues: ["siren"] });
 
-  if (outcome.counterAborted || outcome.error?.phase === "counter" || outcome.key === "timeout" || !outcome.counterVars) {
+  if (outcome.counterAborted || outcome.error?.phase === "counter" || counterTimedOut(outcome) || !outcome.counterVars) {
     const why =
       outcome.counterAborted === "engine_error"
         ? "LÕI PYTHON KHÔNG PHẢN HỒI"
-        : outcome.counterAborted || outcome.key === "timeout" || outcome.key === "counter_timeout"
+        : outcome.counterAborted || counterTimedOut(outcome) || outcome.key === "counter_timeout"
           ? "TIẾN TRÌNH BỊ CẮT"
           : `${outcome.error?.type ?? "LỖI"}: dòng ${outcome.error?.line ?? "?"}`;
     frames.push({ scene: { ...counter, signal: "alarm", status: `RÀO SÁNG LẠI MỘT NỬA · ${why}` }, hold: 0, cues: ["alarm"] });

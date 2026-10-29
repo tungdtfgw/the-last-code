@@ -1,5 +1,5 @@
 import type { Cue } from "../audio/sound-recipes";
-import type { OutputReport, RoundVerdict, RunOutcome, VarVerdict } from "../game/classify-run";
+import { counterTimedOut, type OutputReport, type RoundVerdict, type RunOutcome, type VarVerdict } from "../game/classify-run";
 import { simulationOf, varObjectives, type InputValue, type LevelDefinition, type PatrolDecision } from "../game/level-types";
 import { visible } from "../game/output-diff";
 import { formatPyLiteral } from "../game/python-literal";
@@ -277,7 +277,7 @@ export function buildPatrolTimeline(outcome: RunOutcome, level: LevelDefinition)
 
   const hasOutput = level.objectives.some((o) => o.kind === "output_line");
   const cut =
-    outcome.key === "timeout" || !!outcome.counterAborted || outcome.error?.phase === "counter" || !outcome.counterVars || (hasOutput && !outcome.counterOutput);
+    counterTimedOut(outcome) || !!outcome.counterAborted || outcome.error?.phase === "counter" || !outcome.counterVars || (hasOutput && !outcome.counterOutput);
   if (cut) {
     const why =
       outcome.counterAborted === "engine_error"

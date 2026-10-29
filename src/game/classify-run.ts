@@ -90,6 +90,8 @@ export interface RunOutcome {
   counterSurvived: boolean;
   /** The counter-attack phase hung or crashed; the base result is kept. */
   counterAborted?: "timeout" | "engine_error";
+  /** The shown counter-attack test stopped before its end (harness status: `timeout`, `runtime_error`…), whatever the key. */
+  counterStopStatus?: string;
   stdout: string;
   stdoutTruncated: boolean;
   /** Shown apart from stdout, never graded. */
@@ -500,6 +502,12 @@ export function classifyRun(result: Exclude<RunnerResult, { kind: "not_ready" }>
     details: { count },
   };
 
+  if (counterFailing && counterFailing.status !== "ok") {
+    // Set before any key is chosen: a run over the alert threshold keeps `alert_exceeded`,
+    // but the scenes must still show the counter-attack cut short, not Kai caught.
+    outcome.counterStopStatus = counterFailing.status;
+    outcome.error = toError(counterFailing, "counter");
+  }
   if (caught || count > limit) {
     outcome.key = "alert_exceeded";
     return outcome;
@@ -517,7 +525,6 @@ export function classifyRun(result: Exclude<RunnerResult, { kind: "not_ready" }>
     outcome.skippedLines = counterFailing.skipped_lines;
     outcome.skippedRound = undefined;
     outcome.skippedCounter = counterFailing.skipped_lines ? true : undefined;
-    outcome.error = toError(counterFailing, "counter");
     const line = counterFailing.error?.line ?? undefined;
     if (counterFailing.status === "timeout") {
       outcome.key = "timeout";
@@ -549,3 +556,6 @@ export function classifyRun(result: Exclude<RunnerResult, { kind: "not_ready" }>
   outcome.key = counterSurvived ? "three_stars" : "generic";
   return outcome;
 }
+
+/** The counter-attack test ran out of time (the key may be `timeout`, or `alert_exceeded` on a one-star run). */
+export const counterTimedOut = (o: RunOutcome): boolean => o.key === "timeout" || o.counterStopStatus === "timeout";
