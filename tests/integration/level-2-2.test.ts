@@ -123,6 +123,18 @@ describe("level 2.2: the counter-attack", () => {
     expect(counter(2)).toEqual({ khoang_cach: 40, tam_quet: 40 });
     expect(outcome.counterVars?.[0]).toMatchObject({ name: "lenh", preview: "'DI'", valueOk: false });
   });
+
+  test("a counter situation lost: the dimmed lines are that situation's, not those of a passed one", () => {
+    // Base situation 1 runs line 8; counter situation 2 never reaches it.
+    const { outcome } = run("two-star");
+    expect(outcome).toMatchObject({ skippedLines: [8], skippedCounter: true });
+    expect(outcome.skippedRound).toBeUndefined();
+    const terminal = buildTerminalLines(outcome, level, 1).map((l) => l.text);
+    expect(terminal.at(-2)).toBe("> KHÔNG CHẠY KHI OMNI PHẢN CÔNG: dòng 8");
+    expect(terminal.some((t) => t.includes("Ở TÌNH HUỐNG"))).toBe(false);
+    // Counter situation 3 takes the NAP branch: nothing to dim, even though a base situation skipped line 8.
+    expect(run("hardcode-le-40").outcome.skippedLines).toBeUndefined();
+  });
 });
 
 describe("level 2.2: ECHO's line for the wrong branch", () => {

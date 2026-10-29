@@ -114,10 +114,16 @@ export interface RunOutcome {
   counterPrompts?: string[];
   /** Every base test as a scan round, when the level has two or more and they ran. */
   rounds?: RoundVerdict[];
-  /** Statement lines the shown base test never ran (its run went to the end); absent when none. */
+  /**
+   * Statement lines the shown test never ran (its run went to the end); absent when none.
+   * The shown test is the failed counter-attack test when the base passed and the counter-attack
+   * did not, otherwise the shown base test.
+   */
   skippedLines?: number[];
-  /** The round those lines belong to (1-based), when the level has rounds. */
+  /** The round those lines belong to (1-based), when they come from a base test of a level with rounds. */
   skippedRound?: number;
+  /** The lines come from the failed counter-attack test. */
+  skippedCounter?: boolean;
   details: OutcomeDetails;
 }
 
@@ -507,6 +513,10 @@ export function classifyRun(result: Exclude<RunnerResult, { kind: "not_ready" }>
     return outcome;
   }
   if (counterFailing && counterVars) {
+    // The run that went wrong is the counter-attack: its unreached lines, not those of a passed round.
+    outcome.skippedLines = counterFailing.skipped_lines;
+    outcome.skippedRound = undefined;
+    outcome.skippedCounter = counterFailing.skipped_lines ? true : undefined;
     outcome.error = toError(counterFailing, "counter");
     const line = counterFailing.error?.line ?? undefined;
     if (counterFailing.status === "timeout") {

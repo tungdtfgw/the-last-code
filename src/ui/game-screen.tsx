@@ -65,7 +65,13 @@ export function GameScreen({ level, chapterTitle, repository, audio, entryGuardM
   const skipped = useMemo(
     () =>
       phase === "ready" && outcome?.skippedLines?.length
-        ? { lines: outcome.skippedLines, round: outcome.skippedRound, roundWord: vocabularyFor(level).round.toLocaleLowerCase("vi"), run: outcome }
+        ? {
+            lines: outcome.skippedLines,
+            round: outcome.skippedRound,
+            roundWord: vocabularyFor(level).round.toLocaleLowerCase("vi"),
+            counter: outcome.skippedCounter,
+            run: outcome,
+          }
         : null,
     [phase, outcome, level],
   );

@@ -32,6 +32,8 @@ export interface SkippedLines {
   /** "Không chạy ở {roundWord} {round}" in the line's title. */
   round?: number;
   roundWord: string;
+  /** The lines come from the counter-attack: "Không chạy khi OMNI phản công". */
+  counter?: boolean;
   /** The run these lines belong to: each run dims at most once. */
   run: object;
 }
@@ -103,10 +105,10 @@ export const skippedField = StateField.define<SkippedState>({
     for (const e of tr.effects) {
       if (!e.is(setSkipped)) continue;
       if (!e.value) return { ...value, deco: Decoration.none, edited: false };
-      const { lines, round, roundWord, run } = e.value;
+      const { lines, round, roundWord, counter, run } = e.value;
       if (value.edited || value.shown.has(run)) return { ...value, deco: Decoration.none };
       value.shown.add(run);
-      const title = round ? `Không chạy ở ${roundWord} ${round}` : "Không chạy";
+      const title = counter ? "Không chạy khi OMNI phản công" : round ? `Không chạy ở ${roundWord} ${round}` : "Không chạy";
       const doc = tr.state.doc;
       const ranges: Range<Decoration>[] = [...new Set(lines)]
         .filter((n) => Number.isInteger(n) && n >= 1 && n <= doc.lines)

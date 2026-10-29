@@ -139,13 +139,16 @@ const alertLine = (outcome: RunOutcome, level: LevelDefinition): TerminalLine[] 
         },
       ];
 
-/** Lines of the shown test that never ran: `> KHÔNG CHẠY Ở TÌNH HUỐNG 2: dòng 5, 6`. */
+const skippedWhere = (outcome: RunOutcome, round: string): string =>
+  outcome.skippedCounter ? " KHI OMNI PHẢN CÔNG" : outcome.skippedRound ? ` Ở ${round} ${outcome.skippedRound}` : "";
+
+/** Lines of the shown test that never ran: `> KHÔNG CHẠY Ở TÌNH HUỐNG 2: dòng 5, 6` (`KHI OMNI PHẢN CÔNG` for the counter-attack). */
 const skippedLine = (outcome: RunOutcome, vocab: SimVocabulary): TerminalLine[] =>
   outcome.skippedLines?.length
     ? [
         {
           tone: "muted",
-          text: `> KHÔNG CHẠY${outcome.skippedRound ? ` Ở ${vocab.round} ${outcome.skippedRound}` : ""}: dòng ${outcome.skippedLines.join(", ")}`,
+          text: `> KHÔNG CHẠY${skippedWhere(outcome, vocab.round)}: dòng ${outcome.skippedLines.join(", ")}`,
           jumpLine: outcome.skippedLines[0],
         },
       ]
