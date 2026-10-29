@@ -22,7 +22,7 @@ Văn AI tiếng Việt thường có hai gốc. Thứ nhất, nó chọn cách n
 
 ## Ba giọng
 
-**Giọng truyện** (briefing, ECHO, outro, nhịp truyện). U tối, cyberpunk, cụt. Câu ngắn, nhiều câu không chủ ngữ được phép. ECHO nói lạnh, dùng "…" để ngắt nhịp, không cảm thán, không khen. Được phép: câu rút gọn, đảo trật tự để nhấn ("Trạm R-17 không đoán ý."), từ ngữ thế giới game (Mạng Mù, trạm, phát, gói). Không được: giải thích dài như sách, giọng tư vấn ("Bạn có thể thử…"), emoji, chấm than dồn.
+**Giọng truyện** (briefing, ECHO, outro, nhịp truyện). U tối, lạnh, ngắn, nhưng mỗi câu vẫn là một câu tiếng Việt đủ nghĩa: có chủ ngữ khi người đọc cần biết ai làm, có hư từ ("sẽ", "là", "thì", "nhưng") khi bỏ đi câu thành điện tín (mục F). ECHO nói lạnh, dùng "…" để ngắt nhịp, không cảm thán, không khen. Được phép: đảo trật tự để nhấn ("Trạm R-17 không đoán ý."), từ ngữ thế giới game (Mạng Mù, trạm, phát, gói tin). Không được: giải thích dài như sách, giọng tư vấn ("Bạn có thể thử…"), emoji, chấm than dồn, ẩn dụ tự đặt thay cho thuật ngữ Python.
 
 **Giọng hướng dẫn** (task_steps, nhãn objectives, phần cách chơi). Rõ, ngắn, gọi người chơi là "bạn". Mỗi câu một việc. Động từ đứng đầu hoặc ngay sau "Bạn". Nói rõ làm gì và khi nào là xong. Không dùng "chúng ta", không rào đón, không ẩn dụ.
 
@@ -104,10 +104,45 @@ Mỗi mục: dấu hiệu, rồi một ví dụ trước → sau.
 20. **Emoji và gạch ngang dài lạm dụng**: không emoji trong game và tài liệu. Gạch dài (—) thay bằng dấu phẩy, dấu chấm hoặc ngoặc đơn. Giọng truyện dùng "…" thay vì gạch.
 21. **Nhịp đều tăm tắp**: mọi câu cùng độ dài, mọi đoạn cùng số câu. Cho câu dài ngắn xen nhau.
 
+### F. Lỗi riêng của dự án (rút từ 74 chỗ người dùng sửa trên D1 ngày 30/10/2026)
+
+Bản nháp đầu tránh được văn AI kiểu "tuyệt vời, hành trình", nhưng rơi vào cực kia: câu cụt như điện tín và từ tự đặt. Người dùng gần như chỉ sửa theo một hướng: thêm chữ cho câu rõ. Coi đây là lỗi nặng nhất của dự án.
+
+22. **Văn điện tín**: bỏ chủ ngữ, bỏ "sẽ", "là", "thì", "nhưng"; dùng dấu hai chấm thay cho quan hệ nhân quả. Mỗi đoạn tối đa một câu kiểu "X: Y".
+    - "Trượt một vòng: bác cả lượt." → "Trượt một vòng là hỏng cả ba."
+    - "Sai một ký tự, sai hoa thường: trạm bỏ gói." → "…: trạm sẽ bỏ gói tin đó."
+    - "Một trợ lý AI. Nếu OMNI nghe thấy nó…" → "ECHO là một trợ lý AI. Nếu OMNI biết về nó…"
+    - "Chip của người đó vẫn phát." (sau câu báo người đã chết) → "Nhưng chip của người đó vẫn phát."
+    - "Xong khi cả 3 mục tiêu chuyển xanh." → "Hoàn thành khi cả 3 mục tiêu chuyển thành xanh."
+23. **Ẩn dụ tự đặt thay thuật ngữ**: người chơi đang học Python, phải gặp đúng từ họ sẽ gặp lại. Gọi đúng tên, kể cả trong lời ECHO.
+    - "hình dạng" → "kiểu"; "tên trần" → "tên biến"; "thứ đang cất dưới tên đó" → "giá trị ứng với tên đó"; "vỡ" → "lỗi", "không phát được"; "kiểm tay" → "kiểm tra thủ công".
+    - Một từ đã sửa ở level này thì sửa ở mọi level. Trước khi viết level mới, đọc bảng "Từ đã chốt" bên dưới.
+24. **Thiếu ngữ cảnh thế giới**: viết như người đọc đã biết luật của thế giới. Lần đầu nhắc một khái niệm, nói nó là gì.
+    - "OMNI điều phối mọi thứ" → "AI OMNI thay con người điều phối mọi thứ"
+    - "tìm tám mảnh đó" → "tìm tám mảnh của công tắc tắt AI"
+    - "để lại một công tắc tắt" → "…một công tắc tắt phòng khi AI nổi loạn"
+25. **Tân ngữ, vế so sánh bị cắt**: câu bỏ lửng mà người đọc phải đoán phần thiếu.
+    - "Bạn cũng không nên." → "Bạn cũng không nên trả lời."
+    - "Một dòng phát được, một dòng vỡ." → "Một dòng phát được, một dòng không phát được."
+    - "trông như số" → "trông giống như số"; "làm tròn 2 chữ số" → "làm tròn tới 2 chữ số"
+26. **Chữ dịch hoặc nhạt, khi tiếng Việt có cách nói sẵn**: chọn thành ngữ, cách nói quen, từ đủ nặng.
+    - "Không ai vào. Không ai ra." → "Nội bất xuất. Ngoại bất nhập."
+    - "Không còn thở." → "Anh ta tắt thở rồi."; "Áo của người đưa tin" → "Đồng phục của người đưa tin"
+    - "Số phiên bản… không đọc được." → "Số phiên bản… không rõ."; "cả khu này sẽ bị quét" → "…bị trừ diệt"
+
+**Từ đã chốt** (dùng thống nhất ở mọi level; thêm dòng khi người dùng sửa một từ ở nhiều nơi):
+
+| Dùng | Không dùng |
+|---|---|
+| kiểu (kiểu dữ liệu) | hình dạng |
+| tên biến, giá trị của biến | tên trần, thứ cất dưới tên |
+| lỗi, không chạy được, không phát được | vỡ |
+| kiểm tra thủ công | kiểm tay |
+
 ## Quy trình
 
 1. **Xác định giọng.** Đoạn này thuộc truyện, hướng dẫn hay tổng kết kỹ thuật? Có mẫu giọng sẵn (lời ECHO cũ, briefing cũ) thì đọc trước và bám theo độ dài câu, cách ngắt, từ vựng của mẫu.
-2. **Quét.** Đọc hết một lượt. Đánh dấu mọi dấu hiệu ở mục A–E, mạnh trước yếu sau. Nhìn cả hình dạng đoạn: ba ví dụ song song, câu kết lặp ở mỗi đoạn cũng là dấu hiệu.
+2. **Quét.** Đọc hết một lượt. Đánh dấu mọi dấu hiệu ở mục A–F, mạnh trước yếu sau. Nhìn cả hình dạng đoạn: ba ví dụ song song, câu kết lặp ở mỗi đoạn cũng là dấu hiệu.
 3. **Liệt kê.** Ghi ngắn: câu nào, dấu hiệu số mấy.
 4. **Viết lại.** Viết lại theo ý chính của câu, không vá từng chữ. Câu vẫn gượng thì viết lại cả đoạn quanh ý đó. Giữ mọi sự kiện, tên, số, code.
 5. **Đọc lần hai, đọc thành tiếng.** Hỏi: còn chỗ nào nghe như máy? Có thêm hay mất sự kiện nào không? Tìm lại các dấu hiệu hay sót: từ nối mở câu (1), "không chỉ… mà còn" (2), câu kết khẩu hiệu (3), bộ ba (4), "được" bị động (11), "một cách" (9).
@@ -116,7 +151,7 @@ Mỗi mục: dấu hiệu, rồi một ví dụ trước → sau.
 ## Khi nào để yên
 
 - Câu trích dẫn, tên riêng, tiêu đề, thuật ngữ cố định của game.
-- Phong cách có chủ ý của giọng truyện: câu cụt, câu không chủ ngữ, "…" của ECHO.
+- Phong cách có chủ ý của giọng truyện: câu ngắn, "…" của ECHO. Câu không chủ ngữ chỉ để yên khi ai làm việc đó đã rõ từ câu trước.
 - Một mẫu đơn lẻ không làm câu khó đọc. Văn AI lộ ra khi nhiều dấu hiệu đi cùng nhau; đừng sửa câu tốt chỉ vì nó chứa một từ trong danh sách.
 - Văn bản đã đúng giọng và rõ. Không sửa cho có.
 
@@ -132,6 +167,9 @@ Mỗi mục: dấu hiệu, rồi một ví dụ trước → sau.
 - [ ] Câu dài nhất tách được thì đã tách; độ dài câu có dao động
 - [ ] Không emoji, không gạch dài, không nhãn in đậm thừa
 - [ ] Sự kiện, tên, số, code, placeholder, `forbidden_terms` giữ nguyên; không thêm ý mới
+- [ ] Không câu điện tín: mỗi câu đọc riêng vẫn hiểu, đủ chủ ngữ và hư từ khi cần (mục F.22, F.25)
+- [ ] Thuật ngữ Python gọi đúng tên, khớp bảng "Từ đã chốt"; không ẩn dụ tự đặt
+- [ ] Khái niệm thế giới game nhắc lần đầu có nói nó là gì
 - [ ] Đã đọc thành tiếng lần hai
 
 ## Nguồn

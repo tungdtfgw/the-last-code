@@ -31,7 +31,7 @@ Bổ sung cho `SKILL.md`. Ví dụ chia theo giọng, vì cùng một dấu hi�
 
 ## 2. Giọng truyện (briefing, ECHO, outro)
 
-Giữ cụt và lạnh. Văn AI ở giọng này thường lộ ra vì giải thích quá nhiều, cảm thán, hoặc triết lý.
+Giữ ngắn và lạnh. Văn AI ở giọng này lộ ra theo hai hướng ngược nhau: giải thích quá nhiều, cảm thán, triết lý; hoặc cụt như điện tín, bỏ chủ ngữ và hư từ, đặt ẩn dụ thay thuật ngữ (SKILL.md mục F). Dự án này từng mắc hướng thứ hai.
 
 - Trước: "Thật tuyệt vời! Bạn đã thành công gửi đi tín hiệu đầu tiên, một bước tiến quan trọng trên hành trình giải cứu thành phố."
   Sau: "Tín hiệu đầu tiên đã vào Mạng Mù. Trạm R-17 im lặng một lúc… rồi trả về một dòng."
