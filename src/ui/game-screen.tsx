@@ -33,6 +33,8 @@ const OBJECTIVE_STEP_MS = 420;
 
 export interface GameScreenProps {
   level: LevelDefinition;
+  /** The title of the level's chapter, for the entry gate and the briefing. */
+  chapterTitle: string;
   repository: ProgressRepository;
   /** Owned by the app so one AudioContext lives across every screen. */
   audio: AudioControls;
@@ -43,7 +45,7 @@ export interface GameScreenProps {
   onContinue(): void;
 }
 
-export function GameScreen({ level, repository, audio, entryGuardMs = 0, onMap, onContinue }: GameScreenProps) {
+export function GameScreen({ level, chapterTitle, repository, audio, entryGuardMs = 0, onMap, onContinue }: GameScreenProps) {
   const game = useGame(level, repository, audio);
   const { state } = game;
   const editor = useRef<CodeEditorHandle>(null);
@@ -57,12 +59,15 @@ export function GameScreen({ level, repository, audio, entryGuardMs = 0, onMap, 
   const autoSwitched = useRef(false);
   const refocusRun = useRef(false);
   const runnable = canRun(state);
-  // Lines the shown round never ran, dimmed once the run has played back; one object per run,
-  // so a later render never dims them again after the player edits.
+  // Lines the shown round never ran, dimmed once the run has played back. The editor shows
+  // each run at most once and drops them when the code changed since the run started.
   const { phase, outcome } = state;
   const skipped = useMemo(
-    () => (phase === "ready" && outcome?.skippedLines?.length ? { lines: outcome.skippedLines, round: outcome.skippedRound } : null),
-    [phase, outcome],
+    () =>
+      phase === "ready" && outcome?.skippedLines?.length
+        ? { lines: outcome.skippedLines, round: outcome.skippedRound, roundWord: vocabularyFor(level).round.toLocaleLowerCase("vi"), run: outcome }
+        : null,
+    [phase, outcome, level],
   );
 
   // The briefing folds once after the first finished run (kept per level for this page session).
@@ -244,6 +249,7 @@ export function GameScreen({ level, repository, audio, entryGuardMs = 0, onMap, 
       <div ref={missionCol} className="col col-mission" data-area="mission">
         <BriefingPanel
           level={level}
+          chapterTitle={chapterTitle}
           mode={intro === "gate" ? "hidden" : intro === "briefing" ? "typing" : "full"}
           onCue={audio.play}
           onTyped={() => setIntro((i) => (i === "briefing" ? "objectives" : i))}
@@ -341,7 +347,7 @@ export function GameScreen({ level, repository, audio, entryGuardMs = 0, onMap, 
         onCue={audio.play}
       />
 
-      {intro === "gate" && <IntroGate level={level} onEnter={enterMission} guardMs={entryGuardMs} />}
+      {intro === "gate" && <IntroGate level={level} chapterTitle={chapterTitle} onEnter={enterMission} guardMs={entryGuardMs} />}
 
       <ResultsDialog open={state.dialogOpen} outcome={state.outcome} echo={state.echo} progress={state.progress} level={level} onClose={closeDialog} onContinue={onContinue} />
     </div>

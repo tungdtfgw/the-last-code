@@ -354,6 +354,10 @@ describe("wrong_branch: a value another situation expects", () => {
 
   test("a wrong bool is never wrong_branch: any wrong bool is another test's answer", () => {
     expect(run(branchLevel(), [base(0, { vars: vars(null, false) }), base(1)])).toMatchObject({ key: "wrong_value", details: { vars: "canh_bao" } });
+    // A wrong bool ahead of a str that took another situation's branch does not hide it.
+    const bothWrong = { lenh: { ...good("str", "'DI'"), value_ok: false }, canh_bao: { ...good("bool", "False"), value_ok: false } };
+    const ordered = { ...branchLevel(), objectives: [branchLevel().objectives[1], branchLevel().objectives[0], branchLevel().objectives[2]] };
+    expect(run(ordered, [base(0, { vars: bothWrong }), base(1)])).toMatchObject({ key: "wrong_branch", details: { vars: "canh_bao, lenh" } });
   });
 
   test("a printed line that another test expects on that line", () => {

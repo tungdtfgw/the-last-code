@@ -29,7 +29,11 @@ export interface CodeEditorHandle {
 /** Lines the last run never reached in the shown round (`skipped_lines`). */
 export interface SkippedLines {
   lines: readonly number[];
+  /** "Không chạy ở {roundWord} {round}" in the line's title. */
   round?: number;
+  roundWord: string;
+  /** The run these lines belong to: each run dims at most once. */
+  run: object;
 }
 
 interface Props {
@@ -79,26 +83,40 @@ const highlight = HighlightStyle.define([
   { tag: t.variableName, color: "var(--text)" },
 ]);
 
-const setSkipped = StateEffect.define<SkippedLines | null>();
+export const setSkipped = StateEffect.define<SkippedLines | null>();
 
-/** Dimmed lines of the last run; any edit clears them (the lines may no longer match the code). */
-const skippedField = StateField.define<DecorationSet>({
-  create: () => Decoration.none,
-  update(deco, tr) {
+interface SkippedState {
+  deco: DecorationSet;
+  /** The code changed since the last clear (a run starting): line numbers of the coming run may be off. */
+  edited: boolean;
+  /** Runs already shown, so a re-sent run (after an aborted one) never dims again. */
+  shown: WeakSet<object>;
+}
+
+/**
+ * Dimmed lines of the last run. Any edit clears them, and lines arriving after an
+ * edit made since the run started are dropped: they no longer match the code.
+ */
+export const skippedField = StateField.define<SkippedState>({
+  create: () => ({ deco: Decoration.none, edited: false, shown: new WeakSet() }),
+  update(value, tr) {
     for (const e of tr.effects) {
       if (!e.is(setSkipped)) continue;
-      if (!e.value) return Decoration.none;
-      const title = e.value.round ? `Không chạy ở tình huống ${e.value.round}` : "Không chạy";
+      if (!e.value) return { ...value, deco: Decoration.none, edited: false };
+      const { lines, round, roundWord, run } = e.value;
+      if (value.edited || value.shown.has(run)) return { ...value, deco: Decoration.none };
+      value.shown.add(run);
+      const title = round ? `Không chạy ở ${roundWord} ${round}` : "Không chạy";
       const doc = tr.state.doc;
-      const ranges: Range<Decoration>[] = [...new Set(e.value.lines)]
+      const ranges: Range<Decoration>[] = [...new Set(lines)]
         .filter((n) => Number.isInteger(n) && n >= 1 && n <= doc.lines)
         .sort((a, b) => a - b)
         .map((n) => Decoration.line({ class: "cm-skipped-line", attributes: { title } }).range(doc.line(n).from));
-      return Decoration.set(ranges);
+      return { ...value, deco: Decoration.set(ranges) };
     }
-    return tr.docChanged ? Decoration.none : deco;
+    return tr.docChanged ? { ...value, deco: Decoration.none, edited: true } : value;
   },
-  provide: (f) => EditorView.decorations.from(f),
+  provide: (f) => EditorView.decorations.from(f, (v) => v.deco),
 });
 
 class SkipMarker extends GutterMarker {
@@ -116,13 +134,13 @@ const skipGutter = gutter({
   class: "cm-skip-gutter",
   lineMarker(view, line) {
     let found = false;
-    view.state.field(skippedField).between(line.from, line.from, () => {
+    view.state.field(skippedField).deco.between(line.from, line.from, () => {
       found = true;
       return false;
     });
     return found ? skipMarker : null;
   },
-  lineMarkerChange: (u) => u.startState.field(skippedField) !== u.state.field(skippedField),
+  lineMarkerChange: (u) => u.startState.field(skippedField).deco !== u.state.field(skippedField).deco,
 });
 
 /** CodeMirror 6 editor with the locked chip-data block. */

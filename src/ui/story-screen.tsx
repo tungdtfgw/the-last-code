@@ -1,7 +1,7 @@
 import { useMemo, useState } from "react";
 import type { AudioControls } from "../audio/use-audio";
 import { buildStory } from "../story/build-story";
-import { chapterTotals, isChapterEnd, nextChapterAfterEnd, prologueId, storyChapter, type GameContext, type ProgressSnapshot } from "../story/progression";
+import { chapterDef, chapterTotals, isChapterEnd, nextChapterAfterEnd, prologueId, storyChapter, type GameContext, type ProgressSnapshot } from "../story/progression";
 import { CutscenePlayer } from "./cutscene-player";
 import { MuteButton } from "./mute-button";
 import { StoryGate } from "./story-gate";
@@ -38,6 +38,7 @@ export function StoryScreen({ storyId, ctx, snapshot, audio, replaying, onFinish
     return (
       <StoryGate
         title={storyLabel(storyId)}
+        kicker={`Chương ${chapter} · ${chapterDef(ctx, chapter)?.title ?? ""}`}
         onEnter={() => {
           void audio.unlock();
           setStarted(true);

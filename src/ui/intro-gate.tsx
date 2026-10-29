@@ -7,7 +7,7 @@ import type { LevelDefinition } from "../game/level-types";
  * After a story, `guardMs` swallows clicks for a moment and held keys always,
  * so the Enter that ended the story does not also start the mission.
  */
-export function IntroGate({ level, onEnter, guardMs = 0 }: { level: LevelDefinition; onEnter(): void; guardMs?: number }) {
+export function IntroGate({ level, chapterTitle, onEnter, guardMs = 0 }: { level: LevelDefinition; chapterTitle: string; onEnter(): void; guardMs?: number }) {
   const [armed, setArmed] = useState(guardMs <= 0);
   useEffect(() => {
     if (guardMs <= 0) return;
@@ -19,7 +19,7 @@ export function IntroGate({ level, onEnter, guardMs = 0 }: { level: LevelDefinit
     <div className="intro-gate" role="dialog" aria-modal="true" aria-labelledby="intro-title">
       <div className="intro-inner">
         <p className="intro-kicker">
-          Chương {level.chapter} · Vùng Tối{level.location ? ` · ${level.location}` : ""}
+          Chương {level.chapter} · {chapterTitle}{level.location ? ` · ${level.location}` : ""}
         </p>
         <h2 id="intro-title" className="intro-title">
           <span className="level-id">{level.id}</span> {level.title}

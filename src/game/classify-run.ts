@@ -271,8 +271,8 @@ function otherExpectations(level: LevelDefinition, kind: "base" | "counter", ind
  * the code took a real branch, the one of another situation. `bool` and `type`
  * objectives never count (any wrong `bool` is another test's answer).
  */
-function isOtherBranchVar(v: VarVerdict, others: OtherExpectations, level: LevelDefinition): boolean {
-  if (!v.typeOk || v.preview === null || v.expectedType === "bool" || v.expectedType === "type") return false;
+function isOtherBranchVar(v: VarVerdict | undefined, others: OtherExpectations, level: LevelDefinition): boolean {
+  if (!v || !v.typeOk || v.preview === null || v.expectedType === "bool" || v.expectedType === "type") return false;
   const preview = v.preview;
   return (others.vars.get(v.name) ?? []).some((x) => {
     if (v.expectedType === "str") return typeof x === "string" && preview === pyStrRepr(x);
@@ -281,6 +281,10 @@ function isOtherBranchVar(v: VarVerdict, others: OtherExpectations, level: Level
     return Math.abs(Number(preview) - x) <= level.float_abs_tolerance;
   });
 }
+
+/** The first wrong variable that can tell a branch: `bool` and `type` objectives are skipped. */
+const firstBranchVar = (wrong: VarVerdict[]): VarVerdict | undefined =>
+  wrong.find((v) => v.expectedType !== "bool" && v.expectedType !== "type");
 
 /** The wrong printed line `out_line` is the line another test expects there (compared after NFC, like the harness). */
 function isOtherBranchLine(o: OutputReport, outLine: number | undefined, others: OtherExpectations): boolean {
@@ -366,7 +370,7 @@ function failureKey(
     if (asLabel.length) return { key: "value_is_label", details: { vars: names(asLabel) } };
     const late = levelHasLine(level, "value_overwritten") ? overwrittenCopies(wrongValue, vs, r.var_history) : [];
     if (late.length && late.length === wrongValue.length) return { key: "value_overwritten", details: { vars: names(late) } };
-    if (levelHasLine(level, "wrong_branch") && isOtherBranchVar(wrongValue[0], otherExpectations(level, r.kind, r.index), level))
+    if (levelHasLine(level, "wrong_branch") && isOtherBranchVar(firstBranchVar(wrongValue), otherExpectations(level, r.kind, r.index), level))
       return { key: "wrong_branch", details: { vars: names(wrongValue) } };
     // `int(tuoi * 100 + cap_do)`: the shape is right, but the digits are the text repeated.
     if (levelHasLine(level, "string_repeated") && wrongValue.every((v) => hasRepeatedInput(v.preview, r.inputs)))
@@ -524,7 +528,7 @@ export function classifyRun(result: Exclude<RunnerResult, { kind: "not_ready" }>
         // ...or it took the branch of another situation (no `round`: this is the counter-attack).
         const others = otherExpectations(level, "counter", counterFailing.index);
         const otherBranch = wrong.length
-          ? isOtherBranchVar(wrong[0], others, level)
+          ? isOtherBranchVar(firstBranchVar(wrong), others, level)
           : !!outcome.counterOutput && isOtherBranchLine(outcome.counterOutput, out?.details.out_line, others);
         outcome.key = levelHasLine(level, "wrong_branch") && otherBranch ? "wrong_branch" : "wrong_value_counter";
       }

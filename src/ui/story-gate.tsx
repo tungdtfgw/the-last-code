@@ -4,11 +4,11 @@
  * waiting for the unlock to finish; the engine plays the first beat's cue once
  * audio runs.
  */
-export function StoryGate({ title, onEnter }: { title: string; onEnter(): void }) {
+export function StoryGate({ title, kicker, onEnter }: { title: string; kicker: string; onEnter(): void }) {
   return (
     <div className="intro-gate" role="dialog" aria-modal="true" aria-labelledby="story-gate-title">
       <div className="intro-inner">
-        <p className="intro-kicker">Chương 1 · Vùng Tối</p>
+        <p className="intro-kicker">{kicker}</p>
         <h2 id="story-gate-title" className="intro-title">
           {title}
         </h2>

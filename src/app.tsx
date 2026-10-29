@@ -16,6 +16,8 @@ import {
   guardRoute,
   isChapterEnd,
   isReturning,
+  storyChapter,
+  type ProgressSnapshot,
   learnEnd,
   seenStories,
   storyEnd,
@@ -86,6 +88,13 @@ function Shell({ ctx, repository, user, onAccount }: { ctx: GameContext } & Game
     if (redirect && guarded) navigate(guarded, { replace: true });
   }, [redirect, guarded, navigate]);
 
+  /** The map of chapter `n`: plain `#/map` when that is the chapter it opens anyway. */
+  const mapOf = useCallback(
+    (n: number | undefined, snap: ProgressSnapshot): Route =>
+      n === undefined || n === defaultMapChapter(ctx, snap) ? { kind: "map" } : { kind: "map", chapter: n },
+    [ctx],
+  );
+
   const startAudio = useCallback(() => {
     void audio.unlock().then(() => audio.play("pulse"));
   }, [audio]);
@@ -98,9 +107,9 @@ function Shell({ ctx, repository, user, onAccount }: { ctx: GameContext } & Game
       // The player may have left (Back) while this was saving.
       if (window.location.hash !== routeHash({ kind: "story", id })) return;
       const replay = replaying.current === routeHash({ kind: "story", id });
-      navigate(replay ? { kind: "map" } : storyEnd(id, ctx, snap), { replace: true });
+      navigate(replay ? mapOf(storyChapter(id, ctx), snap) : storyEnd(id, ctx, snap), { replace: true });
     },
-    [repository, refresh, navigate, ctx],
+    [repository, refresh, navigate, ctx, mapOf],
   );
 
   if (!fresh || !snapshot || redirect) return null;
@@ -173,7 +182,7 @@ function Shell({ ctx, repository, user, onAccount }: { ctx: GameContext } & Game
           replaying={replaying.current === key}
           onFinish={() => void finishStory(route.id)}
           onContinue={() => navigate(storyEnd(route.id, ctx, snapshot), { replace: true })}
-          onMap={() => navigate({ kind: "map" }, { replace: true })}
+          onMap={() => navigate(mapOf(storyChapter(route.id, ctx), snapshot), { replace: true })}
         />
       );
     case "learn": {
@@ -184,7 +193,7 @@ function Shell({ ctx, repository, user, onAccount }: { ctx: GameContext } & Game
           key={route.id}
           level={{ ...level, knowledge_summary: level.knowledge_summary! }}
           onContinue={() => {
-            if (replaying.current === learnKey) return navigate({ kind: "map" }, { replace: true });
+            if (replaying.current === learnKey) return navigate(mapOf(ctx.chapterOf.get(level.id), snapshot), { replace: true });
             void refresh().then((snap) => {
               // The player may have left (Back) while this was loading.
               if (window.location.hash === learnKey) navigate(learnEnd(level.id, ctx, snap), { replace: true });
@@ -199,10 +208,11 @@ function Shell({ ctx, repository, user, onAccount }: { ctx: GameContext } & Game
         <GameScreen
           key={route.id}
           level={level}
+          chapterTitle={chapterDef(ctx, ctx.chapterOf.get(level.id) ?? 1)?.title ?? ""}
           repository={repository}
           audio={audio}
           entryGuardMs={entry.current?.guardMs ?? 0}
-          onMap={() => navigate({ kind: "map" })}
+          onMap={() => navigate(mapOf(ctx.chapterOf.get(level.id), snapshot))}
           onContinue={() => {
             void refresh().then((snap) => navigate(continueAfterLevel(level.id, ctx, snap)));
           }}
