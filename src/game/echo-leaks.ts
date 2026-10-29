@@ -29,12 +29,17 @@ function contains(text: string, term: string, answer = false): boolean {
   return new RegExp(before + escape(t) + after, "iu").test(text);
 }
 
+/** Runs of digits two characters or longer, decimals included (`45`, `3.31`). */
+const NUMBERS = /\d+(?:\.\d+)?/g;
+
 /**
  * Leak set of a level: the common terms plus its `forbidden_terms` (added, never
  * replacing), and every expected value and expected output line of its tests.
+ * From chapter 2 on, every number of two or more characters inside an expected
+ * output line is an answer too (chapter 1's text predates the rule and keeps passing).
  */
 export function levelLeaks(
-  level: Pick<LevelDefinition, "tests" | "counter_attack_tests" | "forbidden_terms">,
+  level: Pick<LevelDefinition, "tests" | "counter_attack_tests" | "forbidden_terms"> & Partial<Pick<LevelDefinition, "chapter">>,
 ): LeakSet {
   const answers = new Set<string>();
   for (const t of [...level.tests, ...level.counter_attack_tests]) {
@@ -42,7 +47,10 @@ export function levelLeaks(
       answers.add(String(v));
       if (typeof v === "boolean") answers.add(v ? "True" : "False");
     }
-    for (const line of t.expected_output ?? []) answers.add(line);
+    for (const line of t.expected_output ?? []) {
+      answers.add(line);
+      if ((level.chapter ?? 1) >= 2) for (const n of line.match(NUMBERS) ?? []) if (n.length >= 2) answers.add(n);
+    }
   }
   return {
     terms: [...new Set([...COMMON_TERMS, ...(level.forbidden_terms ?? [])])],

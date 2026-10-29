@@ -3,6 +3,7 @@ import sample from "../../tests/fixtures/levels/level-test-sample.json";
 import knowledgeSample from "../../tests/fixtures/levels/level-test-knowledge.json";
 import stdinSample from "../../tests/fixtures/levels/level-test-stdin.json";
 import { realLevelJson } from "../../tests/content-fixture";
+import { echoLineLeaks } from "./echo-line-check";
 import { validateLevel } from "./validate-level";
 
 const level = realLevelJson("1.4");
@@ -196,5 +197,54 @@ describe("validateLevel", () => {
       expect(r.ok).toBe(false);
       if (!r.ok) expect(r.errors.join("\n")).toMatch(message);
     });
+  });
+});
+
+describe("text rules from chapter 2 on", () => {
+  const level17 = realLevelJson("1.7");
+  const as = (doc: Record<string, any>, chapter: number, reactions: Record<string, string>) => ({
+    ...doc,
+    chapter,
+    reactions: { ...doc.reactions, ...reactions },
+  });
+  const errorsOf = (doc: unknown) => {
+    const r = validateLevel(doc);
+    return r.ok ? [] : r.errors;
+  };
+  const leaksOf = (doc: unknown) => {
+    const r = validateLevel(doc);
+    return r.ok ? echoLineLeaks(r.level).map((e) => e.message) : ["không hợp lệ"];
+  };
+
+  test("a number of two or more digits from an expected output line is an answer in chapter 2, not in chapter 1", () => {
+    const generic = (doc: unknown) => leaksOf(doc).filter((m) => m.startsWith("reactions.generic"));
+    const line = { generic: "Trạm vẫn chờ số 2089." };
+    expect(generic(as(level11, 2, line))).toEqual(['reactions.generic: lời ECHO chứa "2089"']);
+    expect(generic(as(level11, 1, line))).toEqual([]);
+    // One digit stays allowed unless the level forbids it.
+    expect(generic(as(level11, 2, { generic: "Còn 2 lượt." }))).toEqual([]);
+  });
+
+  test("{round} needs at least two base tests", () => {
+    const withRound = { output_mismatch: "Tình huống {round} trượt." };
+    expect(errorsOf(as(level11, 2, withRound)).join("\n")).toMatch(/reactions\.output_mismatch: \{round\} chỉ dùng được ở level có ít nhất 2 test cơ bản/);
+    expect(errorsOf(as(level11, 1, withRound))).toEqual([]);
+    expect(errorsOf(as(level17, 2, withRound))).toEqual([]);
+  });
+
+  test.each(["entry", "SyntaxError", "alert_exceeded", "three_stars", "wrong_value_counter", "counter_timeout", "repeated_fail", "wrong_branch", "timeout", "generic"])(
+    "{round} in %s, a key that does not always carry it, is refused in chapter 2",
+    (key) => {
+      const doc = as(level17, 2, { [key]: "Tình huống {round}." });
+      expect(errorsOf(doc)).toContain(`reactions.${key}: khóa này không mang số tình huống, không dùng được {round}`);
+      expect(errorsOf({ ...doc, reaction_variants: { [key]: "Lại tình huống {round}." } })).toContain(
+        `reaction_variants.${key}: khóa này không mang số tình huống, không dùng được {round}`,
+      );
+      expect(errorsOf(as(level17, 1, { [key]: "Tình huống {round}." }))).toEqual([]);
+    },
+  );
+
+  test("placeholder samples never collide with data: a level forbidding 7 can still say {line}", () => {
+    expect(leaksOf({ ...level, forbidden_terms: ["7", "12", "2"], reactions: { ...level.reactions, TypeError: "Dòng {line} lỗi, lần {count}." } })).toEqual([]);
   });
 });

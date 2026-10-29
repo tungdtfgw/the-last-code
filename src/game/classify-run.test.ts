@@ -1,6 +1,6 @@
 import { describe, expect, test } from "vitest";
 import type { HarnessOutput, HarnessOutputLine, HarnessReport, HarnessTestResult, HarnessVar } from "../engine/harness-types";
-import { classifyRun } from "./classify-run";
+import { classifyRun, pyStrRepr } from "./classify-run";
 import type { LevelDefinition } from "./level-types";
 import { realLevel } from "../../tests/content-fixture";
 
@@ -308,4 +308,82 @@ describe("stdin channel and scan rounds", () => {
     expect(single.rounds).toBeUndefined();
     expect(single.details.round).toBeUndefined();
   });
+});
+
+describe("wrong_branch: a value another situation expects", () => {
+  const LINE = "Mã đi vào nhánh của tình huống khác.";
+  const branchLevel = (reactions: Partial<LevelDefinition["reactions"]> = { wrong_branch: LINE }): LevelDefinition => ({
+    ...level,
+    chapter: 2,
+    inputs: ["muc"],
+    objectives: [
+      { var: "lenh", type: "str", label: "Lệnh" },
+      { var: "canh_bao", type: "bool", label: "Cảnh báo" },
+      { kind: "output_line", line: 1, label: "Dòng báo" },
+    ],
+    tests: [
+      { inputs: { muc: 1 }, expected: { lenh: "NAP", canh_bao: true }, expected_output: ["DI 45"] },
+      { inputs: { muc: 5 }, expected: { lenh: "DI", canh_bao: false }, expected_output: ["NAP 0"] },
+    ],
+    counter_attack_tests: [{ inputs: { muc: 3 }, expected: { lenh: "muc", canh_bao: true }, expected_output: ["CHO muc"] }],
+    reactions: { ...level.reactions, ...reactions },
+  });
+  const outLine = (actual: string, expected: string): HarnessOutput => ({
+    ok: actual === expected,
+    truncated: false,
+    lines: [{ line: 1, expected, actual, status: actual === expected ? "ok" : "wrong", col: actual === expected ? null : 1, case_only: false }],
+    extra_lines: [],
+    extra_count: 0,
+  });
+  const vars = (lenh: string | null, canhBao = true, lenhOk = false): Record<string, HarnessVar> => ({
+    lenh: { ...good("str", lenh ?? "'NAP'"), value_ok: lenh === null || lenhOk },
+    canh_bao: { ...good("bool", canhBao ? "True" : "False"), value_ok: canhBao },
+  });
+  const base = (index: number, over: Partial<HarnessTestResult> = {}) =>
+    test_("base", { index, inputs: { muc: index ? 5 : 1 }, vars: vars(null), output: outLine(index ? "NAP 0" : "DI 45", index ? "NAP 0" : "DI 45"), ...over });
+  const counter = (over: Partial<HarnessTestResult> = {}) =>
+    test_("counter", { inputs: { muc: 3 }, vars: vars(null), output: outLine("CHO muc", "CHO muc"), ...over });
+  const run = (lvl: LevelDefinition, b: HarnessTestResult[], c: HarnessTestResult[] | null = null) =>
+    classifyRun({ kind: "ok", data: { python_version: "3.14", compile_error: null, base_results: b, counter_results: c } }, lvl);
+
+  test("a str variable holding another test's value, compared as Python shows it", () => {
+    expect(run(branchLevel(), [base(0, { vars: vars("'DI'") }), base(1)])).toMatchObject({ key: "wrong_branch", details: { vars: "lenh", round: 1 } });
+    expect(run(branchLevel(), [base(0, { vars: vars("'XX'") }), base(1)]).key).toBe("wrong_value");
+    expect(run(branchLevel({}), [base(0, { vars: vars("'DI'") }), base(1)]).key).toBe("wrong_value");
+  });
+
+  test("a wrong bool is never wrong_branch: any wrong bool is another test's answer", () => {
+    expect(run(branchLevel(), [base(0, { vars: vars(null, false) }), base(1)])).toMatchObject({ key: "wrong_value", details: { vars: "canh_bao" } });
+  });
+
+  test("a printed line that another test expects on that line", () => {
+    const wrongLine = base(0, { output: outLine("NAP 0", "DI 45") });
+    expect(run(branchLevel(), [wrongLine, base(1)])).toMatchObject({ key: "wrong_branch", details: { out_line: 1, round: 1 } });
+    expect(run(branchLevel({}), [wrongLine, base(1)]).key).toBe("output_mismatch");
+    expect(run(branchLevel(), [base(0, { output: outLine("NAP 1", "DI 45") }), base(1)]).key).toBe("output_mismatch");
+  });
+
+  test("on the counter-attack, with no round; without a line it stays wrong_value_counter", () => {
+    const passed = [base(0), base(1)];
+    const byVar = run(branchLevel(), passed, [counter({ vars: vars("'NAP'") })]);
+    expect(byVar).toMatchObject({ key: "wrong_branch", stars: 2, details: { vars: "lenh" } });
+    expect(byVar.details.round).toBeUndefined();
+    expect(run(branchLevel(), passed, [counter({ output: outLine("DI 45", "CHO muc") })])).toMatchObject({ key: "wrong_branch", details: { out_line: 1 } });
+    expect(run(branchLevel({}), passed, [counter({ vars: vars("'NAP'") })]).key).toBe("wrong_value_counter");
+    expect(run(branchLevel(), passed, [counter({ vars: vars("'ZZ'") })]).key).toBe("wrong_value_counter");
+  });
+
+  test("value_is_label, output_is_label and output_has_prompt come first", () => {
+    const all = branchLevel({ wrong_branch: LINE, value_is_label: "Tên.", output_is_label: "Tên in ra.", output_has_prompt: "Lời nhắc." });
+    expect(run(all, [base(0, { vars: vars("'muc'") }), base(1)]).key).toBe("value_is_label");
+    expect(run(all, [base(0, { output: outLine("CHO muc", "DI 45") }), base(1)]).key).toBe("output_is_label");
+    expect(run(all, [base(0, { output: outLine("NAP 0", "DI 45"), prompts: ["NAP"] }), base(1)]).key).toBe("output_has_prompt");
+  });
+});
+
+test("pyStrRepr writes a str the way the harness previews it (Python repr)", () => {
+  expect(pyStrRepr("NAP")).toBe("'NAP'");
+  expect(pyStrRepr("it's")).toBe(`"it's"`);
+  expect(pyStrRepr(`it's "x"`)).toBe(`'it\\'s "x"'`);
+  expect(pyStrRepr("a\\b\n")).toBe("'a\\\\b\\n'");
 });

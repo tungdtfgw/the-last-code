@@ -51,6 +51,7 @@ export const REACTION_KEYS = [
   "output_extra",
   "EOFError",
   "output_has_prompt",
+  "wrong_branch",
 ] as const;
 export type ReactionKey = (typeof REACTION_KEYS)[number];
 

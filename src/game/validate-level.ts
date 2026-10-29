@@ -86,6 +86,43 @@ const SIM_KEYS: Record<SimulationKind, readonly string[]> = {
   checkpoint: ["kind"],
 };
 
+/**
+ * Keys whose run details never carry `round`, or not always (`wrong_branch` and
+ * `timeout` also fire on the counter-attack or a worker timeout): `{round}` would read "?".
+ */
+const NO_ROUND_KEYS = [
+  "entry",
+  "SyntaxError",
+  "IndentationError",
+  "alert_exceeded",
+  "two_stars",
+  "three_stars",
+  "counter_ValueError",
+  "counter_error",
+  "counter_type_mismatch",
+  "wrong_value_counter",
+  "counter_timeout",
+  "repeated_fail",
+  "engine_error",
+  "wrong_branch",
+  "timeout",
+  "generic",
+];
+
+/** From chapter 2 on: `{round}` only where a failing base round fills it. */
+function checkRoundPlaceholders(r: Record<string, unknown>, errors: string[]) {
+  const baseTests = Array.isArray(r.tests) ? r.tests.length : 0;
+  for (const field of ["reactions", "reaction_variants"]) {
+    const lines = r[field];
+    if (!isObject(lines)) continue;
+    for (const [key, text] of Object.entries(lines)) {
+      if (!isString(text) || !text.includes("{round}")) continue;
+      if (baseTests < 2) errors.push(`${field}.${key}: {round} chỉ dùng được ở level có ít nhất 2 test cơ bản`);
+      else if (NO_ROUND_KEYS.includes(key)) errors.push(`${field}.${key}: khóa này không mang số tình huống, không dùng được {round}`);
+    }
+  }
+}
+
 /** Limits of a test's stdin channel: lines `input()` reads. */
 const STDIN_MAX_LINES = 20;
 const STDIN_MAX_CHARS = 200;
@@ -299,6 +336,8 @@ export function validateLevel(raw: unknown): ValidationResult {
       }
     }
   }
+
+  if (typeof r.chapter === "number" && r.chapter >= 2) checkRoundPlaceholders(r, errors);
 
   if (r.simulation !== undefined) {
     const sim = r.simulation;
