@@ -51,6 +51,7 @@ export function StoryScreen({ storyId, ctx, snapshot, audio, replaying, onFinish
       play={audio.play}
       collected={collected}
       slots={totals.slots}
+      bar={totals.bar}
       found={chapter}
       onFinish={onFinish}
       controls={<MuteButton muted={audio.muted} onToggle={audio.toggleMute} />}

@@ -57,7 +57,7 @@ export function TitleScreen(props: {
                 TIẾP TỤC
               </button>
               <button type="button" className="btn btn-ghost" onClick={props.onMap}>
-                BẢN ĐỒ VÙNG TỐI
+                BẢN ĐỒ
               </button>
             </>
           ) : (

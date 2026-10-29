@@ -8,6 +8,7 @@ import { useProgressSnapshot } from "./shell/use-progress-snapshot";
 import { getChapters } from "./story/chapter";
 import {
   buildGameContext,
+  chapterDef,
   chapterNodes,
   chapterTotals,
   continueAfterLevel,
@@ -71,6 +72,14 @@ function Shell({ ctx, repository, user, onAccount }: { ctx: GameContext } & Game
     if (key !== replaying.current) replaying.current = null;
   }, [key]); // eslint-disable-line react-hooks/exhaustive-deps
 
+  const chapterTabs = useMemo(
+    () =>
+      [...ctx.chapters.map((c) => ({ n: c.chapter, title: c.title, broken: false })), ...ctx.brokenChapters.map((n) => ({ n, title: "", broken: true }))].sort(
+        (a, b) => a.n - b.n,
+      ),
+    [ctx],
+  );
+
   const guarded = fresh && snapshot ? guardRoute(route, ctx, snapshot) : null;
   const redirect = guarded !== null && !sameRoute(guarded, route);
   useEffect(() => {
@@ -126,6 +135,9 @@ function Shell({ ctx, repository, user, onAccount }: { ctx: GameContext } & Game
         .map((l) => ({ levelId: l.id, text: l.lore_fragment }));
       return (
         <ChapterMap
+          chapter={chapterDef(ctx, n)!}
+          chapters={chapterTabs}
+          onChapter={(c) => navigate({ kind: "map", chapter: c })}
           nodes={chapterNodes(ctx, snapshot, n)}
           levels={ctx.built}
           totals={totals}

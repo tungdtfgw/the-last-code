@@ -6142,3 +6142,34 @@ body:has(.learn-screen)::before {
     transition: none;
   }
 }
+
+/* Chapter row on the map: one button per chapter file. */
+.map-chapters {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  padding: 0 0 12px;
+}
+
+.map-chapter[aria-current="page"] {
+  border-color: var(--signal);
+  color: var(--signal);
+}
+
+.map-chapter.is-broken {
+  color: var(--text-faint);
+  cursor: not-allowed;
+}
+
+.map-chapter-tag {
+  margin-left: 6px;
+  color: var(--alarm);
+  font-size: var(--text-2xs);
+  letter-spacing: 0.08em;
+}
+
+@media (max-width: 480px) {
+  .map-chapter-title {
+    display: none;
+  }
+}
