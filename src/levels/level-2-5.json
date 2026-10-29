@@ -1,0 +1,207 @@
+{
+  "schema_version": 1,
+  "id": "2.5",
+  "chapter": 2,
+  "title": "Ngã tư tuần tra",
+  "difficulty": "medium",
+  "concepts": [
+    "boolean_operators"
+  ],
+  "simulation": {
+    "kind": "patrol",
+    "decision": {
+      "line": 1
+    }
+  },
+  "knowledge_summary": {
+    "sections": [
+      {
+        "code": "a = 5\nprint(a > 0 and a < 10)\nprint(a > 0 and a > 10)",
+        "output": "True\nFalse"
+      },
+      {
+        "code": "co_the = False\nco_ve = True\nprint(co_the or co_ve)\nprint(co_the or not co_ve)",
+        "output": "True\nFalse"
+      },
+      {
+        "code": "dong_cua = False\nprint(not dong_cua)",
+        "output": "True"
+      },
+      {
+        "code": "print(True or False and False)\nprint((True or False) and False)",
+        "output": "True\nFalse"
+      },
+      {
+        "code": "tuoi = 15\nco_ve = True\nif tuoi >= 12 and co_ve:\n    print(\"Vao rap\")\nelse:\n    print(\"Dung lai\")",
+        "output": "Vao rap"
+      }
+    ],
+    "mistakes": [
+      {
+        "code": "a = 5\nif a > 0 && a < 10:\n    print(a)",
+        "error": "SyntaxError: invalid syntax"
+      },
+      {
+        "code": "nong = True\nmua = False\nco_o = False\nprint(nong or mua and co_o)",
+        "error": "Không báo lỗi, nhưng in ra: True"
+      },
+      {
+        "code": "x = 5\nif x == 1 or 2:\n    print(\"Dung\")",
+        "error": "Không báo lỗi, nhưng in ra: Dung"
+      }
+    ]
+  },
+  "starter_code": "# Cảm biến ở ngã tư (KHÔNG được sửa 3 dòng này)\nkhoang_cach = 60\ncamera_bat = True\nden_pha = False\n\n# Kai được qua khi drone ở xa hoặc camera tắt, và đèn pha không chiếu\nif khoang_cach > 40 or camera_bat and not den_pha:\n    print(\"LENH: QUA\")\nelse:\n    print(\"LENH: CHO\")\n",
+  "locked_lines": [
+    2,
+    3,
+    4
+  ],
+  "inputs": [
+    "khoang_cach",
+    "camera_bat",
+    "den_pha"
+  ],
+  "objectives": [
+    {
+      "kind": "output_line",
+      "line": 1
+    }
+  ],
+  "alert_limit_statements": 3,
+  "float_abs_tolerance": 1e-09,
+  "tests": [
+    {
+      "inputs": {
+        "khoang_cach": 60,
+        "camera_bat": true,
+        "den_pha": false
+      },
+      "expected": {},
+      "expected_output": [
+        "LENH: QUA"
+      ]
+    },
+    {
+      "inputs": {
+        "khoang_cach": 60,
+        "camera_bat": false,
+        "den_pha": true
+      },
+      "expected": {},
+      "expected_output": [
+        "LENH: CHO"
+      ]
+    },
+    {
+      "inputs": {
+        "khoang_cach": 20,
+        "camera_bat": true,
+        "den_pha": false
+      },
+      "expected": {},
+      "expected_output": [
+        "LENH: CHO"
+      ]
+    },
+    {
+      "inputs": {
+        "khoang_cach": 20,
+        "camera_bat": false,
+        "den_pha": false
+      },
+      "expected": {},
+      "expected_output": [
+        "LENH: QUA"
+      ]
+    }
+  ],
+  "counter_attack_tests": [
+    {
+      "inputs": {
+        "khoang_cach": 40,
+        "camera_bat": true,
+        "den_pha": false
+      },
+      "expected": {},
+      "expected_output": [
+        "LENH: CHO"
+      ]
+    },
+    {
+      "inputs": {
+        "khoang_cach": 41,
+        "camera_bat": true,
+        "den_pha": false
+      },
+      "expected": {},
+      "expected_output": [
+        "LENH: QUA"
+      ]
+    },
+    {
+      "inputs": {
+        "khoang_cach": 20,
+        "camera_bat": false,
+        "den_pha": true
+      },
+      "expected": {},
+      "expected_output": [
+        "LENH: CHO"
+      ]
+    }
+  ],
+  "forbidden_terms": [
+    "and",
+    "or",
+    "not",
+    "if",
+    "elif",
+    "else",
+    "==",
+    "!=",
+    "<=",
+    ">=",
+    "<",
+    ">",
+    "(",
+    ")",
+    "ngoặc",
+    "ưu tiên",
+    "tính trước",
+    "đảo thứ tự",
+    "thụt lề",
+    "dấu hai chấm",
+    "lớn hơn hoặc bằng",
+    "nhỏ hơn hoặc bằng",
+    "khoang_cach",
+    "camera_bat",
+    "den_pha",
+    "True",
+    "False",
+    "LENH",
+    "20",
+    "40",
+    "41",
+    "60"
+  ],
+  "scene": "tram-sentinel",
+  "outro_beats": [
+    {
+      "kind": "echo",
+      "backdrop": "thanh-pho",
+      "fx": "trace"
+    },
+    {
+      "kind": "echo"
+    },
+    {
+      "kind": "kai",
+      "backdrop": "tram-sentinel",
+      "fx": "focus"
+    },
+    {
+      "kind": "log"
+    }
+  ]
+}

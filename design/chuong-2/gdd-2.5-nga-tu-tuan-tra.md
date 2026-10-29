@@ -199,7 +199,7 @@ Mọi dòng chạy trên đủ bốn test cơ bản và ba test phản công. Te
 | 10 | Bỏ hẳn đèn pha | `khoang_cach > 40 or not camera_bat` | `wrong_branch` | cơ bản 2 | 2, 2, 2, 2 | 0 |
 | 11 | Ngoặc đặt sai chỗ | `khoang_cach > 40 and not den_pha or not camera_bat` | `wrong_branch` | cơ bản 2 | 2, 2, 2, 2 | 0 |
 | 12 | Thân nhánh thụt lề sai (`print` nằm trong khối `else`, nhánh `if` chỉ gán) | gán `lenh` ở hai nhánh, `print` thụt vào `else` | `output_missing` | cơ bản 1 | 2, 3, 3, 2 | 0 |
-| 13 | Thân `else` không thụt lề | `else:` rồi `print` sát lề | `IndentationError` (dòng 9) | | | 0 |
+| 13 | Thân `else` không thụt lề | `else:` rồi `print` sát lề | `IndentationError` (dòng 10) | | | 0 |
 | 14 | Đảo hai nhánh | `QUA` trong `else`, `CHO` trong `if` | `wrong_branch` | cơ bản 1 | 2, 2, 2, 2 | 0 |
 | 15 | Đảo thứ tự trong chuỗi `if/elif` | `if khoang_cach > 40` → `elif not camera_bat` → `elif den_pha` → `else` | `wrong_branch` | cơ bản 2 | 2, 2, 4, 3 | 0 |
 | 16 | Chuỗi `if/elif` không dùng `and`/`or`, đúng | `if den_pha` → `elif khoang_cach > 40` → `elif camera_bat` → `else` | `alert_exceeded` | | 3, 2, 4, 4 | 1 |
