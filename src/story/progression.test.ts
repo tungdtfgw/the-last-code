@@ -103,7 +103,9 @@ describe("the shipped chapters (src/levels)", () => {
     expect(storyEnd("prologue", ctx, seen("prologue"))).toEqual(level("1.1"));
     expect(built.slice(0, -1).map((id) => storyEnd(`after-${id}`, ctx, seen()))).toEqual(built.slice(1).map(level));
     expect(storyEnd("after-1.7", ctx, seen())).toEqual(story("teaser"));
-    expect(storyEnd("teaser", ctx, seen("teaser"))).toEqual(MAP);
+    // The chapter 1 ending opens chapter 2 once any of its levels is built.
+    const chapter2Built = ctx.order.some((id) => ctx.chapterOf.get(id) === 2 && ctx.built.has(id));
+    expect(storyEnd("teaser", ctx, seen("teaser"))).toEqual(chapter2Built ? story("prologue-2") : MAP);
     expect(nodeStates(ctx, snap({ "1.1": 1, "1.2": 1 })).slice(2, 4)).toMatchObject([
       { id: "1.3", status: "open", next: true },
       { id: "1.4", status: "locked", requires: "1.3" },
