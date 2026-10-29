@@ -42,6 +42,8 @@ interface Props {
   initialCode: string;
   /** Dims these lines until the next edit; null clears them. */
   skipped?: SkippedLines | null;
+  /** A run is in progress: clears the dimmed lines, and edits from here on drop the coming run's lines. */
+  running?: boolean;
   lockStart: number;
   lockedTexts: readonly string[];
   onChange(code: string, lockedLineNumbers: number[]): void;
@@ -147,7 +149,7 @@ const skipGutter = gutter({
 
 /** CodeMirror 6 editor with the locked chip-data block. */
 export const CodeEditor = forwardRef<CodeEditorHandle, Props>(function CodeEditor(
-  { initialCode, skipped = null, lockStart, lockedTexts, onChange, onRun, onCue },
+  { initialCode, skipped = null, running = false, lockStart, lockedTexts, onChange, onRun, onCue },
   ref,
 ) {
   const host = useRef<HTMLDivElement>(null);
@@ -226,6 +228,12 @@ export const CodeEditor = forwardRef<CodeEditorHandle, Props>(function CodeEdito
     };
     // The editor is created once per document load; later changes flow through the view.
   }, [initialCode, lockStart]);
+
+  // Every run starts from a clean slate, even when the last one dimmed nothing (`skipped` stays
+  // null then): only edits made after this point make the coming run's lines stale.
+  useEffect(() => {
+    if (running) view.current?.dispatch({ effects: setSkipped.of(null) });
+  }, [running]);
 
   // Shown once the run has played back; cleared by the next run or the first edit.
   useEffect(() => {

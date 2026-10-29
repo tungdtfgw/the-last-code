@@ -62,18 +62,14 @@ export function GameScreen({ level, chapterTitle, repository, audio, entryGuardM
   // Lines the shown round never ran, dimmed once the run has played back. The editor shows
   // each run at most once and drops them when the code changed since the run started.
   const { phase, outcome } = state;
+  // A string, so a new level object (an admin saving text mid-run) does not re-send the run.
+  const roundWord = vocabularyFor(level).round.toLocaleLowerCase("vi");
   const skipped = useMemo(
     () =>
       phase === "ready" && outcome?.skippedLines?.length
-        ? {
-            lines: outcome.skippedLines,
-            round: outcome.skippedRound,
-            roundWord: vocabularyFor(level).round.toLocaleLowerCase("vi"),
-            counter: outcome.skippedCounter,
-            run: outcome,
-          }
+        ? { lines: outcome.skippedLines, round: outcome.skippedRound, roundWord, counter: outcome.skippedCounter, run: outcome }
         : null,
-    [phase, outcome, level],
+    [phase, outcome, roundWord],
   );
 
   // The briefing folds once after the first finished run (kept per level for this page session).
@@ -283,6 +279,7 @@ export function GameScreen({ level, chapterTitle, repository, audio, entryGuardM
                 ref={editor}
                 initialCode={game.initialDoc.code}
                 skipped={skipped}
+                running={phase === "running"}
                 lockStart={game.initialDoc.lockStart}
                 lockedTexts={game.lockedTexts}
                 onChange={game.onCodeChange}
