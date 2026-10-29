@@ -1,8 +1,8 @@
 # Level 2.6 – "Bảng lệnh trạm sạc"
 
 > Chương 2 – Trạm Sentinel · Độ khó: Medium · Khái niệm: điều kiện lồng nhau; chuỗi rỗng được coi là sai
-> Câu đố: `src/levels/level-2-6.json` (chưa dựng). Câu chữ người chơi đọc: tài liệu `level:2.6` ở D1 (câu ban đầu sẽ vào `db/migrations/0016_content_level_2_6.sql`, sửa trên `#/admin`); GDD chỉ ghi ý đồ (`design/quyet-dinh/nguon-duy-nhat-cho-cau-chu.md`). Khung chương và phác câu đố: `design/gdd-chuong-2.md` mục 6.6. Hợp đồng engine (`patrol`, đếm câu lệnh, `wrong_branch`, `skipped_lines`): `docs/hop-dong-engine-chuong-2.md`. Kênh nhập, lời nhắc, `EOFError`: `docs/hop-dong-engine-level-1-5-den-1-7.md` (dùng lại nguyên). Brainstorm: `design/quyet-dinh/level-2-6-bang-lenh-tram-sac.md`.
-> Mọi con số trong tài liệu này đo bằng harness thật (`run_level`, python3 3.13.2) ngày 30/10/2026. `wrong_branch` chưa có trong code; khóa ghi ở đây suy ra theo định nghĩa ở hợp đồng engine mục 5.1.
+> Câu đố: `src/levels/level-2-6.json`. Câu chữ người chơi đọc: tài liệu `level:2.6` ở D1 (câu ban đầu sẽ vào `db/migrations/0016_content_level_2_6.sql`, sửa trên `#/admin`); GDD chỉ ghi ý đồ (`design/quyet-dinh/nguon-duy-nhat-cho-cau-chu.md`). Khung chương và phác câu đố: `design/gdd-chuong-2.md` mục 6.6. Hợp đồng engine (`patrol`, đếm câu lệnh, `wrong_branch`, `skipped_lines`): `docs/hop-dong-engine-chuong-2.md`. Kênh nhập, lời nhắc, `EOFError`: `docs/hop-dong-engine-level-1-5-den-1-7.md` (dùng lại nguyên). Brainstorm: `design/quyet-dinh/level-2-6-bang-lenh-tram-sac.md`.
+> Mọi con số trong tài liệu này đo bằng harness thật (`run_level`, python3 3.13.2) ngày 30/10/2026. Khóa `wrong_branch` và `skipped_lines` đã kiểm lại bằng `tests/integration/level-2-6.test.ts`.
 
 ## 0. Khác với phác câu đố ở `design/gdd-chuong-2.md` mục 6.6
 
@@ -298,11 +298,10 @@ Câu chữ: `hints`, `reactions`, `reaction_variants`, `counter_attack_banner` (
  "đổi kiểu", "ép kiểu", "chuyển kiểu",
  "lớn hơn hoặc bằng", "nhỏ hơn hoặc bằng",
  "ma_lenh", "LENH", "XUAT KICH", "VE TRAM",
- "10", "30", "75", "80"]
+ "10", "12", "30", "75", "80"]
 ```
 
-- Không cấm `"12"` dù là dữ liệu tình huống 2: kiểm câu chữ (`echo-line-check.ts`) điền `{count}` bằng số mẫu 12, nên cấm `"12"` sẽ làm mọi câu dùng `{count}` (khuôn `output_extra`, `alert_exceeded`) thành lỗi. Lộ số 12 không lộ đáp án. Đề xuất đổi số mẫu: báo cáo brainstorm.
-- Không cấm các số một chữ số (`5`, `3`): không lộ gì và trùng số mẫu `{round}`, `{out_line}`.
+- Không cấm các số một chữ số (`5`, `3`): chúng không lộ gì. Câu ECHO vẫn không viết số bằng chữ số, chỉ dùng chỗ giữ.
 - Không cấm `pin` (là chữ "pin" tiếng Việt, ECHO cần dùng), `NAP`, `CHO`, `DI` (trùng chữ tiếng Việt khi so không phân biệt hoa thường); dòng mong đợi trọn vẹn đã bị cấm tự động, cộng `LENH`.
 - Không cấm `input`: kênh nhập không phải bài học chính của màn, và ECHO cần nói về việc đọc kênh nhập ở `EOFError`, `ValueError`. Luật chung đã cấm `int`.
 
@@ -395,7 +394,7 @@ Câu đố sẽ nằm ở `src/levels/level-2-6.json`, câu chữ ở D1 (tài l
 ```json
 "chapter": 2,
 "difficulty": "medium",
-"concepts": ["nested-if", "empty-string"],
+"concepts": ["nested_if", "empty_string"],
 "simulation": { "kind": "patrol", "decision": { "line": 1 } },
 "inputs": [],
 "locked_lines": [],
