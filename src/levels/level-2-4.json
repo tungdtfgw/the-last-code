@@ -1,0 +1,200 @@
+{
+  "schema_version": 1,
+  "id": "2.4",
+  "chapter": 2,
+  "title": "Thang báo động",
+  "difficulty": "medium",
+  "concepts": [
+    "elif",
+    "branch_order"
+  ],
+  "simulation": {
+    "kind": "patrol",
+    "decision": {
+      "line": 1
+    }
+  },
+  "knowledge_summary": {
+    "sections": [
+      {
+        "code": "diem = 7\nif diem >= 9:\n    print(\"Gioi\")\nelif diem >= 7:\n    print(\"Kha\")\nelif diem >= 5:\n    print(\"Trung binh\")\nelse:\n    print(\"Yeu\")",
+        "output": "Kha"
+      },
+      {
+        "code": "diem = 9\nif diem >= 5:\n    print(\"Trung binh\")\nelif diem >= 7:\n    print(\"Kha\")\nelif diem >= 9:\n    print(\"Gioi\")\nelse:\n    print(\"Yeu\")",
+        "output": "Trung binh"
+      },
+      {
+        "code": "diem = 2\nif diem >= 9:\n    print(\"Gioi\")\nelif diem >= 5:\n    print(\"Dat\")\nelse:\n    print(\"Chua dat\")",
+        "output": "Chua dat"
+      },
+      {
+        "code": "diem = 9\nif diem >= 9:\n    print(\"Gioi\")\nif diem >= 5:\n    print(\"Dat\")",
+        "output": "Gioi\nDat"
+      },
+      {
+        "code": "diem = 5\nif diem < 5:\n    print(\"Chua dat\")\nelse:\n    print(\"Dat\")\nif diem <= 5:\n    print(\"Chua dat\")\nelse:\n    print(\"Dat\")",
+        "output": "Dat\nChua dat"
+      },
+      {
+        "code": "diem = 7\nif diem >= 9:\n    loai = \"Gioi\"\nelif diem >= 7:\n    loai = \"Kha\"\nelse:\n    loai = \"Dat\"\nprint(f\"Loai: {loai}\")",
+        "output": "Loai: Kha"
+      }
+    ],
+    "mistakes": [
+      {
+        "code": "diem = 9\nif diem >= 5:\n    print(\"Dat\")\nelse:\n    print(\"Chua dat\")\nelif diem >= 9:\n    print(\"Gioi\")",
+        "error": "SyntaxError: 'elif' block follows an 'else' block"
+      },
+      {
+        "code": "diem = 6\nif diem >= 9:\n    print(\"Gioi\")\nelif diem >= 5:\nprint(\"Dat\")",
+        "error": "IndentationError: expected an indented block after 'elif' statement on line 4"
+      },
+      {
+        "code": "diem = 2\nif diem >= 9:\n    loai = \"Gioi\"\nelif diem >= 5:\n    loai = \"Dat\"\nprint(loai)",
+        "error": "NameError: name 'loai' is not defined"
+      },
+      {
+        "code": "diem = 8\nif diem >= 7:\n    print(\"Kha\")\nif diem >= 5:\n    print(\"Dat\")",
+        "error": "Không báo lỗi, nhưng in ra hai dòng: Kha rồi Dat"
+      }
+    ]
+  },
+  "starter_code": "# Khoảng cách tới tín hiệu lạ gần nhất (KHÔNG được sửa dòng này)\nkhoang_cach = 10\n\n# Mức báo động của tháp: xét từ gần nhất ra xa.\nif khoang_cach < 100:\n    print(\"MUC: CANH GIAC\")\nelif khoang_cach <= 50:\n    print(\"MUC: NGUY HIEM\")\nelif khoang_cach < 20:\n    print(\"MUC: BAO DONG\")\nelse:\n    print(\"MUC: AN TOAN\")\n",
+  "locked_lines": [
+    2
+  ],
+  "inputs": [
+    "khoang_cach"
+  ],
+  "objectives": [
+    {
+      "kind": "output_line",
+      "line": 1
+    }
+  ],
+  "alert_limit_statements": 5,
+  "float_abs_tolerance": 1e-09,
+  "tests": [
+    {
+      "inputs": {
+        "khoang_cach": 10
+      },
+      "expected": {},
+      "expected_output": [
+        "MUC: BAO DONG"
+      ]
+    },
+    {
+      "inputs": {
+        "khoang_cach": 35
+      },
+      "expected": {},
+      "expected_output": [
+        "MUC: NGUY HIEM"
+      ]
+    },
+    {
+      "inputs": {
+        "khoang_cach": 75
+      },
+      "expected": {},
+      "expected_output": [
+        "MUC: CANH GIAC"
+      ]
+    },
+    {
+      "inputs": {
+        "khoang_cach": 150
+      },
+      "expected": {},
+      "expected_output": [
+        "MUC: AN TOAN"
+      ]
+    }
+  ],
+  "counter_attack_tests": [
+    {
+      "inputs": {
+        "khoang_cach": 20
+      },
+      "expected": {},
+      "expected_output": [
+        "MUC: NGUY HIEM"
+      ]
+    },
+    {
+      "inputs": {
+        "khoang_cach": 50
+      },
+      "expected": {},
+      "expected_output": [
+        "MUC: CANH GIAC"
+      ]
+    },
+    {
+      "inputs": {
+        "khoang_cach": 100
+      },
+      "expected": {},
+      "expected_output": [
+        "MUC: AN TOAN"
+      ]
+    },
+    {
+      "inputs": {
+        "khoang_cach": 0
+      },
+      "expected": {},
+      "expected_output": [
+        "MUC: BAO DONG"
+      ]
+    }
+  ],
+  "forbidden_terms": [
+    "if",
+    "elif",
+    "else",
+    "<",
+    ">",
+    "<=",
+    ">=",
+    "==",
+    "!=",
+    "lớn hơn hoặc bằng",
+    "nhỏ hơn hoặc bằng",
+    "đảo thứ tự",
+    "thứ tự ngược",
+    "hẹp trước",
+    "rộng trước",
+    "thụt lề",
+    "dấu hai chấm",
+    "khoang_cach",
+    "BAO DONG",
+    "NGUY HIEM",
+    "CANH GIAC",
+    "AN TOAN",
+    "10",
+    "35",
+    "75",
+    "150",
+    "20",
+    "50",
+    "100",
+    "0"
+  ],
+  "scene": "tram-sentinel",
+  "outro_beats": [
+    {
+      "kind": "log",
+      "fx": "scan"
+    },
+    {
+      "kind": "kai",
+      "hold_ms": 1500
+    },
+    {
+      "kind": "echo"
+    }
+  ]
+}
