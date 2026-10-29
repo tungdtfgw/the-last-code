@@ -897,6 +897,10 @@ class SkippedLines(unittest.TestCase):
         self.assertEqual(r["status"], "runtime_error")
         self.assertNotIn("skipped_lines", r)
 
+    def test_a_condition_wrapped_below_its_if_or_elif_still_marks_the_header_as_run(self):
+        src = "lenh = 'DI'\nif (\n    muc > 5\n):\n    lenh = 'NAP'\nelif (\n    muc\n    > 3\n):\n    lenh = 'CHO'\nprint(lenh)\n"
+        self.assertEqual(self.skipped(src, 9, 4, 1), [[6, 10], [5], [5, 10]])
+
     def test_global_alone_on_a_line_never_looks_skipped(self):
         self.assertEqual(self.skipped("global lenh\nlenh = muc\n", 1), [None])
 
