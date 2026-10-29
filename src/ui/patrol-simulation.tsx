@@ -107,6 +107,19 @@ function Sensors({ scene }: { scene: PatrolScene }) {
   );
 }
 
+/** Right or wrong in a shape and words, not only in colour. */
+function Mark({ state }: { state: "idle" | "ok" | "bad" }) {
+  if (state === "idle") return null;
+  return (
+    <>
+      <span className="patrol-mark" aria-hidden="true">
+        {state === "ok" ? "✓" : "✗"}
+      </span>
+      <span className="sr-only">{state === "ok" ? "đúng" : "sai"}</span>
+    </>
+  );
+}
+
 /** Kai's move (the `decision` objective) and the other objectives as drone lamps. */
 function Readout({ scene }: { scene: PatrolScene }) {
   if (!scene.decision && scene.lamps.length === 0) return null;
@@ -116,6 +129,7 @@ function Readout({ scene }: { scene: PatrolScene }) {
         <p className={`patrol-chip is-${scene.decision.state}`}>
           <span className="patrol-chip-name">{scene.decision.label}</span>
           <span className="patrol-chip-value">{scene.decision.state === "idle" ? "…" : (scene.decision.value ?? "(trống)")}</span>
+          <Mark state={scene.decision.state} />
         </p>
       )}
       {scene.lamps.length > 0 && (
@@ -125,6 +139,7 @@ function Readout({ scene }: { scene: PatrolScene }) {
               <span className="patrol-lamp-dot" aria-hidden="true" />
               <span className="patrol-lamp-name">{l.label}</span>
               <span className="patrol-lamp-value">{l.state === "idle" ? "…" : (l.value ?? "(không có)")}</span>
+              <Mark state={l.state} />
             </li>
           ))}
         </ul>

@@ -6473,6 +6473,21 @@ body:has(.learn-screen)::before {
   font-style: italic;
 }
 
+.patrol-mark {
+  margin-left: var(--s-1);
+  font-weight: 700;
+}
+
+.patrol-chip.is-ok .patrol-mark,
+.patrol-lamp.is-ok .patrol-mark {
+  color: var(--signal);
+}
+
+.patrol-chip.is-bad .patrol-mark,
+.patrol-lamp.is-bad .patrol-mark {
+  color: var(--alarm);
+}
+
 .patrol-sensor-state {
   font-size: var(--text-2xs);
   letter-spacing: 0.06em;

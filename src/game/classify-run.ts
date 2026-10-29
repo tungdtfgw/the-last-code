@@ -237,7 +237,11 @@ function outputHasPrompt(o: OutputReport, out_line: number | undefined, prompts:
   });
 }
 
-/** Python's `repr` of a `str`, as the harness previews it: `'NAP'`, `"it's"`. */
+/**
+ * Python's `repr` of a `str`, as the harness previews it: `'NAP'`, `"it's"`. Escapes only
+ * `\\`, `\n`, `\r`, `\t`; other unprintable characters differ from Python's, so such a value
+ * simply never matches (the run falls back to `wrong_value`).
+ */
 export function pyStrRepr(text: string): string {
   const quote = text.includes("'") && !text.includes('"') ? '"' : "'";
   let out = "";
@@ -283,7 +287,8 @@ function isOtherBranchVar(v: VarVerdict | undefined, others: OtherExpectations, 
   if (!v || !v.typeOk || v.preview === null || v.expectedType === "bool" || v.expectedType === "type") return false;
   const preview = v.preview;
   return (others.vars.get(v.name) ?? []).some((x) => {
-    if (v.expectedType === "str") return typeof x === "string" && preview === pyStrRepr(x);
+    // NFC on both sides, like the harness's own string comparison.
+    if (v.expectedType === "str") return typeof x === "string" && preview.normalize("NFC") === pyStrRepr(x.normalize("NFC"));
     if (typeof x !== "number") return false;
     if (v.expectedType === "int") return Number(preview) === x;
     return Math.abs(Number(preview) - x) <= level.float_abs_tolerance;
