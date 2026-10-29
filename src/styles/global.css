@@ -2462,8 +2462,8 @@ kbd {
 @keyframes sa-drip {
   0%, 55% { transform: translateY(0); opacity: 0; }
   58% { opacity: 1; }
-  92% { transform: translateY(62px); opacity: 1; }
-  93%, 100% { transform: translateY(62px); opacity: 0; }
+  92% { transform: translateY(var(--drop, 62px)); opacity: 1; }
+  93%, 100% { transform: translateY(var(--drop, 62px)); opacity: 0; }
 }
 
 @keyframes sa-splash {
@@ -2836,6 +2836,144 @@ kbd {
   92% { opacity: 1; transform: none; }
   93% { opacity: 0.7; transform: translateX(-0.3px); }
   94% { opacity: 1; transform: none; }
+}
+
+/* Chapter 2, the Sentinel Ring: red for everything that watches, teal only for R-17's mark, warm only at the charging station's board. */
+
+.sa-hole {
+  fill: var(--bg-deep);
+  stroke: var(--n-6);
+  stroke-width: 0.2;
+  stroke-opacity: 0.4;
+}
+
+.sa-water {
+  fill: var(--bg-deep);
+  fill-opacity: 0.96;
+  stroke: var(--n-6);
+  stroke-width: 0.15;
+  stroke-opacity: 0.3;
+}
+
+.sa-alongfence {
+  animation: sa-alongfence 16s ease-in-out infinite alternate;
+}
+
+.sa-search {
+  transform-origin: 0 0;
+  animation: sa-search 7s ease-in-out infinite alternate;
+}
+
+.sa-band {
+  fill: var(--omni);
+  fill-opacity: 0.16;
+  mix-blend-mode: screen;
+}
+
+.sa-slide {
+  animation: sa-slide 12s ease-in-out infinite alternate;
+}
+
+.sa-mark {
+  fill: none;
+  stroke: var(--signal);
+  stroke-width: 0.3;
+  stroke-linecap: round;
+  filter: drop-shadow(0 0 0.5px var(--signal));
+}
+
+.sa-step {
+  fill: var(--n-2);
+  stroke: var(--n-6);
+  stroke-width: 0.12;
+}
+
+.sa-step.is-lit {
+  fill: var(--omni);
+  animation: sa-blink 2.4s steps(1) infinite;
+}
+
+.sa-lamphead {
+  fill: var(--omni);
+  fill-opacity: 0.45;
+  filter: drop-shadow(0 0 1px var(--omni));
+}
+
+.sa-thap-den-pha .sa-beam {
+  transform-origin: 80px 12px;
+  animation-duration: 8s;
+}
+
+.sa-thap-den-pha .sa-beam.is-other {
+  animation-duration: 10s;
+}
+
+.sa-hover {
+  animation: sa-hover 5s ease-in-out infinite alternate;
+}
+
+.sa-pass {
+  opacity: 0;
+  transform-origin: 180px -20px;
+  animation: sa-pass 15s ease-in-out infinite;
+}
+
+.sa-charge {
+  fill: var(--omni);
+  animation: sa-breathe 3s ease-in-out calc(var(--i) * -0.6s) infinite;
+}
+
+/* Docked drones: rotors still. */
+.sa-parked .sa-blade {
+  animation: none;
+}
+
+.sa-boardface {
+  fill: var(--alarm);
+  fill-opacity: 0.08;
+}
+
+.sa-cmd {
+  fill: var(--alarm);
+  fill-opacity: 0.3;
+  animation: sa-cmd 5s steps(1) calc(var(--i) * -0.8s) infinite;
+}
+
+.sa-cmd.is-current {
+  fill-opacity: 0.7;
+}
+
+@keyframes sa-alongfence {
+  from { transform: translate(-8px, -2px); }
+  to { transform: translate(10px, 3px); }
+}
+
+@keyframes sa-search {
+  from { transform: rotate(-14deg); }
+  to { transform: rotate(10deg); }
+}
+
+@keyframes sa-slide {
+  from { transform: translateX(-30px); }
+  to { transform: translateX(100px); }
+}
+
+@keyframes sa-hover {
+  from { transform: translateY(-0.8px); }
+  to { transform: translateY(0.8px); }
+}
+
+@keyframes sa-pass {
+  0%, 55% { opacity: 0; transform: rotate(-16deg); }
+  62% { opacity: 1; }
+  85% { opacity: 1; }
+  92%, 100% { opacity: 0; transform: rotate(14deg); }
+}
+
+@keyframes sa-cmd {
+  0%, 70% { opacity: 1; }
+  71%, 78% { opacity: 0.2; }
+  79%, 100% { opacity: 1; }
 }
 
 .scene-trace {
