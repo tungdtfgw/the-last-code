@@ -1,16 +1,16 @@
 import { describe, expect, test } from "vitest";
-import { chapterFile, levelFiles, realChapterJson, realLevelJson } from "../../tests/content-fixture";
+import { chapterFile, chapterNumbers, levelFiles, realChapterJson, realLevelJson } from "../../tests/content-fixture";
 import { applyText, CHAPTER_TEXT, checkTextShape, errorPath, extractText, LEVEL_TEXT, stripText, type TextSpec } from "./text-fields";
 
 const levelIds = Object.values(levelFiles()).map((f) => (f as { id: string }).id);
 // Full documents: each puzzle file with the text its migration gives it.
 const docs: [string, unknown, TextSpec][] = [
   ...levelIds.map((id) => [`level ${id}`, realLevelJson(id), LEVEL_TEXT] as [string, unknown, TextSpec]),
-  ["chapter 1", realChapterJson(), CHAPTER_TEXT],
+  ...chapterNumbers().map((n) => [`chapter ${n}`, realChapterJson(n), CHAPTER_TEXT] as [string, unknown, TextSpec]),
 ];
 const puzzles: [string, unknown, TextSpec][] = [
   ...Object.entries(levelFiles()).map(([path, doc]) => [path, doc, LEVEL_TEXT] as [string, unknown, TextSpec]),
-  ["chapter-1.json", chapterFile(), CHAPTER_TEXT],
+  ...chapterNumbers().map((n) => [`chapter-${n}.json`, chapterFile(n), CHAPTER_TEXT] as [string, unknown, TextSpec]),
 ];
 const level14 = realLevelJson("1.4");
 const level11 = realLevelJson("1.1");
@@ -60,6 +60,10 @@ const PUZZLE_STRINGS = [
   "knowledge_summary.mistakes[].code",
   "knowledge_summary.mistakes[].error",
   "levels[]",
+  "component_bar.label",
+  "component_bar.unit",
+  "map.from",
+  "map.to",
   ...["prologue", "teaser"].flatMap((b) => ["kind", "cue", "backdrop", "fx"].map((k) => `${b}[].${k}`)),
 ].map((p) => new RegExp(`^${p.replace(/[.[\]]/g, "\\$&").replace(/\*/g, "[^.]+")}$`));
 

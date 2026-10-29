@@ -12,6 +12,14 @@
     "1.7"
   ],
   "neural_id_slots": 6,
+  "component_bar": {
+    "label": "Neural-ID giả",
+    "unit": "Thành phần"
+  },
+  "map": {
+    "from": "Lô 17",
+    "to": "Cổng Kiểm Soát"
+  },
   "prologue": [
     {
       "kind": "card",

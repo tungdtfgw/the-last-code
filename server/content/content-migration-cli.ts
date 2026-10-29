@@ -3,7 +3,7 @@ import { join } from "node:path";
 import { isObject } from "../../src/content/text-fields.js";
 import { MIGRATIONS_DIR } from "../db/sqlite-db.js";
 import { validateDocText } from "./admin-content.js";
-import { CHAPTER_FILE, LEVELS_DIR, loadBundledContent } from "./bundled-content.js";
+import { LEVELS_DIR, loadBundledContent, STORY_DIR } from "./bundled-content.js";
 import { contentMigrationSql, TEXT_INSERT } from "./content-migration.js";
 
 export interface MigrationOptions {
@@ -12,7 +12,8 @@ export interface MigrationOptions {
   /** `level:1.5` / `chapter:1`; overrides `docId` in the file. */
   doc?: string;
   levelsDir?: string;
-  chapterFile?: string;
+  /** Holds the `chapter-<n>.json` files. */
+  storyDir?: string;
   migrationsDir?: string;
   now?: Date;
   log?(line: string): void;
@@ -59,9 +60,9 @@ export function writeContentMigration(opts: MigrationOptions): MigrationResult {
     log('Thiếu mã tài liệu: ghi "docId": "level:1.5" trong file hoặc thêm --doc level:1.5');
     return { ok: false };
   }
-  const doc = loadBundledContent(opts.levelsDir ?? LEVELS_DIR, opts.chapterFile ?? CHAPTER_FILE).docs.find((d) => d.docId === docId);
+  const doc = loadBundledContent(opts.levelsDir ?? LEVELS_DIR, opts.storyDir ?? STORY_DIR).docs.find((d) => d.docId === docId);
   if (!doc) {
-    log(`${docId}: repo không có file câu đố cho tài liệu này (src/levels/*.json hoặc src/story/chapter-1.json)`);
+    log(`${docId}: repo không có file câu đố cho tài liệu này (src/levels/*.json hoặc src/story/chapter-*.json)`);
     return { ok: false };
   }
   const existing = textMigrations(migrationsDir).get(docId);

@@ -5,7 +5,7 @@ import { buildRegistry, bundledLevelModules } from "./game/level-registry";
 import { routeHash, sameRoute } from "./shell/route";
 import { useHashRoute } from "./shell/use-hash-route";
 import { useProgressSnapshot } from "./shell/use-progress-snapshot";
-import { getChapter } from "./story/chapter";
+import { getChapters } from "./story/chapter";
 import {
   buildChapterContext,
   chapterTotals,
@@ -197,7 +197,10 @@ function Shell({ ctx, repository, user, onAccount }: { ctx: ChapterContext } & G
 /** Applies the D1 text to the bundled puzzle files and builds the chapter, then the shell. */
 function GameRoot(game: GameProps) {
   const { texts } = game;
-  const chapter = useMemo(() => getChapter(texts), [texts]);
+  const chapter = useMemo(
+    () => getChapters(texts).find((c) => c.chapter === 1)?.result ?? { ok: false as const, errors: ["thiếu file chương 1"] },
+    [texts],
+  );
   const ctx = useMemo(
     () => (chapter.ok ? buildChapterContext(chapter.chapter, buildRegistry(bundledLevelModules(), texts)) : null),
     [chapter, texts],

@@ -1,0 +1,112 @@
+{
+  "schema_version": 1,
+  "chapter": 2,
+  "title": "Trạm Sentinel",
+  "levels": [
+    "2.1",
+    "2.2",
+    "2.3",
+    "2.4",
+    "2.5",
+    "2.6",
+    "2.7"
+  ],
+  "neural_id_slots": 6,
+  "component_bar": {
+    "label": "Bộ luật né",
+    "unit": "Luật"
+  },
+  "map": {
+    "from": "Đường Ống Số 9",
+    "to": "Trạm Sentinel"
+  },
+  "prologue": [
+    {
+      "kind": "log",
+      "backdrop": "thanh-pho",
+      "cue": "pulse"
+    },
+    {
+      "kind": "log",
+      "fx": "trace"
+    },
+    {
+      "kind": "log",
+      "backdrop": "tram-sentinel"
+    },
+    {
+      "kind": "kai",
+      "fx": "alert_tick"
+    },
+    {
+      "kind": "card",
+      "cue": "glitch",
+      "fx": "signal_0xa7"
+    },
+    {
+      "kind": "echo"
+    },
+    {
+      "kind": "kai"
+    },
+    {
+      "kind": "echo",
+      "cue": "echo_voice"
+    },
+    {
+      "kind": "echo",
+      "fx": "id_bar"
+    },
+    {
+      "kind": "log"
+    },
+    {
+      "kind": "card",
+      "backdrop": "thanh-pho",
+      "cue": "pulse",
+      "hold_ms": 1500
+    }
+  ],
+  "teaser": [
+    {
+      "kind": "log",
+      "backdrop": "tram-sentinel",
+      "cue": "gate_close_far"
+    },
+    {
+      "kind": "echo",
+      "fx": "id_bar"
+    },
+    {
+      "kind": "log",
+      "backdrop": "thanh-pho",
+      "fx": "fragment_found"
+    },
+    {
+      "kind": "log",
+      "backdrop": "vung-toi"
+    },
+    {
+      "kind": "card",
+      "cue": "glitch",
+      "fx": "signal_0xa7"
+    },
+    {
+      "kind": "echo"
+    },
+    {
+      "kind": "log",
+      "backdrop": "terminal",
+      "cue": "scan_reject"
+    },
+    {
+      "kind": "kai",
+      "hold_ms": 2000
+    },
+    {
+      "kind": "card",
+      "backdrop": "tram-sentinel",
+      "cue": "pulse"
+    }
+  ]
+}
