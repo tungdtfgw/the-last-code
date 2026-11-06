@@ -144,7 +144,7 @@ export function getLockedLineNumbers(state: EditorState): number[] {
 
 /** Find the locked block in `code` (first match of the lines as one consecutive run). Returns its 1-based start line. */
 export function findLockedBlock(code: string, texts: readonly string[]): number | null {
-  if (!texts.length) return null;
+  if (!texts.length) return 1; // nothing to keep, so every draft is intact
   const lines = code.replace(/\r\n?/g, "\n").split("\n");
   outer: for (let i = 0; i + texts.length <= lines.length; i++) {
     for (let j = 0; j < texts.length; j++) if (lines[i + j] !== texts[j]) continue outer;
@@ -194,6 +194,7 @@ const lockGutter = gutter({
  * line contents that must stay untouched.
  */
 export function lockedLines(doc: Text, startLine: number, texts: readonly string[], withUi = true): Extension {
-  const init = lockedBlockField.init(() => ({ from: doc.line(startLine).from, texts }));
+  // A level without locked lines has no block at all: an empty one has no last line.
+  const init = lockedBlockField.init(() => (texts.length ? { from: doc.line(startLine).from, texts } : null));
   return withUi ? [init, lockFilter, decorations, lockGutter] : [init, lockFilter];
 }

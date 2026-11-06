@@ -116,3 +116,19 @@ test("2.6: stdin cards show read and unread", async ({ page }) => {
   await expect(page.locator(".patrol-sensor.is-stdin.is-read")).toHaveCount(2);
   await expect(page.locator(".patrol-sensors")).toContainText("ĐÃ ĐỌC");
 });
+
+test("2.6: typed code stays after clicking away and after a reload", async ({ page }) => {
+  await gotoLevel(page, "2.6", { codeTab: true });
+  await replaceEditableCode(page, "# giu lai dong nay", 4);
+  // Clicking outside makes CodeMirror redraw from its state: text it never accepted vanishes here.
+  await showTab(page, "Nhiệm vụ");
+  await page.locator(".col-mission").first().click({ position: { x: 10, y: 10 } });
+  await showTab(page, "Mã");
+  expect(await editorText(page)).toContain("# giu lai dong nay");
+  // Leaving the page sends the draft; it must come back, not be thrown away as a broken draft.
+  await page.goto("/#/map");
+  await page.reload();
+  await gotoLevel(page, "2.6", { codeTab: true });
+  expect(await editorText(page)).toContain("# giu lai dong nay");
+  await expect(page.getByText("BẢN NHÁP HỎNG")).toHaveCount(0);
+});

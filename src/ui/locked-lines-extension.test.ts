@@ -206,3 +206,22 @@ describe("findLockedBlock (draft restore)", () => {
     expect(findLockedBlock(texts.join("\n"), texts)).toBe(1);
   });
 });
+
+describe("a level without locked lines", () => {
+  const doc = 'ma_lenh = input()\nprint("x")\n';
+  const free = () => EditorState.create({ doc, extensions: [lockedLines(EditorState.create({ doc }).doc, 1, [], false)] });
+
+  test("every edit goes through, anywhere in the document", () => {
+    let s = free();
+    s = apply(s, { changes: { from: 0, insert: "# a\n" }, userEvent: "input" }).state;
+    s = apply(s, { changes: { from: s.doc.length, insert: "pin = 1\n" }, userEvent: "input" }).state;
+    s = apply(s, { changes: { from: 0, to: s.doc.length, insert: "" }, userEvent: "delete" }).state;
+    expect(s.doc.toString()).toBe("");
+    expect(getLockedLineNumbers(s)).toEqual([]);
+  });
+
+  test("any saved draft is restored", () => {
+    expect(findLockedBlock("pin = 1", [])).toBe(1);
+    expect(findLockedBlock("", [])).toBe(1);
+  });
+});
