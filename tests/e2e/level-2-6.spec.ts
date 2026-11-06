@@ -45,12 +45,14 @@ test("2.6: no locked line, starter TypeError, situation 4 caught with dimmed lin
   await waitForPythonReady(page);
 
   // The editor holds the starter code, and no line is locked.
-  expect(await editorText(page)).toBe(STARTER);
+  expect(await editorText(page)).toBe(level.starter_code);
   await expect(page.locator(".cm-content .cm-locked-line")).toHaveCount(0);
 
   // Run 1: both stdin lines read, then the comparison of text with a number fails on line 5.
   await runAndWait(page);
-  await expect(terminal(page)).toContainText('KÊNH NHẬP: "XUAT KICH", "80" (đã đọc 2/2)');
+  // With several situations the channel is named on each situation's opening line; the
+  // read / unread state is on the sensor board's cards, not in the log.
+  await expect(terminal(page)).toContainText('TÌNH HUỐNG 1/4 · kênh nhập: "XUAT KICH", "80"');
   await expect(terminal(page)).toContainText("TypeError");
   await showTab(page, "Mô phỏng");
   await expect(sensorValues(page)).toHaveCount(2);
@@ -72,18 +74,15 @@ test("2.6: no locked line, starter TypeError, situation 4 caught with dimmed lin
   await page.getByRole("button", { name: "Khôi phục mã gốc" }).click();
   await page.getByRole("button", { name: "Xác nhận khôi phục" }).click();
   await expect(terminal(page)).toContainText("Đã khôi phục mã gốc.");
-  expect(await editorText(page)).toBe(STARTER);
+  expect(await editorText(page)).toBe(level.starter_code);
   await page.locator(".cm-content .cm-line").first().click({ position: { x: 2, y: 5 } });
   await page.keyboard.press("ControlOrMeta+Home");
   await page.keyboard.insertText("# ");
   expect((await editorText(page)).split("\n")[0]).toBe(`# ${STARTER.split("\n")[0]}`);
 
-  // Run 3: the nested answer from line 1. OMNI's third new situation sends a lone space,
-  // shown as `·`, unlike the empty line.
+  // Run 3: the nested answer from line 1.
   await replaceEditableCode(page, THREE_STARS.replace(/\n$/, ""), 1);
   await page.getByTestId("run-button").click();
-  await showTab(page, "Mô phỏng");
-  await expect(sensorValues(page).filter({ hasText: /^·$/ })).toHaveCount(1, { timeout: 60_000 });
   const dialog = page.locator("dialog[open]");
   await expect(dialog).toBeVisible({ timeout: 60_000 });
   await expect(dialog).toContainText("Lối qua mở hoàn toàn");
@@ -131,4 +130,18 @@ test("2.6: typed code stays after clicking away and after a reload", async ({ pa
   await gotoLevel(page, "2.6", { codeTab: true });
   expect(await editorText(page)).toContain("# giu lai dong nay");
   await expect(page.getByText("BẢN NHÁP HỎNG")).toHaveCount(0);
+});
+
+// A counter-attack is shown only when it is the one that failed: trimming the command
+// passes every base situation and loses OMNI's third one, whose command is a lone space,
+// drawn as `·` so it never looks like the empty line.
+test("2.6: a lone-space command is shown as · when that counter-attack is lost", async ({ page }) => {
+  test.setTimeout(180_000);
+  await gotoLevel(page, "2.6");
+  await waitForPythonReady(page);
+  await replaceEditableCode(page, THREE_STARS.replace(/\n$/, "").replace("if ma_lenh:", "if ma_lenh.strip():"), 1);
+  await page.getByTestId("run-button").click();
+  await showTab(page, "Mô phỏng");
+  await expect(sensorValues(page).filter({ hasText: /^·$/ })).toHaveCount(1, { timeout: 60_000 });
+  await expect(page.locator(".patrol-sensor.is-stdin.is-empty")).toHaveCount(0);
 });
