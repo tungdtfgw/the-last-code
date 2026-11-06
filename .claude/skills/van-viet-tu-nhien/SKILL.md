@@ -130,6 +130,25 @@ Bản nháp đầu tránh được văn AI kiểu "tuyệt vời, hành trình",
     - "Không còn thở." → "Anh ta tắt thở rồi."; "Áo của người đưa tin" → "Đồng phục của người đưa tin"
     - "Số phiên bản… không đọc được." → "Số phiên bản… không rõ."; "cả khu này sẽ bị quét" → "…bị trừ diệt"
 
+Đợt sửa thứ hai (25 chỗ ở chương 2, ngày 06/11/2026) vẫn đi theo hướng thêm chữ cho đủ (mục 22, 25), và lộ thêm năm lỗi:
+
+27. **Động từ cụt, thiếu từ chỉ hướng hay bổ ngữ**: tiếng Việt quen nói động từ kèm hướng hoặc kết quả. Viết đủ cụm.
+    - "sang phải" → "đi sang phải"; "terminal hiện" → "terminal hiện ra"; "bộ luật phát bốn dòng" → "phát ra bốn dòng"; "về sạc" → "quay về để sạc"
+    - "kiểm góc đèn" → "kiểm tra góc đèn"; "đã gỉ" → "đã gỉ sét"; "khớp" → "khớp được"; "không tha tôi" → "không tha cho tôi"; "quay đèn" → "quay đèn tìm kiếm"; "bên kia" → "phía bên kia"
+    - Câu không chủ ngữ mở bằng động từ đọc như câu lệnh: "Ghi chín ngày sau…" → "Được ghi lại chín ngày sau…" (ở đây "được" đúng, vì không có người làm).
+28. **Người kể giảng bài trong giọng truyện**: briefing hay nhật ký của nhân vật không được nói hộ người chơi chỗ nào khó hay mẹo nằm đâu. Phần đó thuộc gợi ý.
+    - Bỏ "Câu đó dễ nói. Cái khó là hiểu chữ "và" ăn với phần nào." → "Chỉ cần sai một điều kiện là drone sẽ phát hiện ra tôi."
+    - Bỏ "…kể cả khi số đo nằm ngay ở mép của luật" ở cuối briefing.
+29. **Câu châm ngôn dịch, cố tỏ ra sâu**: câu kết ngắn kiểu "Drone chỉ so." hay "Chẳng ai đi đổi một thứ đã đúng." nghe như dịch. Dùng cách nói người Việt quen.
+    - "Drone chỉ so." → "Drone chỉ làm đúng việc nó được giao."
+    - "Chẳng ai đi đổi một thứ đã đúng." → "Cái gì đang chạy tốt thì cứ để yên đó."
+    - "Thì ra chỉ cần đúng một phép so sánh." → "Tất cả chỉ cần đúng một phép so sánh."
+30. **Nói vòng thay vì nói thẳng việc xảy ra**: phủ định hay mô tả gián tiếp khi có động từ cụ thể, lời khuyên viết thành câu tả.
+    - "Sentinel đã không tha cả drone của nó." → "Sentinel bắn hạ cả drone của nó."
+    - "không có chỗ nào đứng yên được lâu" → "đừng đứng yên một chỗ lâu quá"
+    - "Không drone nào rời cột sạc." → "Không có drone nào rời cột sạc, tất cả ở yên một chỗ."
+31. **Đại từ "anh", "nó" mơ hồ, câu sân khấu thừa**: khi trong đoạn có nhiều người hay vật, gọi tên ("chỗ anh vừa rời đi" → "chỗ Kai vừa rời đi"; "OMNI chưa bao giờ đổi nó" → "OMNI vẫn giữ nguyên như vậy"). Bỏ câu chỉ dẫn diễn xuất không thêm ý ("Tôi không trả lời."). Dùng "sẽ" khi nói ý định ("Tôi đi tiếp." → "Tôi sẽ đi tiếp."), "dù" đổi thành "bất kể" khi nhấn mọi trường hợp.
+
 **Từ đã chốt** (dùng thống nhất ở mọi level; thêm dòng khi người dùng sửa một từ ở nhiều nơi):
 
 | Dùng | Không dùng |
@@ -138,6 +157,8 @@ Bản nháp đầu tránh được văn AI kiểu "tuyệt vời, hành trình",
 | tên biến, giá trị của biến | tên trần, thứ cất dưới tên |
 | lỗi, không chạy được, không phát được | vỡ |
 | kiểm tra thủ công | kiểm tay |
+| kiểm tra (góc, điều kiện) | kiểm |
+| Hàng Rào Ngoại Vi, rào ngoại vi | Hàng Rào Ngoài, rào ngoài |
 
 ## Quy trình
 
@@ -167,7 +188,8 @@ Bản nháp đầu tránh được văn AI kiểu "tuyệt vời, hành trình",
 - [ ] Câu dài nhất tách được thì đã tách; độ dài câu có dao động
 - [ ] Không emoji, không gạch dài, không nhãn in đậm thừa
 - [ ] Sự kiện, tên, số, code, placeholder, `forbidden_terms` giữ nguyên; không thêm ý mới
-- [ ] Không câu điện tín: mỗi câu đọc riêng vẫn hiểu, đủ chủ ngữ và hư từ khi cần (mục F.22, F.25)
+- [ ] Không câu điện tín: mỗi câu đọc riêng vẫn hiểu, đủ chủ ngữ và hư từ khi cần (mục F.22, F.25), động từ đủ hướng và bổ ngữ (F.27)
+- [ ] Giọng truyện không giảng bài hay chỉ chỗ khó (F.28); câu kết không phải châm ngôn dịch (F.29)
 - [ ] Thuật ngữ Python gọi đúng tên, khớp bảng "Từ đã chốt"; không ẩn dụ tự đặt
 - [ ] Khái niệm thế giới game nhắc lần đầu có nói nó là gì
 - [ ] Đã đọc thành tiếng lần hai
