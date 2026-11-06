@@ -10,10 +10,10 @@ Mọi màn dùng đúng chính tả dưới đây. Không màn nào tự đặt 
 
 | Loại | Tên | Sự thật cố định |
 |---|---|---|
-| Địa điểm | **Vành Sentinel** | Dải đất rộng chừng một cây số giữa tường thành phố và rào ngoài. Drone tuần tra theo luật cố định, không có người trực. Ai vào dải này mà không có lệnh của OMNI đều bị xử lý |
+| Địa điểm | **Vành Sentinel** | Dải đất rộng chừng một cây số giữa tường thành phố và rào ngoại vi. Drone tuần tra theo luật cố định, không có người trực. Ai vào dải này mà không có lệnh của OMNI đều bị xử lý |
 | Địa điểm | **Trạm Sentinel** | Tháp chỉ huy giữa Vành Sentinel. Mọi drone nhận luật từ lõi luật của tháp. Mảnh thuật toán thứ hai ("Quyết định") nằm trong lõi đó |
-| Địa điểm | **Đường Ống Số 9** | Ống thoát nước chui dưới rào ngoài. Một drone hỏng mắc kẹt ở đây (2.1) |
-| Địa điểm | **Hàng Rào Ngoài** | Lớp rào đầu tiên, drone bay dọc theo chu kỳ (2.2) |
+| Địa điểm | **Đường Ống Số 9** | Ống thoát nước chui dưới rào ngoại vi. Một drone hỏng mắc kẹt ở đây (2.1) |
+| Địa điểm | **Hàng Rào Ngoại Vi** | Lớp rào đầu tiên, drone bay dọc theo chu kỳ (2.2) |
 | Địa điểm | **Bãi Container** | Bãi hàng bỏ hoang, đèn pha quét qua lại giữa các dãy container (2.3) |
 | Địa điểm | **Tháp Đèn Pha** | Tháp phụ đặt mức báo động cho cả khu (2.4) |
 | Địa điểm | **Ngã Tư Tuần Tra** | Nơi hai lộ trình drone cắt nhau (2.5) |
@@ -69,7 +69,7 @@ Câu chữ: `prologue[].text` (D1, `chapter:2`; 11 nhịp; cấu trúc trong `sr
 | 7 | kai | Kai quyết định không đi theo lịch của ai. Muốn qua thì phải tự biết drone sẽ làm gì | |
 | 8 | echo | ECHO: drone không đoán, drone so sánh rồi chọn; đọc luật của chúng, rồi viết luật của mình. Đây là câu giới thiệu khái niệm của cả chương, không nêu từ khóa | `echo_voice` |
 | 9 | echo | ECHO đặt nhiệm vụ: một bộ luật né sáu luật, mỗi chặng một luật | `fx: "id_bar"` (6 ô rỗng) |
-| 10 | log | Dưới chân rào ngoài, trong một ống thoát nước, đèn của một drone hỏng vẫn nhấp nháy. Dẫn vào 2.1 | |
+| 10 | log | Dưới chân rào ngoại vi, trong một ống thoát nước, đèn của một drone hỏng vẫn nhấp nháy. Dẫn vào 2.1 | |
 | 11 | card, `thanh-pho` | Thẻ chương: Chương 2, Trạm Sentinel | `pulse` |
 
 Không được lộ: 0xA7 là ai; vì sao 0xA7 có lịch chính xác (để dành cho 2.5); mục tiêu của OMNI.
@@ -125,12 +125,12 @@ Luật chung cho mọi màn:
   - Đã đo: lời giải 3 câu lệnh; `pin <= 20` trượt ở test cơ bản; `che_do != "SAC"` 2 sao. Ngưỡng 40%: 3 câu.
 - **Luật tạo ra:** Cảm biến tầm quét.
 - **Mảnh nhật ký: KTS-02** (lần đầu): người viết luật cho drone. Mỗi luật là một phép so sánh; drone không ghét ai, drone chỉ so.
-- **Nhịp truyện:** nhật ký D-31 cho thấy nó bị chính Trạm Sentinel bắn hạ vì làm sai một luật. Sentinel không tha cả drone của mình. Dẫn ra Hàng Rào Ngoài.
+- **Nhịp truyện:** nhật ký D-31 cho thấy nó bị chính Trạm Sentinel bắn hạ vì làm sai một luật. Sentinel không tha cả drone của mình. Dẫn ra Hàng Rào Ngoại Vi.
 - **Móc câu:** drone bị xử lý vì sai luật; luật của Sentinel tuyệt đối tới mức nào.
 
 ### 6.2. Level 2.2 "Lệnh nấp" · Easy · `if` (khối lệnh, thụt lề)
 
-- **Địa điểm:** Hàng Rào Ngoài. Drone bay dọc rào theo chu kỳ.
+- **Địa điểm:** Hàng Rào Ngoại Vi. Drone bay dọc rào theo chu kỳ.
 - **Tình huống:** luật đầu tiên Kai tự viết: mặc định là đi, nhưng khi drone ở trong tầm quét thì nấp.
 - **Vì sao cần khái niệm:** một lệnh chỉ chạy khi điều kiện đúng. Khối lệnh nằm dưới `if` là những gì "thuộc về" điều kiện đó.
 - **Phác câu đố** (mục tiêu biến `lenh: str`, `decision: {"var": "lenh"}`):
@@ -272,7 +272,7 @@ Câu chữ: `teaser[].text` (D1, `chapter:2`; 9 nhịp; cấu trúc trong `src/s
 
 | Nhịp | Kiểu, nền | Ý đồ | Âm thanh, hiệu ứng |
 |---|---|---|---|
-| 1 | log, `tram-sentinel` | Kai đã ở bên kia rào ngoài; sau lưng là thành phố | `gate_close_far` |
+| 1 | log, `tram-sentinel` | Kai đã ở bên kia rào ngoại vi; sau lưng là thành phố | `gate_close_far` |
 | 2 | echo | Bộ luật né đủ sáu luật. Đợt quét lớn vừa đi qua; Neural-ID giả đã tắt. Từ đây Kai không có danh tính nào | `fx: "id_bar"` (6 ô sáng) |
 | 3 | log, `thanh-pho` | Hai mảnh trong tám đã về tay | `fx: "fragment_found"` (2 mảnh) |
 | 4 | log | Phía trước là một trung tâm dữ liệu bỏ hoang; hành lang của nó có cảm biến quét lặp lại không dứt (báo trước Chương 3, không dạy vòng lặp) | |

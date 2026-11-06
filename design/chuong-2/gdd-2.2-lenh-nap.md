@@ -6,7 +6,7 @@
 
 ## 1. Bối cảnh
 
-Kai ra khỏi Đường Ống Số 9 và tới chân Hàng Rào Ngoài. Một drone bay dọc rào theo chu kỳ. Từ chip của D-31, Kai đã biết drone tính "mục tiêu có trong tầm quét không". Giờ Kai viết luật đầu tiên của chính mình: mặc định là đi, nhưng khi drone ở trong tầm quét thì nấp.
+Kai ra khỏi Đường Ống Số 9 và tới chân Hàng Rào Ngoại Vi. Một drone bay dọc rào theo chu kỳ. Từ chip của D-31, Kai đã biết drone tính "mục tiêu có trong tầm quét không". Giờ Kai viết luật đầu tiên của chính mình: mặc định là đi, nhưng khi drone ở trong tầm quét thì nấp.
 
 ## 2. Mục tiêu học
 
@@ -23,7 +23,7 @@ Không dạy: `else` (2.3; vẫn chấp nhận nếu người chơi tự viết)
 
 Câu chữ: `briefing` và `location` (D1, `level:2.2`).
 
-Briefing là nhật ký cảm biến của Hàng Rào Ngoài, không phải lời ECHO. Nó cho người chơi biết, theo thứ tự:
+Briefing là nhật ký cảm biến của Hàng Rào Ngoại Vi, không phải lời ECHO. Nó cho người chơi biết, theo thứ tự:
 
 - một drone bay dọc rào; mỗi lượt nó đo khoảng cách tới Kai và so với tầm quét của nó;
 - Kai cần một lệnh cho mỗi lượt: đi hoặc nấp; mặc định là đi;
@@ -31,7 +31,7 @@ Briefing là nhật ký cảm biến của Hàng Rào Ngoài, không phải lờ
 
 Briefing không nêu `if`, không viết ký hiệu so sánh.
 
-`location`: tên Hàng Rào Ngoài.
+`location`: tên Hàng Rào Ngoại Vi.
 
 ### 3.1. Việc cần làm (`task_steps`)
 
@@ -51,7 +51,7 @@ Câu chữ: `task_steps` (D1, `level:2.2`), 4 bước. Validator cấm giá tr�
 ## 5. Code khởi đầu (có lỗi cài sẵn)
 
 ```python
-# Cảm biến Hàng Rào Ngoài (KHÔNG được sửa 2 dòng này)
+# Cảm biến Hàng Rào Ngoại Vi (KHÔNG được sửa 2 dòng này)
 khoang_cach = 25
 tam_quet = 30
 
@@ -237,7 +237,7 @@ Câu chữ: `hints`, `reactions`, `reaction_variants` (D1, `level:2.2`).
 
 | Khóa | Ý đồ |
 |---|---|
-| `entry` | Hàng Rào Ngoài; luật đầu tiên Kai tự viết; bảo chạy một lần |
+| `entry` | Hàng Rào Ngoại Vi; luật đầu tiên Kai tự viết; bảo chạy một lần |
 | `IndentationError` (code gốc) | Python không biết dòng `{line}` có thuộc về điều kiện phía trên hay không; một khối lệnh phải nhìn ra được là khối |
 | `wrong_branch` (lượt 2) | Mã đã chạy đúng một đường có thật, nhưng là đường dành cho một tình huống khác; xem dòng nào không chạy trong editor. Không dùng `{round}` (khóa này cũng đến từ lượt phản công, ở đó `{round}` hiện "?") |
 | `wrong_value` | Chip của Kai nhận một lệnh mà drone không hiểu; lệnh phải đúng từng ký tự như ở ô Mục tiêu |

@@ -6,7 +6,7 @@
 
 ## 1. Bối cảnh
 
-Đêm đầu tiên ngoài Vùng Tối. Dưới chân rào ngoài, trong Đường Ống Số 9, drone D-31 nằm kẹt, đèn vẫn nhấp nháy, chip luật vẫn chạy. Kai cắm laptop vào chip. Trước mỗi quyết định, drone tính ba cờ đúng/sai từ cảm biến: mục tiêu có trong tầm không, mình có đang ở chế độ quét không, pin có sắp cạn không. Kai muốn biết drone "thấy" gì, nên phải tính đúng ba cờ ấy.
+Đêm đầu tiên ngoài Vùng Tối. Dưới chân rào ngoại vi, trong Đường Ống Số 9, drone D-31 nằm kẹt, đèn vẫn nhấp nháy, chip luật vẫn chạy. Kai cắm laptop vào chip. Trước mỗi quyết định, drone tính ba cờ đúng/sai từ cảm biến: mục tiêu có trong tầm không, mình có đang ở chế độ quét không, pin có sắp cạn không. Kai muốn biết drone "thấy" gì, nên phải tính đúng ba cờ ấy.
 
 ## 2. Mục tiêu học
 
@@ -292,7 +292,7 @@ Câu chữ: `outro`, `lore_fragment`, `component`, `outro_beats` (D1, `level:2.1
 | 1 | log, `duong-ong` | Bản ghi cuối của D-31: Trạm Sentinel đã bắn hạ nó vì nó bỏ qua một mục tiêu đứng đúng ở mép tầm quét. Một luật sai ở điểm bằng nhau | `scan_reject`, `fx: "focus"` (D-31) |
 | 2 | echo | ECHO đọc bản ghi: Sentinel làm đúng luật, kể cả với drone của chính nó. Không bình luận thêm | |
 | 3 | kai | Một câu: nếu Sentinel không tha cả drone của mình, nó sẽ không tha Kai | `fx: "focus"` |
-| 4 | log, `hang-rao-ngoai` | Phía trên ống là Hàng Rào Ngoài; drone bay dọc rào theo chu kỳ. Dẫn vào 2.2 | |
+| 4 | log, `hang-rao-ngoai` | Phía trên ống là Hàng Rào Ngoại Vi; drone bay dọc rào theo chu kỳ. Dẫn vào 2.2 | |
 
 - Móc câu: luật của Sentinel tuyệt đối tới mức bắn cả drone sai luật.
 - Không được lộ: KTS-02 là người giấu mảnh; 0xA7 là ai.

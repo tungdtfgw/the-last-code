@@ -8,7 +8,7 @@
     "if",
     "block"
   ],
-  "starter_code": "# Cảm biến Hàng Rào Ngoài (KHÔNG được sửa 2 dòng này)\nkhoang_cach = 25\ntam_quet = 30\n\n# Luật của Kai: mặc định là đi, drone trong tầm quét thì nấp\nlenh = \"DI\"\nif khoang_cach > tam_quet:\nlenh = \"NAP\"\n",
+  "starter_code": "# Cảm biến Hàng Rào Ngoại Vi (KHÔNG được sửa 2 dòng này)\nkhoang_cach = 25\ntam_quet = 30\n\n# Luật của Kai: mặc định là đi, drone trong tầm quét thì nấp\nlenh = \"DI\"\nif khoang_cach > tam_quet:\nlenh = \"NAP\"\n",
   "locked_lines": [
     2,
     3

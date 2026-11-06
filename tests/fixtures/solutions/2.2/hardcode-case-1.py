@@ -1,4 +1,4 @@
-# Cảm biến Hàng Rào Ngoài (KHÔNG được sửa 2 dòng này)
+# Cảm biến Hàng Rào Ngoại Vi (KHÔNG được sửa 2 dòng này)
 khoang_cach = 25
 tam_quet = 30
 

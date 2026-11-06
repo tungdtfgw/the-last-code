@@ -6,7 +6,7 @@
 
 ## 1. Bối cảnh
 
-Qua Hàng Rào Ngoài, Kai vào Bãi Container: một bãi hàng bỏ hoang, các dãy container xếp thành lối hẹp. Trên tháp ở đầu bãi, một đèn pha quét qua quét lại. Mỗi lần đèn dừng, Kai chỉ có hai ngả: chạy sang phải hoặc sang trái, về phía đèn không chiếu. Không lúc nào được đứng yên, cũng không được chạy cả hai hướng.
+Qua Hàng Rào Ngoại Vi, Kai vào Bãi Container: một bãi hàng bỏ hoang, các dãy container xếp thành lối hẹp. Trên tháp ở đầu bãi, một đèn pha quét qua quét lại. Mỗi lần đèn dừng, Kai chỉ có hai ngả: chạy sang phải hoặc sang trái, về phía đèn không chiếu. Không lúc nào được đứng yên, cũng không được chạy cả hai hướng.
 
 ## 2. Mục tiêu học
 
