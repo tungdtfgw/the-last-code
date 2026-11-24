@@ -38,6 +38,7 @@ export function TitleScreen(props: {
   onContinue(): void;
   onMap(): void;
   onAccount(): void;
+  onRanking(): void;
   onToggleMute(): void;
 }) {
   const glitch = useTitleGlitch();
@@ -72,6 +73,9 @@ export function TitleScreen(props: {
         <p className="title-save">
           Đang chơi: <strong>{props.username}</strong>
         </p>
+        <button type="button" className="btn btn-ghost btn-small" onClick={props.onRanking}>
+          XẾP HẠNG
+        </button>
         <button type="button" className="btn btn-ghost btn-small" onClick={props.onAccount}>
           TÀI KHOẢN
         </button>

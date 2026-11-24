@@ -8,7 +8,7 @@ const now = new Date("2026-10-25T08:00:00Z");
 
 async function withUser() {
   const db = new SqliteDb();
-  await all(db, "INSERT INTO users VALUES ('u1', 'alice', 'a@x.io', 'h', 's', 'now', 'now')");
+  await all(db, "INSERT INTO users (id, username, email, password_md5, salt, activated_at, created_at) VALUES ('u1', 'alice', 'a@x.io', 'h', 's', 'now', 'now')");
   return db;
 }
 
@@ -54,6 +54,32 @@ describe("updateLevel", () => {
     for (let i = 0; i < MAX_LEVEL_ROWS; i++) await updateLevel(db, "u1", `l${i}`, { runs: 1 }, now);
     await expect(updateLevel(db, "u1", "one-too-many", { runs: 1 }, now)).rejects.toThrow(/too many levels/);
     expect(await updateLevel(db, "u1", "l0", { runs: 2 }, now)).toMatchObject({ runs: 2 });
+  });
+});
+
+describe("star times (ranking tie-break)", () => {
+  const at = (iso: string) => new Date(iso);
+  const times = async (db: SqliteDb, level = "1.1") =>
+    (await all(db, "SELECT first_star_at, stars_at FROM level_progress WHERE user_id = 'u1' AND level_id = ?1", level))[0];
+
+  test("a run without stars sets no time; the first star sets both; equal stars keep them; more stars move only stars_at", async () => {
+    const db = await withUser();
+    await updateLevel(db, "u1", "1.1", { runs: 1, draft: "x" }, at("2026-11-01T00:00:00Z"));
+    expect(await times(db)).toEqual({ first_star_at: null, stars_at: null });
+    await updateLevel(db, "u1", "1.1", { bestStars: 2 }, at("2026-11-02T00:00:00Z"));
+    await updateLevel(db, "u1", "1.1", { bestStars: 2, draft: "y" }, at("2026-11-03T00:00:00Z"));
+    await updateLevel(db, "u1", "1.1", { bestStars: 1 }, at("2026-11-04T00:00:00Z"));
+    expect(await times(db)).toEqual({ first_star_at: "2026-11-02T00:00:00.000Z", stars_at: "2026-11-02T00:00:00.000Z" });
+    await updateLevel(db, "u1", "1.1", { bestStars: 3 }, at("2026-11-05T00:00:00Z"));
+    expect(await times(db)).toEqual({ first_star_at: "2026-11-02T00:00:00.000Z", stars_at: "2026-11-05T00:00:00.000Z" });
+  });
+
+  test("import sets the times of the stars it brings, once", async () => {
+    const db = await withUser();
+    const local = { levels: { "1.2": { bestStars: 2 } }, story: { seen: [] } };
+    await importProgress(db, "u1", local, at("2026-11-02T00:00:00Z"));
+    await importProgress(db, "u1", local, at("2026-11-03T00:00:00Z"));
+    expect(await times(db, "1.2")).toEqual({ first_star_at: "2026-11-02T00:00:00.000Z", stars_at: "2026-11-02T00:00:00.000Z" });
   });
 });
 

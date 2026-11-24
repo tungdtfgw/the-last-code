@@ -9,10 +9,11 @@ test.each([
   ["#/map/abc", { kind: "title" }],
   ["#/map/100", { kind: "title" }],
   ["#/story/prologue-2", { kind: "story", id: "prologue-2" }],
+  ["#/rank", { kind: "rank" }],
 ])("%s", (hash, route) => {
   expect(parseRoute(hash)).toEqual(route);
 });
 
-test("map routes keep their address both ways", () => {
-  for (const hash of ["#/map", "#/map/2"]) expect(routeHash(parseRoute(hash))).toBe(hash);
+test("map and ranking routes keep their address both ways", () => {
+  for (const hash of ["#/map", "#/map/2", "#/rank"]) expect(routeHash(parseRoute(hash))).toBe(hash);
 });

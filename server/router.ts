@@ -25,6 +25,8 @@ import { bundledContent, type BundledContent } from "./content/bundled-content.j
 import { listHistory, readAllTexts, readRevision, type DocKind } from "./content/content-store.js";
 import { createMailer } from "./mail/mailer.js";
 import { LimitError, importProgress, markStorySeen, readProgress, updateLevel } from "./progress/progress-store.js";
+import { readRanking, setRankingHidden } from "./ranking/ranking.js";
+import { isUsername } from "./auth/validate.js";
 import { ROUTE_ID } from "../src/shell/route-id.js";
 
 export interface RouterDeps {
@@ -180,6 +182,16 @@ const ROUTES: RouteDef[] = [
   route("GET", /^\/api\/content\/text$/, "user", async ({ deps }) => {
     const rows = await readAllTexts(deps.ctx.db);
     return json(200, { docs: Object.fromEntries(Object.entries(rows).map(([id, r]) => [id, { revision: r.revision, text: r.text }])) });
+  }),
+  route("GET", /^\/api\/ranking$/, "user", async ({ deps, user }) =>
+    json(200, await readRanking(deps.ctx.db, deps.content ?? bundledContent(), { id: user!.id, isAdmin: isAdmin(deps, user!.username) })),
+  ),
+  route("POST", /^\/api\/admin\/ranking\/hidden$/, "admin", async ({ request, deps, user }) => {
+    const { username, hidden } = await readJson(request, LIMIT_AUTH);
+    if (typeof username !== "string" || !isUsername(username) || typeof hidden !== "boolean") throw new HttpError(400, "bad_request");
+    if (!(await setRankingHidden(deps.ctx.db, username, hidden))) throw new HttpError(404, "not_found");
+    console.info(`[admin] ${user!.username} ${hidden ? "ẩn" : "hiện"} ${username} trên bảng xếp hạng`);
+    return json(200, { ok: true });
   }),
   route("GET", /^\/api\/admin\/content$/, "admin", async ({ deps }) => json(200, await listDocs(deps.ctx.db, deps.content ?? bundledContent()))),
   route("GET", docRoute(), "admin", async ({ deps, params }) => {

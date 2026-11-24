@@ -43,6 +43,7 @@ export interface ChapterMapProps {
   /** Re-open a passed level's knowledge summary ("Kiến thức"); it returns here. */
   onKnowledge(levelId: string): void;
   onTitle(): void;
+  onRanking(): void;
   onToggleMute(): void;
 }
 
@@ -135,6 +136,9 @@ export function ChapterMap(props: ChapterMapProps) {
           </p>
         )}
         <MuteButton muted={props.muted} onToggle={props.onToggleMute} />
+        <button type="button" className="btn btn-ghost" onClick={props.onRanking}>
+          XẾP HẠNG
+        </button>
         <button type="button" className="btn btn-ghost" onClick={props.onTitle}>
           MÀN TIÊU ĐỀ
         </button>

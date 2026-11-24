@@ -255,3 +255,43 @@ describe("content API", () => {
     expect((await call("GET", "/api/admin/content/story/1", undefined, cookie)).status).toBe(404);
   });
 });
+
+describe("ranking", () => {
+  test("needs a session; lists activated players by their unbroken run and leaves out an unactivated one", async () => {
+    expect((await call("GET", "/api/ranking")).status).toBe(401);
+    const alice = await signedIn("alice");
+    const bob = await signedIn("bob");
+    expect((await call("POST", "/api/auth/register", { username: "carl", email: "c@x.io", password: "password1" })).status).toBe(201);
+    await call("PUT", "/api/progress/levels/1.1", { bestStars: 3 }, alice.cookie);
+    await call("PUT", "/api/progress/levels/1.1", { bestStars: 1 }, bob.cookie);
+    await call("PUT", "/api/progress/levels/1.2", { bestStars: 1 }, bob.cookie);
+    const res = await call("GET", "/api/ranking", undefined, alice.cookie);
+    expect(await res.json()).toEqual({
+      total: 2,
+      entries: [
+        { rank: 1, username: "bob", levelId: "1.2", stars: 1, me: false },
+        { rank: 2, username: "alice", levelId: "1.1", stars: 3, me: true },
+      ],
+      me: { rank: 2, levelId: "1.1", stars: 3 },
+    });
+  });
+
+  test("an admin hides and shows an account; others cannot", async () => {
+    const alice = await signedIn("alice");
+    const admin = await signedIn("boss");
+    await call("PUT", "/api/progress/levels/1.1", { bestStars: 3 }, alice.cookie);
+    const HIDE = "/api/admin/ranking/hidden";
+    expect((await call("POST", HIDE, { username: "alice", hidden: true })).status).toBe(401);
+    expect((await call("POST", HIDE, { username: "alice", hidden: true }, alice.cookie)).status).toBe(403);
+    expect((await call("POST", HIDE, { username: "alice", hidden: "yes" }, admin.cookie)).status).toBe(400);
+    expect((await call("POST", HIDE, { username: "nobody", hidden: true }, admin.cookie)).status).toBe(404);
+    expect((await call("POST", HIDE, { username: "alice", hidden: true }, admin.cookie)).status).toBe(200);
+
+    expect(await (await call("GET", "/api/ranking", undefined, alice.cookie)).json()).toEqual({ total: 0, entries: [], me: null });
+    expect((await (await call("GET", "/api/ranking", undefined, admin.cookie)).json()).entries).toEqual([
+      { rank: null, username: "alice", levelId: "1.1", stars: 3, me: false, hidden: true },
+    ]);
+    await call("POST", HIDE, { username: "alice", hidden: false }, admin.cookie);
+    expect((await (await call("GET", "/api/ranking", undefined, alice.cookie)).json()).me).toEqual({ rank: 1, levelId: "1.1", stars: 3 });
+  });
+});

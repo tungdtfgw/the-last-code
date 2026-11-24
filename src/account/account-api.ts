@@ -30,6 +30,23 @@ export interface AdminDoc extends AdminDocSummary {
   text: unknown;
 }
 
+/** One row of `GET /api/ranking`; `rank` is null for an account kept off the board (admins only see those). */
+export interface RankingEntry {
+  rank: number | null;
+  username: string;
+  levelId: string;
+  stars: number;
+  me: boolean;
+  hidden?: true;
+}
+
+export interface Ranking {
+  total: number;
+  entries: RankingEntry[];
+  /** null: the viewer has no level yet, or is hidden. */
+  me: { rank: number; levelId: string; stars: number } | null;
+}
+
 /** `status` 0 means the request never got an answer (offline, DNS, aborted). */
 export type ApiResult<T> =
   | { ok: true; status: number; data: T }
@@ -97,6 +114,9 @@ export function createAccountApi(fetchImpl: Fetch = (...args) => fetch(...args))
     postStory: (id: string, opts: WriteOptions = {}) => call<StoryProgress>("POST", "/api/progress/story", { id }, opts),
     importProgress: (snapshot: ProgressSnapshotDto) => call<ProgressSnapshotDto>("POST", "/api/progress/import", snapshot),
     getContentText: () => call<{ docs: ContentTexts }>("GET", "/api/content/text"),
+    getRanking: () => call<Ranking>("GET", "/api/ranking"),
+    adminSetRankingHidden: (username: string, hidden: boolean, opts: WriteOptions = {}) =>
+      call<{ ok: true }>("POST", "/api/admin/ranking/hidden", { username, hidden }, opts),
     adminListContent: () => call<{ docs: AdminDocSummary[] }>("GET", "/api/admin/content"),
     adminGetContent: (kind: AdminDocKind, id: string) => call<AdminDoc>("GET", adminPath(kind, id)),
     /** 422 `{errors}`, 409 `{revision, updatedAt, updatedBy}` come back in `body`. */

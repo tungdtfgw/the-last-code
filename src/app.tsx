@@ -30,19 +30,22 @@ import { ErrorBoundary } from "./ui/error-boundary";
 import { FatalScreen } from "./ui/fatal-screen";
 import { GameScreen } from "./ui/game-screen";
 import { KnowledgeScreen } from "./ui/knowledge-screen";
+import { RankingScreen } from "./ui/ranking-screen";
 import { StoryScreen } from "./ui/story-screen";
 import { TitleScreen } from "./ui/title-screen";
 import { isTyping } from "./ui/is-typing";
 
 /** The entry gate after a story ignores clicks this long. */
 const ENTRY_GUARD_AFTER_STORY_MS = 400;
+/** The ranking waits this long at most for the player's own last writes, so a star just won shows. */
+const RANKING_SETTLE_MS = 2000;
 
 /**
  * Game shell: hash routes to the title, map, stories and levels, for one
  * signed-in player. Audio lives here so one AudioContext lasts the session. Every
  * route passes `guardRoute`; all progression decisions come from `progression.ts`.
  */
-function Shell({ ctx, repository, user, onAccount }: { ctx: GameContext } & GameProps) {
+function Shell({ ctx, repository, user, api, onAccount }: { ctx: GameContext } & GameProps) {
   const audio = useAudio(repository);
   const { route, navigate } = useHashRoute();
   const key = routeHash(route);
@@ -95,6 +98,16 @@ function Shell({ ctx, repository, user, onAccount }: { ctx: GameContext } & Game
     [ctx],
   );
 
+  // Where QUAY LẠI on the ranking leads: the screen it was opened from.
+  const rankFrom = useRef<Route>({ kind: "title" });
+  const openRanking = useCallback(
+    (from: Route) => {
+      rankFrom.current = from;
+      navigate({ kind: "rank" });
+    },
+    [navigate],
+  );
+
   const startAudio = useCallback(() => {
     void audio.unlock().then(() => audio.play("pulse"));
   }, [audio]);
@@ -132,6 +145,7 @@ function Shell({ ctx, repository, user, onAccount }: { ctx: GameContext } & Game
             navigate(titleContinue(ctx, snapshot));
           }}
           onMap={() => navigate({ kind: "map" })}
+          onRanking={() => openRanking({ kind: "title" })}
           onToggleMute={audio.toggleMute}
         />
       );
@@ -167,10 +181,26 @@ function Shell({ ctx, repository, user, onAccount }: { ctx: GameContext } & Game
             navigate({ kind: "learn", id });
           }}
           onTitle={() => navigate({ kind: "title" })}
+          onRanking={() => openRanking(route)}
           onToggleMute={audio.toggleMute}
         />
       );
     }
+    case "rank":
+      return (
+        <RankingScreen
+          api={api}
+          userId={user.id}
+          username={user.username}
+          isAdmin={user.isAdmin === true}
+          levelLabel={(id) => {
+            const level = ctx.built.get(id);
+            return level ? `${id} · ${level.title}` : id;
+          }}
+          onBack={() => navigate(rankFrom.current, { replace: true })}
+          settle={() => Promise.race([repository.idle(), new Promise((r) => setTimeout(r, RANKING_SETTLE_MS))])}
+        />
+      );
     case "story":
       return (
         <StoryScreen

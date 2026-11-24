@@ -41,7 +41,9 @@ export type Route =
   | { kind: "story"; id: string }
   | { kind: "level"; id: string }
   /** Knowledge summary of a passed level ("Tổng kết kiến thức"). */
-  | { kind: "learn"; id: string };
+  | { kind: "learn"; id: string }
+  /** "Bảng xếp hạng"; open to every signed-in player. */
+  | { kind: "rank" };
 
 export type NodeStatus = "cleared" | "open" | "locked" | "unbuilt" | "broken";
 

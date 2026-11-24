@@ -94,7 +94,7 @@ Mẫu một mục: ngày · quyết định · các phương án đã xét · l�
 
 ## QĐ-11 · Số sao do trình duyệt báo lên, tạm chấp nhận
 
-- **Ngày:** 25/10/2026 · **Trạng thái:** đang áp dụng
+- **Ngày:** 25/10/2026 · **Trạng thái:** đang áp dụng; đã xét lại ngày 13/11/2026 khi làm bảng xếp hạng, vẫn giữ (xem QĐ-20)
 - **Quyết định:** server tin số sao client gửi lên (chỉ kiểm tra khuôn 0–3 và luật không giảm). Người rành devtools có thể ghi sao giả.
 - **Xét lại khi:** làm bảng xếp hạng; khi đó phải chấm lại code Python phía server (dự án riêng).
 
@@ -198,3 +198,16 @@ Mẫu một mục: ngày · quyết định · các phương án đã xét · l�
 - **Lý do:** thêm chương là thêm file và migration, không sửa code; không đổi hình dạng tài liệu D1 đã có; người chơi hiện có không mang id đoạn truyện nào của chương mới.
 - **Phương án đã xét:** một file chứa mọi chương (bỏ: phải vá cấu trúc câu D1 `chapter:1`, mọi nhánh sửa chung một file); tách mỗi chương thành một game riêng (bỏ: lặp tiến trình, bản đồ, màn tiêu đề ở mỗi chương); đổi id chương 1 sang `prologue-1`, `teaser-1` cho đồng đều (bỏ: cần migration `story_seen`, tab đang mở lúc deploy có thể ghi lại id cũ).
 - **Đánh đổi:** không chọn được chương tự do; `component_bar` và `map` không sửa được trên trang quản trị (như `title`).
+
+## QĐ-20 · Bảng xếp hạng dùng sao do trình duyệt báo, admin ẩn tay tài khoản gian
+
+- **Ngày:** 13/11/2026 · **Trạng thái:** đang áp dụng (chủ dự án chốt 12/11/2026). Luật xếp hạng: `design/quyet-dinh/bang-xep-hang.md`.
+- **Vấn đề:** QĐ-11 ghi phải xét lại việc tin sao của client khi có bảng xếp hạng, vì sao giả giờ hiện ra cho mọi người thấy.
+- **Quyết định:**
+  - Vẫn tin sao client báo lên. Server không chạy Python nên không chấm lại được.
+  - Admin ẩn hoặc hiện một tài khoản trên bảng (`users.ranking_hidden`, `POST /api/admin/ranking/hidden`). Tài khoản ẩn không có hạng và không chiếm chỗ của ai. Chỉ admin còn thấy nó, ở cuối bảng, ghi "ẨN".
+  - Bảng tính ngay trên server mỗi lần mở, từ `level_progress` (`server/ranking/ranking.ts`), không có bảng tổng hợp hay cache.
+  - Hai cột mới trong `level_progress` (migration `0020`) dùng để phân hạng khi hòa: `first_star_at` (lúc level có sao lần đầu) và `stars_at` (lúc sao của level tăng lần gần nhất). Cần hai cột vì người chơi quay lại nâng sao ở level cũ thì mốc đến được level mới không được lùi theo.
+- **Lý do:** chấm lại phía server là cả một dự án riêng. Người chơi là sinh viên của một lớp, gian lận hiếm và admin nhìn bảng là thấy.
+- **Đánh đổi:** người rành devtools vẫn lên đầu bảng được cho tới khi admin ẩn họ. Hàng tiến độ có từ trước migration lấy `updated_at` làm cả hai mốc, mà lưu nháp cũng đổi `updated_at`, nên giữa những người chơi cũ hòa sao, thứ tự có thể lệch một chút. Mỗi lần mở bảng đọc mọi hàng có sao: vài nghìn người chơi thì vẫn ổn.
+- **Xét lại khi:** có người gian mà admin không theo kịp, hoặc mở bảng thấy chậm (lúc đó thêm cache ngắn theo instance).

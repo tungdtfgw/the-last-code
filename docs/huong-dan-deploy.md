@@ -46,6 +46,12 @@ npx wrangler d1 migrations apply the-last-code --remote
 
 Giữ file backup ngoài repo (`.gitignore` không chặn `*.sql`).
 
+`0020_bang_xep_hang.sql` thêm cột cho bảng xếp hạng (`level_progress.first_star_at`, `level_progress.stars_at`, `users.ranking_hidden`). Code từ bảng xếp hạng trở đi ghi vào các cột này, nên phải áp migration này trước khi deploy code đó. Code cũ chạy bình thường trên DB đã có cột mới. Sao ghi bởi code cũ trong khoảng giữa lúc áp migration và lúc deploy xong không có mốc thời gian, nên sau khi deploy chạy lại phần điền mốc một lần:
+
+```bash
+npx wrangler d1 execute the-last-code --remote --command "UPDATE level_progress SET first_star_at = COALESCE(first_star_at, updated_at), stars_at = COALESCE(stars_at, updated_at) WHERE best_stars > 0 AND (first_star_at IS NULL OR stars_at IS NULL)"
+```
+
 **Áp migration trước khi deploy code.** Câu chữ người chơi đọc chỉ nằm ở D1 (QĐ-16). Code mới mà D1 thiếu migration câu chữ của nó thì level đó hiện "TÍN HIỆU HỎNG", thiếu câu của chương thì cả game hiện "DỮ LIỆU CHƯƠNG HỎNG". Vì vậy luôn chạy lệnh trên với D1 thật xong rồi mới deploy lên Vercel.
 
 ## 4. Worker cổng D1
@@ -94,6 +100,7 @@ Không đặt `AUTH_RATE_LIMIT` ở Vercel (server bỏ qua biến này khi `DB_
 4. Mở một trình duyệt khác, đăng nhập cùng tài khoản: bản đồ phải hiện sao của 1.1.
 5. Thử "Quên mật khẩu" và đặt mật khẩu mới. Trình duyệt đầu tiên bị đẩy về màn đăng nhập ở lần ghi tiến độ kế tiếp.
 6. Đăng nhập bằng tài khoản admin, vào Tài khoản → "Quản lý kịch bản" (`#/admin`), lưu thử một câu, tải lại game: câu mới phải hiện.
+7. Bấm "XẾP HẠNG" ở màn tiêu đề: tài khoản vừa qua 1.1 phải có dòng của mình ở `1.1` với đúng số sao.
 
 ## 7. Đổi khóa cổng D1
 

@@ -25,6 +25,8 @@ export interface GameProps {
   repository: HttpProgressRepository;
   /** Text saved on the admin page, applied over the bundled level and chapter files. */
   texts: ContentTexts;
+  /** For calls outside progress (the ranking). */
+  api: AccountApi;
   onAccount(): void;
 }
 
@@ -197,5 +199,5 @@ export function AccountGate({ renderGame, api: given }: { renderGame(props: Game
       );
   }
   if (phase.kind !== "signed-in") return null;
-  return renderGame({ user: phase.user, repository: phase.repository, texts: phase.texts, onAccount: () => go("#/account") });
+  return renderGame({ user: phase.user, repository: phase.repository, texts: phase.texts, api, onAccount: () => go("#/account") });
 }

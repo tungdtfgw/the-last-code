@@ -38,7 +38,7 @@ test("a failing statement rolls back the whole batch", async () => {
 
 test("CHECK constraints reject out-of-range stars", async () => {
   const db = new SqliteDb();
-  await all(db, "INSERT INTO users VALUES ('u', 'a', 'a@b.c', 'h', 's', NULL, 'now')");
+  await all(db, "INSERT INTO users (id, username, email, password_md5, salt, activated_at, created_at) VALUES ('u', 'a', 'a@b.c', 'h', 's', NULL, 'now')");
   await expect(
     all(db, "INSERT INTO level_progress (user_id, level_id, best_stars, updated_at) VALUES ('u', '1.1', 4, 'now')"),
   ).rejects.toThrow(/CHECK/);

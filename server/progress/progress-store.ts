@@ -40,10 +40,12 @@ function patchDraft(patch: Record<string, unknown>): { set: boolean; value: stri
 // and hints take the max. A draft (?8 = 1) replaces the stored one only when its
 // revision ?9 (the client's edit time) is not older, so a slow or retried request
 // cannot bring back older text. Import passes ?8 = 2: an old local draft only
-// fills an empty slot. A new row is refused once the account holds MAX_LEVEL_ROWS.
+// fills an empty slot. first_star_at and stars_at (the ranking's tie-break) move
+// only when the stars really rise; the SET reads the row's old best_stars. A new row is refused once the account holds MAX_LEVEL_ROWS.
 const UPSERT_LEVEL = `
-INSERT INTO level_progress (user_id, level_id, draft, draft_rev, best_stars, runs, hints_opened, updated_at)
-SELECT ?1, ?2, ?3, CASE WHEN ?8 = 1 THEN ?9 ELSE 0 END, ?4, ?5, ?6, ?7
+INSERT INTO level_progress (user_id, level_id, draft, draft_rev, best_stars, runs, hints_opened, updated_at, first_star_at, stars_at)
+SELECT ?1, ?2, ?3, CASE WHEN ?8 = 1 THEN ?9 ELSE 0 END, ?4, ?5, ?6, ?7,
+  CASE WHEN ?4 > 0 THEN ?7 END, CASE WHEN ?4 > 0 THEN ?7 END
 WHERE EXISTS (SELECT 1 FROM level_progress WHERE user_id = ?1 AND level_id = ?2)
    OR (SELECT COUNT(*) FROM level_progress WHERE user_id = ?1) < ${MAX_LEVEL_ROWS}
 ON CONFLICT (user_id, level_id) DO UPDATE SET
@@ -52,6 +54,8 @@ ON CONFLICT (user_id, level_id) DO UPDATE SET
     WHEN ?8 = 2 THEN COALESCE(level_progress.draft, excluded.draft)
     ELSE level_progress.draft END,
   draft_rev = CASE WHEN ?8 = 1 THEN MAX(level_progress.draft_rev, excluded.draft_rev) ELSE level_progress.draft_rev END,
+  first_star_at = COALESCE(level_progress.first_star_at, CASE WHEN excluded.best_stars > 0 THEN excluded.updated_at END),
+  stars_at = CASE WHEN excluded.best_stars > level_progress.best_stars THEN excluded.updated_at ELSE level_progress.stars_at END,
   best_stars = MAX(level_progress.best_stars, excluded.best_stars),
   runs = MAX(level_progress.runs, excluded.runs),
   hints_opened = MAX(level_progress.hints_opened, excluded.hints_opened),
